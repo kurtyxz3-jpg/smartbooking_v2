@@ -1,0 +1,3 @@
+-- SmartBooking Version 2
+-- Database schema intentionally left as a placeholder.
+-- Final tables will be created after the ERD, business rules, and normalization are approved.
