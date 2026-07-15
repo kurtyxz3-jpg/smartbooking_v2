@@ -1,0 +1,1 @@
+<?php include '../includes/superadmin-header.php'; ?><div class='dashboard'><?php include '../includes/superadmin-sidebar.php'; ?><main class='content'><h1>Change Password</h1></main></div><?php include '../includes/superadmin-footer.php'; ?>

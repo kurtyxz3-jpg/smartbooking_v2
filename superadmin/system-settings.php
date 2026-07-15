@@ -1,0 +1,2 @@
+<?php include '../includes/superadmin_header.php'; ?><div class='dashboard'>
+    <?php include '../includes/superadmin_sidebar.php'; ?><main class='content'><h1>System Settings</h1></main></div><?php include '../includes/superadmin_footer.php'; ?>
