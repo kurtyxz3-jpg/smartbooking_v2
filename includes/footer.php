@@ -1,6 +1,5 @@
-<footer class="footer">
-  <p>&copy; <?= date('Y') ?> Nails & Body Worx. UI Prototype Version 2.</p>
+<footer class="site-footer">
+<p>&copy; <?= date('Y') ?> Nails &amp; Body Worx — SmartBooking Version 2</p>
 </footer>
-<script src="/smartbooking_v2/assets/js/main.js"></script>
 </body>
 </html>
