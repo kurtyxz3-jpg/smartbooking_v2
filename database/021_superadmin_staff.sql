@@ -1,0 +1,18 @@
+USE smartbooking_v2;
+
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS phone_number VARCHAR(30) NULL,
+ADD COLUMN IF NOT EXISTS profile_picture VARCHAR(255) NULL,
+ADD COLUMN IF NOT EXISTS created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+CREATE TABLE IF NOT EXISTS staff_profiles (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL UNIQUE,
+    specialty VARCHAR(100) DEFAULT NULL,
+    branch VARCHAR(150) NOT NULL DEFAULT 'Main Branch',
+    employment_status ENUM('full_time','part_time','contractual') NOT NULL DEFAULT 'full_time',
+    hired_at DATE DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_staff_profile_user (user_id)
+);

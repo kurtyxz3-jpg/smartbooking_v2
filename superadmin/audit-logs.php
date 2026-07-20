@@ -12,6 +12,7 @@ $module = trim($_GET['module'] ?? '');
 $sql = "SELECT id, username, action, module, description, ip_address, created_at
         FROM audit_logs
         WHERE 1 = 1";
+
 $params = [];
 
 if ($search !== '') {
@@ -22,6 +23,7 @@ if ($search !== '') {
     )";
 
     $term = '%' . $search . '%';
+
     $params['search_username'] = $term;
     $params['search_action'] = $term;
     $params['search_description'] = $term;
@@ -41,7 +43,8 @@ $logs = $statement->fetchAll();
 $modules = $pdo->query(
     "SELECT DISTINCT module
      FROM audit_logs
-     WHERE module IS NOT NULL AND module <> ''
+     WHERE module IS NOT NULL
+       AND module <> ''
      ORDER BY module"
 )->fetchAll(PDO::FETCH_COLUMN);
 
@@ -59,43 +62,61 @@ include '../includes/superadmin-header.php';
             </div>
         </div>
 
-        <section class="card">
-            <form class="filter-bar audit-filter" method="GET">
+        <section class="card audit-filter-card">
+            <div class="audit-section-heading">
+                <h2>Search &amp; Filter</h2>
+            </div>
+
+            <form class="audit-filter-form" method="GET">
                 <div class="filter-field">
                     <label for="search">Search Logs</label>
-                    <input id="search" name="search" type="text"
-                           value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"
-                           placeholder="Username, action, or description">
+
+                    <input
+                        id="search"
+                        name="search"
+                        type="text"
+                        value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"
+                        placeholder="Username, action, or description"
+                    >
                 </div>
 
                 <div class="filter-field">
                     <label for="module">Module</label>
+
                     <select id="module" name="module">
                         <option value="">All modules</option>
+
                         <?php foreach ($modules as $moduleOption): ?>
-                            <option value="<?= htmlspecialchars($moduleOption, ENT_QUOTES, 'UTF-8') ?>"
-                                <?= $module === $moduleOption ? 'selected' : '' ?>>
+                            <option
+                                value="<?= htmlspecialchars($moduleOption, ENT_QUOTES, 'UTF-8') ?>"
+                                <?= $module === $moduleOption ? 'selected' : '' ?>
+                            >
                                 <?= htmlspecialchars($moduleOption, ENT_QUOTES, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
-                <div class="filter-actions">
-                    <button class="btn btn-gold" type="submit">Filter</button>
-                    <a class="btn btn-light" href="audit-logs.php">Reset</a>
+                <div class="filter-actions audit-filter-actions">
+                    <button class="btn btn-gold" type="submit">
+                        Filter
+                    </button>
+
+                    <a class="btn btn-light" href="audit-logs.php">
+                        Reset
+                    </a>
                 </div>
             </form>
         </section>
 
-        <section class="card table-card">
-            <div class="table-heading">
-                <h3>System Activity</h3>
+        <section class="card audit-table-card">
+            <div class="audit-table-heading">
+                <h2>System Activity</h2>
                 <p><?= count($logs) ?> log record(s) displayed.</p>
             </div>
 
-            <div class="table-wrap">
-                <table>
+            <div class="table-wrap audit-table-wrap">
+                <table class="audit-table">
                     <thead>
                         <tr>
                             <th>Date &amp; Time</th>
@@ -106,20 +127,45 @@ include '../includes/superadmin-header.php';
                             <th>IP Address</th>
                         </tr>
                     </thead>
+
                     <tbody>
                     <?php if (!$logs): ?>
                         <tr>
-                            <td colspan="6" class="empty-state">No audit logs found.</td>
+                            <td colspan="6" class="empty-state">
+                                No audit logs found.
+                            </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($logs as $log): ?>
                             <tr>
-                                <td><?= date('M d, Y h:i A', strtotime($log['created_at'])) ?></td>
-                                <td><?= htmlspecialchars($log['username'], ENT_QUOTES, 'UTF-8') ?></td>
-                                <td><?= htmlspecialchars($log['module'], ENT_QUOTES, 'UTF-8') ?></td>
-                                <td><?= htmlspecialchars($log['action'], ENT_QUOTES, 'UTF-8') ?></td>
-                                <td class="description-cell"><?= htmlspecialchars($log['description'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
-                                <td><?= htmlspecialchars($log['ip_address'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
+                                <td class="audit-date">
+                                    <?= date('M d, Y', strtotime($log['created_at'])) ?>
+                                    <span>
+                                        <?= date('h:i A', strtotime($log['created_at'])) ?>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($log['username'], ENT_QUOTES, 'UTF-8') ?>
+                                </td>
+
+                                <td>
+                                    <span class="audit-module">
+                                        <?= htmlspecialchars($log['module'], ENT_QUOTES, 'UTF-8') ?>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($log['action'], ENT_QUOTES, 'UTF-8') ?>
+                                </td>
+
+                                <td class="audit-description">
+                                    <?= htmlspecialchars($log['description'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($log['ip_address'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>

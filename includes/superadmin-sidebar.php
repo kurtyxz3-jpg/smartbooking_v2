@@ -19,6 +19,26 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             Administrators
         </a>
 
+        <a href="staff.php"
+           class="<?= in_array($currentPage, ['staff.php', 'add-staff.php', 'edit-staff.php', 'staff-roles.php'], true) ? 'active' : '' ?>">
+            Staff Accounts
+        </a>
+
+        <a href="employment-records.php"
+           class="<?= in_array($currentPage, ['employment-records.php', 'add-employment-record.php', 'edit-employment-record.php'], true) ? 'active' : '' ?>">
+            Employment Records
+        </a>
+
+        <a href="sales-analytics.php"
+           class="<?= $currentPage === 'sales-analytics.php' ? 'active' : '' ?>">
+            Sales Analytics
+        </a>
+
+        <a href="reports.php"
+           class="<?= $currentPage === 'reports.php' ? 'active' : '' ?>">
+            Reports
+        </a>
+
         <a href="system-settings.php"
            class="<?= $currentPage === 'system-settings.php' ? 'active' : '' ?>">
             System Settings
@@ -47,7 +67,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <div class="sidebar-divider"></div>
 
         <a href="profile.php"
-           class="<?= in_array($currentPage, ['profile.php', 'change-password.php'], true) ? 'active' : '' ?>">
+           class="<?= in_array($currentPage, ['profile.php', 'edit-profile.php', 'change-password.php'], true) ? 'active' : '' ?>">
             Profile
         </a>
 

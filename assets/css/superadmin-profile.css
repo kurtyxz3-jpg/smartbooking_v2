@@ -1,0 +1,11 @@
+.profile-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px}
+.profile-top{display:flex;gap:20px;align-items:center;margin-bottom:20px}
+.avatar-placeholder,.avatar img{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#f2e6d6;border:3px solid #c89b3c;font-size:2rem;font-weight:700;color:#4b2e1a;object-fit:cover}
+.role-badge{display:inline-block;margin-top:8px;padding:6px 12px;border-radius:999px;background:#e8f6ec;color:#21663D;font-weight:700}
+.profile-fields{display:grid;grid-template-columns:1fr;gap:16px}
+.profile-fields label{display:block;margin-bottom:6px;font-weight:700}
+.profile-fields input{width:100%;padding:12px;border:1px solid #d8c9b5;border-radius:10px}
+.button-row{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+.profile-info{width:100%;border-collapse:collapse}
+.profile-info th,.profile-info td{padding:12px;border-bottom:1px solid #eee;text-align:left}
+@media(max-width:900px){.profile-grid{grid-template-columns:1fr}}

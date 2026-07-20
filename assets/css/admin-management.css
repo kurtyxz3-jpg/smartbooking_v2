@@ -1,0 +1,277 @@
+/* Administrator Management — Table Fit and Visual Polish */
+
+.admins-page-header {
+  margin-bottom: 20px;
+}
+
+.admin-filter-card {
+  padding: 24px;
+}
+
+.admin-section-title {
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.admin-section-title h2,
+.admin-table-heading h2 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.admin-filter-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.admin-filter-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-table-card {
+  margin-top: 18px;
+  padding: 24px;
+}
+
+.admin-table-heading {
+  margin-bottom: 22px;
+  text-align: center;
+}
+
+.admin-table-heading p {
+  margin: 6px 0 0;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 14px;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 1040px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #E7D8C2;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #FFFFFF;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 16px 14px;
+  text-align: center;
+  vertical-align: middle;
+  border-right: 1px solid #EEE8E1;
+  border-bottom: 1px solid #EEE8E1;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.admin-table th:last-child,
+.admin-table td:last-child {
+  border-right: 0;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-table th {
+  background: linear-gradient(180deg, #F6ECDD, #F2E6D6);
+  color: #4B2E1A;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.admin-table td {
+  background: #FFFFFF;
+  color: #2A1A12;
+  line-height: 1.45;
+}
+
+.admin-table tbody tr:hover td {
+  background: #FFFFFF;
+}
+
+/* Balanced column widths */
+.admin-table th:nth-child(1),
+.admin-table td:nth-child(1) {
+  width: 18%;
+}
+
+.admin-table th:nth-child(2),
+.admin-table td:nth-child(2) {
+  width: 17%;
+}
+
+.admin-table th:nth-child(3),
+.admin-table td:nth-child(3) {
+  width: 22%;
+}
+
+.admin-table th:nth-child(4),
+.admin-table td:nth-child(4) {
+  width: 12%;
+}
+
+.admin-table th:nth-child(5),
+.admin-table td:nth-child(5) {
+  width: 15%;
+}
+
+.admin-table th:nth-child(6),
+.admin-table td:nth-child(6) {
+  width: 16%;
+}
+
+/* Better text wrapping for long usernames and email addresses */
+.admin-table td:nth-child(2),
+.admin-table td:nth-child(3) {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Status badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 86px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+}
+
+.badge-success {
+  color: #21663D;
+  background: #E6F5EB;
+  border: 1px solid #BFE3CA;
+  box-shadow: inset 0 0 0 1px rgba(62, 124, 89, 0.05);
+}
+
+.badge-success::before {
+  background: #3E9A61;
+  box-shadow: 0 0 0 3px rgba(62, 154, 97, 0.12);
+}
+
+.badge-inactive {
+  color: #8A2F2C;
+  background: #FCEBEA;
+  border: 1px solid #EEC5C2;
+}
+
+.badge-inactive::before {
+  background: #C85650;
+  box-shadow: 0 0 0 3px rgba(200, 86, 80, 0.12);
+}
+
+/* Action buttons */
+.admin-action-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 8px;
+}
+
+.admin-action-group form {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.admin-action-btn {
+  width: 100%;
+  max-width: 118px;
+  min-height: 38px;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #D8C9B5;
+  border-radius: 10px;
+  background: #FFFDF9;
+  color: #4B2E1A;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(75, 46, 26, 0.06);
+  transform: none;
+}
+
+.admin-action-btn:hover {
+  background: #FFF8EB;
+  border-color: #C89B3C;
+  transform: none;
+}
+
+.admin-action-group > a.admin-action-btn {
+  color: #71501E;
+  background: #FFF8E8;
+  border-color: #E4C98F;
+}
+
+.admin-action-group form:nth-of-type(1) .admin-action-btn {
+  color: #7A571C;
+  background: #FFF7E1;
+  border-color: #E6C780;
+}
+
+.admin-action-danger {
+  color: #A13D38 !important;
+  background: #FFF3F2 !important;
+  border-color: #E6AAA6 !important;
+}
+
+.admin-action-danger:hover {
+  background: #FDE8E6 !important;
+  border-color: #CF7771 !important;
+}
+
+/* Empty table */
+.empty-state {
+  padding: 40px 16px !important;
+  text-align: center !important;
+  color: #74665D;
+}
+
+/* Responsive behavior */
+@media (max-width: 1200px) {
+  .admin-table {
+    min-width: 980px;
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-filter-card,
+  .admin-table-card {
+    padding: 18px;
+  }
+
+  .admin-action-btn {
+    max-width: 108px;
+  }
+}

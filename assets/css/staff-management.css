@@ -1,0 +1,124 @@
+/* Super Admin Staff Management */
+
+.staff-page-header{margin-bottom:20px}
+.staff-header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.staff-filter-card,.staff-table-card,.staff-form-card{padding:24px}
+.staff-section-title,.staff-table-heading{margin-bottom:20px;text-align:center}
+.staff-section-title h2,.staff-table-heading h2{margin:0;font-size:2rem}
+.staff-section-title p,.staff-table-heading p{margin:6px 0 0}
+
+.staff-filter-form{
+  display:grid;
+  grid-template-columns:minmax(260px,1fr) 210px 240px;
+  gap:16px;
+}
+.staff-filter-actions{
+  grid-column:1/-1;
+  margin-top:4px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.staff-table-card{margin-top:18px}
+.staff-table{
+  width:100%;
+  min-width:1180px;
+  table-layout:fixed;
+  border-collapse:separate;
+  border-spacing:0;
+  overflow:hidden;
+  border:1px solid #E7D8C2;
+  border-radius:14px;
+  background:#fff;
+}
+.staff-table th,.staff-table td{
+  padding:15px 12px;
+  text-align:center;
+  vertical-align:middle;
+  border-right:1px solid #EEE8E1;
+  border-bottom:1px solid #EEE8E1;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+.staff-table th:last-child,.staff-table td:last-child{border-right:0}
+.staff-table tbody tr:last-child td{border-bottom:0}
+.staff-table th{
+  color:#4B2E1A;
+  background:linear-gradient(180deg,#F6ECDD,#F2E6D6);
+  font-size:.74rem;
+  font-weight:800;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.staff-table td{background:#fff;line-height:1.45}
+.staff-table tbody tr:hover td{background:#fff}
+.staff-table th:nth-child(1),.staff-table td:nth-child(1){width:17%}
+.staff-table th:nth-child(2),.staff-table td:nth-child(2){width:20%}
+.staff-table th:nth-child(3),.staff-table td:nth-child(3){width:14%}
+.staff-table th:nth-child(4),.staff-table td:nth-child(4){width:12%}
+.staff-table th:nth-child(5),.staff-table td:nth-child(5){width:13%}
+.staff-table th:nth-child(6),.staff-table td:nth-child(6){width:10%}
+.staff-table th:nth-child(7),.staff-table td:nth-child(7){width:14%}
+
+.staff-name-cell,.staff-contact-cell{display:flex;flex-direction:column;gap:4px}
+.staff-name-cell strong{color:#2A1A12}
+.staff-name-cell span,.staff-contact-cell small{color:#74665D;font-size:.78rem}
+.staff-contact-cell span{overflow-wrap:anywhere}
+
+.staff-specialty-badge,.staff-employment-badge{
+  display:inline-flex;
+  justify-content:center;
+  padding:7px 10px;
+  border-radius:999px;
+  font-size:.74rem;
+  font-weight:800;
+}
+.staff-specialty-badge{color:#725012;background:#FFF7E1;border:1px solid #E6C780}
+.staff-employment-badge{color:#4B5F91;background:#EEF1FA;border:1px solid #CBD3EB}
+
+.staff-action-group{display:grid;grid-template-columns:1fr;justify-items:center;gap:8px}
+.staff-action-group form{width:100%;margin:0;display:flex;justify-content:center}
+.staff-action-btn{
+  width:100%;
+  max-width:116px;
+  min-height:38px;
+  padding:8px 12px;
+  border-radius:10px;
+  font-size:.8rem;
+  font-weight:800;
+  cursor:pointer;
+  transform:none;
+}
+.staff-action-edit{color:#71501E;background:#FFF8E8;border:1px solid #E4C98F}
+.staff-action-status{color:#315F82;background:#EEF6FB;border:1px solid #BDD6E6}
+.staff-action-delete{color:#A13D38;background:#FFF3F2;border:1px solid #E6AAA6}
+.staff-action-btn:hover{transform:none}
+
+.staff-form-section+.staff-form-section{
+  margin-top:26px;
+  padding-top:22px;
+  border-top:1px solid #EEE8E1;
+}
+.staff-form-section h2{margin-bottom:16px;font-size:1.8rem}
+.staff-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.staff-span-2{grid-column:span 2}
+
+.staff-role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.staff-role-card{min-height:260px}
+.staff-role-card>span{color:#A97922;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.staff-role-card h2{margin:8px 0 10px;font-size:2rem}
+.staff-role-card>p{line-height:1.7}
+.staff-role-access{margin-top:18px;padding:14px;border-radius:12px;background:#F8F5F0;border:1px solid #E7D8C2}
+.staff-role-access strong{color:#4B2E1A}
+.staff-role-access p{margin:5px 0 0}
+
+@media(max-width:1050px){
+  .staff-filter-form{grid-template-columns:1fr 1fr}
+  .staff-filter-form .filter-field:first-child{grid-column:1/-1}
+}
+@media(max-width:760px){
+  .staff-filter-card,.staff-table-card,.staff-form-card{padding:18px}
+  .staff-filter-form,.staff-form-grid,.staff-role-grid{grid-template-columns:1fr}
+  .staff-filter-form .filter-field:first-child,.staff-span-2{grid-column:auto}
+}

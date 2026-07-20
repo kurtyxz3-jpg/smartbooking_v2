@@ -1,0 +1,18 @@
+/* Replace the existing .footer rule with this */
+
+.footer{
+    margin-top:32px;
+    padding:20px;
+    background:#3A2417;
+    border:1px solid rgba(200,155,60,.20);
+    border-radius:18px;
+    text-align:center;
+    color:#FFFFFF;
+    font-size:15px;
+    font-weight:500;
+    box-shadow:var(--shadow-sm);
+}
+
+.content-footer{
+    margin-top:30px;
+}

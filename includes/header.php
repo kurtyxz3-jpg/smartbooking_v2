@@ -10,7 +10,7 @@
 <header class="site-header">
   <a class="site-brand" href="/smartbooking_v2/index.php">
     <span class="site-brand-mark">N</span>
-    <span class="site-brand-copy">
+    <span class="site-brand-copy">                         
       <strong>NBW</strong>
       <small>Nails &amp; Body Worx</small>
     </span>
