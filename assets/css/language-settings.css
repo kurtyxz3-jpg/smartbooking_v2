@@ -1,0 +1,58 @@
+/* Language Settings */
+
+.language-card {
+  max-width: 920px;
+  padding: 24px;
+}
+
+.language-options {
+  display: grid;
+  gap: 14px;
+}
+
+.language-option {
+  position: relative;
+  margin: 0;
+  padding: 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border: 1px solid #E7D8C2;
+  border-radius: 14px;
+  background: #FFFDF9;
+  cursor: pointer;
+}
+
+.language-option:hover {
+  background: #FFFDF9;
+  transform: none;
+}
+
+.language-option input {
+  width: auto;
+  margin-top: 5px;
+  accent-color: #A97922;
+}
+
+.language-option span,
+.language-option strong,
+.language-option small {
+  display: block;
+}
+
+.language-option strong {
+  color: #4B2E1A;
+  font-size: 1rem;
+}
+
+.language-option small {
+  margin-top: 5px;
+  color: #74665D;
+  line-height: 1.5;
+}
+
+.language-option:has(input:checked) {
+  border-color: #C89B3C;
+  box-shadow: 0 0 0 3px rgba(200,155,60,0.10);
+  background: #FFF8EB;
+}
