@@ -1,54 +1,11 @@
-<footer class="v2-site-footer">
-    <div class="v2-footer-grid">
-        <div>
-            <a class="v2-brand v2-footer-brand" href="/smartbooking_v2/index.php">
-                <span class="v2-brand-symbol">N</span>
-
-                <span>
-                    <strong>Nails &amp; Body Worx</strong>
-                    <small>SmartBooking</small>
-                </span>
-            </a>
-
-            <p>
-                A modern salon experience connecting personalized styling,
-                effortless booking, reminders, payments, and customer care.
-            </p>
-        </div>
-
-        <div>
-            <strong>Explore</strong>
-            <a href="/smartbooking_v2/index.php#services">Services</a>
-            <a href="/smartbooking_v2/customer/ai-generator.php">AI Nail Studio</a>
-            <a href="/smartbooking_v2/customer/book.php">Book appointment</a>
-        </div>
-
-        <div>
-            <strong>Account</strong>
-            <a href="/smartbooking_v2/auth/login.php">Sign in</a>
-            <a href="/smartbooking_v2/customer/dashboard.php">Customer dashboard</a>
-            <a href="/smartbooking_v2/customer/appointments.php">My appointments</a>
-        </div>
-
-        <div>
-            <strong>Salon</strong>
-            <span>Nails &amp; Body Worx</span>
-            <span>Philippines</span>
-            <span>Open by appointment</span>
-        </div>
-    </div>
-
-    <div class="v2-footer-bottom">
-        <p>&copy; <?= date('Y') ?> Nails &amp; Body Worx. All rights reserved.</p>
-        <a href="#siteHeader">Back to top ↑</a>
-    </div>
+<footer class="nbw-footer">
+<div class="nbw-footer-grid">
+<div><a class="nbw-logo" href="/smartbooking_v2/index.php"><span>N</span><div><strong>Nails &amp; Body Worx</strong><small>Beauty Lounge</small></div></a><p>Real services, actual salon imagery, modern booking, and personalized styling.</p></div>
+<div><strong>Explore</strong><a href="/smartbooking_v2/customer/services.php">All services</a><a href="/smartbooking_v2/index.php#gallery">Gallery</a><a href="/smartbooking_v2/customer/ai-generator.php">AI Nail Studio</a></div>
+<div><strong>Account</strong><a href="/smartbooking_v2/auth/register.php">Create account</a><a href="/smartbooking_v2/auth/login.php">Sign in</a><a href="/smartbooking_v2/customer/book.php">Book now</a></div>
+<div><strong>Important</strong><span>Prices may change without prior notice.</span><span>Advanced treatments require consultation.</span><span>Displayed durations are estimates.</span></div>
+</div>
+<div class="nbw-footer-bottom"><p>&copy; <?= date('Y') ?> Nails &amp; Body Worx.</p><a href="#siteHeader">Back to top ↑</a></div>
 </footer>
-
-<a class="v2-floating-book" href="/smartbooking_v2/customer/book.php">
-    <span>Book</span>
-    <b>↗</b>
-</a>
-
-<script src="/smartbooking_v2/assets/js/public-v2.js"></script>
-</body>
-</html>
+<div class="nbw-lightbox" id="lightbox" aria-hidden="true"><button id="lightboxClose">×</button><img id="lightboxImage" alt=""></div>
+<script src="/smartbooking_v2/assets/js/public-v3.js"></script></body></html>

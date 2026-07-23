@@ -1,45 +1,17 @@
 <?php
-$pageTitle = 'Services';
+$pageTitle='Services';
+require_once '../includes/service-catalog.php';
+$category=$_GET['category']??'all';
+$categories=catalogCategories();
+$services=catalogServices($category);
 include '../includes/header.php';
 ?>
-
-<main class="v2-inner-page">
-    <section class="v2-inner-hero">
-        <p class="v2-kicker">Our menu</p>
-        <h1>Choose care that feels made for you.</h1>
-        <p>
-            Clear pricing, service details, and style inspiration help you book
-            with confidence.
-        </p>
-    </section>
-
-    <section class="v2-inner-section">
-        <div class="v2-menu-grid">
-            <article class="v2-menu-card">
-                <span>Signature nails</span>
-                <h2>Gel Manicure</h2>
-                <p>Premium preparation, gel color, and a lasting glossy finish.</p>
-                <div><strong>₱650</strong><small>Estimated 60 minutes</small></div>
-                <a class="v2-btn v2-btn-primary" href="book.php">Book service</a>
-            </article>
-
-            <article class="v2-menu-card">
-                <span>Classic care</span>
-                <h2>Classic Pedicure</h2>
-                <p>Relaxing foot care, shaping, cuticle care, and polish.</p>
-                <div><strong>₱550</strong><small>Estimated 60 minutes</small></div>
-                <a class="v2-btn v2-btn-primary" href="book.php">Book service</a>
-            </article>
-
-            <article class="v2-menu-card v2-menu-card-featured">
-                <span>Personalized design</span>
-                <h2>Custom Nail Art</h2>
-                <p>Bring a reference or create an AI-assisted concept before booking.</p>
-                <div><strong>From ₱800</strong><small>Duration depends on design</small></div>
-                <a class="v2-btn v2-btn-light" href="ai-generator.php">Create a design</a>
-            </article>
-        </div>
-    </section>
-</main>
-
-<?php include '../includes/footer.php'; ?>
+<main class="services-page">
+<section class="services-hero"><p class="eyebrow">Complete service menu</p><h1>Choose the care, treatment, or transformation you need.</h1><p>Actual prices from the supplied pricelists. Displayed durations are scheduling estimates.</p></section>
+<section class="catalog-layout">
+<aside class="catalog-sidebar"><button id="filterToggle">Service categories</button><nav id="catalogFilters"><a class="<?=$category==='all'?'active':''?>" href="services.php">All services <span><?=count(catalogServices())?></span></a><?php foreach($categories as $item):?><a class="<?=$category===$item['slug']?'active':''?>" href="?category=<?=urlencode($item['slug'])?>"><?=htmlspecialchars($item['name'])?><span><?=count(catalogServices($item['slug']))?></span></a><?php endforeach;?></nav><p class="notice">Advanced aesthetic services may require consultation before booking.</p></aside>
+<div class="catalog-main"><div class="toolbar"><div><strong><?=count($services)?> services</strong><span><?=htmlspecialchars(ucwords(str_replace('-',' ',$category)))?></span></div><input id="serviceSearch" type="search" placeholder="Search a service..."></div>
+<div class="catalog-grid"><?php foreach($services as $service):?><article class="catalog-card" data-search="<?=htmlspecialchars(strtolower($service['name'].' '.$service['description']))?>"><a href="service-details.php?name=<?=urlencode($service['name'])?>"><div class="catalog-image"><img loading="lazy" src="<?=htmlspecialchars($service['image'])?>" alt="<?=htmlspecialchars($service['name'])?>"><?php if($service['featured']):?><span>Popular</span><?php endif;?></div><div class="catalog-copy"><p><?=htmlspecialchars(ucwords(str_replace('-',' ',$service['category'])))?></p><h2><?=htmlspecialchars($service['name'])?></h2><em><?=htmlspecialchars($service['description'])?></em><div><strong><?=catalogMoney($service['price'])?></strong><small><?=$service['price_note']?htmlspecialchars($service['price_note']).' · ':''?>Estimated <?=intval($service['duration'])?> min</small></div></div></a></article><?php endforeach;?></div>
+<div id="noResults" class="no-results" hidden>No service matches your search.</div></div>
+</section></main>
+<?php include '../includes/footer.php';?>

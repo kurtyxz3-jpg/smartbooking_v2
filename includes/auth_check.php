@@ -1,19 +1,4 @@
 <?php
-declare(strict_types=1);
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
-
-function requireRole(string $requiredRole): void
-{
-    if (($_SESSION['role'] ?? '') !== $requiredRole) {
-        http_response_code(403);
-        exit('Access denied.');
-    }
-}
+declare(strict_types=1);if(session_status()===PHP_SESSION_NONE){session_start();}
+function requireLogin():void{if(empty($_SESSION['user_id'])||empty($_SESSION['role'])){$_SESSION['login_notice']='Please sign in to continue.';header('Location: ../auth/login.php');exit;}}
+function requireRole(string $requiredRole):void{requireLogin();if(($_SESSION['role']??'')!==$requiredRole){http_response_code(403);$safe=htmlspecialchars($requiredRole,ENT_QUOTES,'UTF-8');exit('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Access Denied</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f7f1e9;font-family:Arial;color:#4e3024}.box{max-width:560px;padding:38px;border-radius:24px;background:#fff;box-shadow:0 22px 60px #0002;text-align:center}a{display:inline-block;margin-top:15px;color:#8d571d;font-weight:700}</style></head><body><div class="box"><h1>Access denied</h1><p>This page is restricted to the '.$safe.' role.</p><a href="../auth/login.php">Return to sign in</a></div></body></html>');}}

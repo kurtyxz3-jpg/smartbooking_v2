@@ -1,0 +1,6 @@
+/.git/
+/config/oauth.local.php
+/uploads/backups/*.sql
+/uploads/profiles/*
+!uploads/profiles/.gitkeep
+*.log

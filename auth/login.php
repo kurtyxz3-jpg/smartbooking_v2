@@ -1,133 +1,17 @@
 <?php
 declare(strict_types=1);
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-require_once __DIR__ . '/../config/database.php';
-
-$roleRedirects = [
-    'super_admin' => '../superadmin/dashboard.php',
-    'admin' => '../admin/dashboard.php',
-    'staff' => '../staff/dashboard.php',
-    'customer' => '../customer/dashboard.php',
-];
-
-if (
-    isset($_SESSION['user_id'], $_SESSION['role']) &&
-    isset($roleRedirects[$_SESSION['role']])
-) {
-    header('Location: ' . $roleRedirects[$_SESSION['role']]);
-    exit;
-}
-
-$error = '';
-$loginValue = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $loginValue = trim($_POST['login'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    if ($loginValue === '' || $password === '') {
-        $error = 'Please enter your username or email and password.';
-    } else {
-        /*
-         * Use two different parameter names.
-         * MySQL PDO with native prepared statements cannot reuse
-         * the same named placeholder twice in one query.
-         */
-        $statement = $pdo->prepare(
-            "SELECT id, fullname, username, email, password, role, status
-             FROM users
-             WHERE username = :username_login
-                OR email = :email_login
-             LIMIT 1"
-        );
-
-        $statement->execute([
-            'username_login' => $loginValue,
-            'email_login' => $loginValue,
-        ]);
-
-        $user = $statement->fetch();
-
-        if (!$user || !password_verify($password, $user['password'])) {
-            $error = 'Invalid username/email or password.';
-        } elseif ($user['status'] !== 'active') {
-            $error = 'Your account is inactive. Please contact the system administrator.';
-        } elseif (!isset($roleRedirects[$user['role']])) {
-            $error = 'This account role is not supported.';
-        } else {
-            session_regenerate_id(true);
-
-            $_SESSION['user_id'] = (int) $user['id'];
-            $_SESSION['fullname'] = $user['fullname'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['role'] = $user['role'];
-
-            header('Location: ' . $roleRedirects[$user['role']]);
-            exit;
-        }
-    }
-}
+if(session_status()===PHP_SESSION_NONE){session_start();}
+require_once __DIR__.'/../config/database.php';
+require_once __DIR__.'/../config/oauth.php';
+$redirects=['super_admin'=>'../superadmin/dashboard.php','admin'=>'../admin/dashboard.php','staff'=>'../staff/dashboard.php','customer'=>'../customer/dashboard.php'];
+if(isset($_SESSION['user_id'],$_SESSION['role'])&&isset($redirects[$_SESSION['role']])){header('Location: '.$redirects[$_SESSION['role']]);exit;}
+$error='';$loginValue='';$notice=$_SESSION['login_notice']??'';unset($_SESSION['login_notice']);
+if($_SERVER['REQUEST_METHOD']==='POST'){$loginValue=trim($_POST['login']??'');$password=$_POST['password']??'';
+ if($loginValue===''||$password===''){$error='Please enter your username or email and password.';}else{
+  $s=$pdo->prepare("SELECT id,fullname,username,email,password,role,status FROM users WHERE username=:u OR email=:e LIMIT 1");$s->execute(['u'=>$loginValue,'e'=>$loginValue]);$user=$s->fetch();
+  if(!$user||!password_verify($password,$user['password'])){$error='Invalid username/email or password.';}elseif($user['status']!=='active'){$error='Your account is inactive. Please contact the system administrator.';}elseif(!isset($redirects[$user['role']])){$error='This account role is not supported.';}else{session_regenerate_id(true);$_SESSION['user_id']=(int)$user['id'];$_SESSION['fullname']=$user['fullname'];$_SESSION['username']=$user['username'];$_SESSION['email']=$user['email'];$_SESSION['role']=$user['role'];
+   $destination=($user['role']==='customer'&&!empty($_SESSION['booking_draft']))?'../customer/book.php?restore=1':$redirects[$user['role']];header('Location: '.$destination);exit;}
+ }}
+$google=oauthProviderEnabled('google');$facebook=oauthProviderEnabled('facebook');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | NBW</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-<div class="auth-wrap">
-    <div class="auth-card">
-        <h2>Welcome Back</h2>
-        <p>Sign in to continue to Nails &amp; Body Worx.</p>
-
-        <?php if ($error !== ''): ?>
-            <div style="margin-bottom:16px;padding:12px 14px;border-radius:12px;background:#FBE7E6;color:#A94442;font-weight:700;">
-                <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
-            </div>
-        <?php endif; ?>
-
-        <form method="POST" action="">
-            <div class="form-group">
-                <label for="login">Username or Email</label>
-                <input
-                    id="login"
-                    name="login"
-                    type="text"
-                    value="<?= htmlspecialchars($loginValue, ENT_QUOTES, 'UTF-8') ?>"
-                    placeholder="Enter username or email"
-                    autocomplete="username"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Enter password"
-                    autocomplete="current-password"
-                    required
-                >
-            </div>
-
-            <button type="submit" class="btn btn-gold" style="width:100%;">
-                Login
-            </button>
-        </form>
-
-        <p style="margin-top:20px;text-align:center;">
-            <a href="../index.php" style="color:#A97922;font-weight:700;">Back to Home</a>
-        </p>
-    </div>
-</div>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign In | NBW</title><link rel="stylesheet" href="../assets/css/customer-auth-v3.css"></head><body class="auth-v3"><main class="auth-layout"><section class="auth-showcase"><a class="auth-brand" href="../index.php"><span>N</span><div><strong>Nails &amp; Body Worx</strong><small>SmartBooking</small></div></a><div class="auth-copy"><p class="auth-kicker">Welcome back</p><h1>Your beauty space is ready when you are.</h1><p>Manage bookings, revisit favorite services, save styling ideas, and keep your salon experience in one place.</p></div><div class="auth-benefits"><div><strong>01</strong><span>Real-time booking management</span></div><div><strong>02</strong><span>AI nail design references</span></div><div><strong>03</strong><span>Personalized customer history</span></div></div></section><section class="auth-form-side"><div class="auth-card"><p class="auth-kicker">Secure account access</p><h2>Sign in.</h2><p>Use your username or email address.</p><?php if($notice):?><div class="auth-alert success"><?=htmlspecialchars($notice)?></div><?php endif;?><?php if($error):?><div class="auth-alert error"><?=htmlspecialchars($error)?></div><?php endif;?><div class="auth-socials"><a class="auth-social <?=$google?'':'disabled'?>" href="<?=$google?'google-login.php':'#'?>" <?=$google?'':'data-disabled-provider="Google"'?>>G &nbsp; Continue with Google</a><a class="auth-social <?=$facebook?'':'disabled'?>" href="<?=$facebook?'facebook-login.php':'#'?>" <?=$facebook?'':'data-disabled-provider="Facebook"'?>>f &nbsp; Continue with Facebook</a></div><div class="auth-divider">or sign in manually</div><form method="post"><div class="auth-field"><label for="login">Username or Email</label><input id="login" name="login" value="<?=htmlspecialchars($loginValue)?>" autocomplete="username" required></div><div class="auth-field"><label for="password">Password</label><div class="auth-password"><input id="password" name="password" type="password" autocomplete="current-password" required><button type="button" data-password="password">Show</button></div></div><div class="auth-row"><label><input type="checkbox" name="remember_login"> Remember this device</label><a href="forgot-password.php">Forgot password?</a></div><button class="auth-submit">Sign in securely ↗</button></form><p class="auth-switch">New to SmartBooking? <a href="register.php">Create a customer account</a></p><a class="auth-back" href="../index.php">← Return to public website</a></div></section></main><script src="../assets/js/customer-auth-v3.js"></script></body></html>
