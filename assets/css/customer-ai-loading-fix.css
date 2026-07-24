@@ -1,0 +1,25 @@
+/* SmartBooking V2 Update 061 — AI loading indicator fix */
+
+/*
+The previous stylesheet assigned display:inline-flex to the loading element.
+That author rule overrode the browser's default [hidden] behavior, which made
+"Creating concepts" and its spinner remain visible even after generation ended.
+*/
+
+.customer-ai-button-loading[hidden],
+.customer-ai-button-label[hidden] {
+  display: none !important;
+}
+
+.customer-ai-button-loading:not([hidden]) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* General protection for dynamically hidden AI Studio sections. */
+.customer-ai-results-panel[hidden],
+.customer-ai-selected-panel[hidden],
+.customer-ai-message[hidden] {
+  display: none !important;
+}

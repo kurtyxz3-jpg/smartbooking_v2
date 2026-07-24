@@ -1,0 +1,302 @@
+/* SmartBooking V2 Update 060 — AI Nail Studio PHP integration */
+
+.customer-ai-heading {
+  align-items: flex-end;
+}
+
+.customer-ai-server-chip {
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #e2c9c3;
+  border-radius: 999px;
+  color: #8f3f36;
+  background: #fff1ef;
+  font-size: .59rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.customer-ai-server-chip span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #b64b41;
+}
+
+.customer-ai-server-chip.online {
+  color: #276342;
+  border-color: #bedfc9;
+  background: #eaf7ef;
+}
+
+.customer-ai-server-chip.online span {
+  background: #3a9662;
+  box-shadow: 0 0 0 5px rgba(58,150,98,.12);
+}
+
+.customer-ai-form-panel {
+  position: relative;
+}
+
+.customer-form-group small {
+  display: block;
+  margin-top: 6px;
+  color: var(--nbw-muted);
+  font-size: .57rem;
+  line-height: 1.4;
+}
+
+.customer-ai-addons {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.customer-ai-addons legend {
+  margin-bottom: 8px;
+  color: var(--nbw-text);
+  font-size: .67rem;
+  font-weight: 800;
+}
+
+.customer-ai-addon-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 8px;
+}
+
+.customer-ai-addon-grid label {
+  min-height: 47px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--nbw-border);
+  border-radius: 12px;
+  color: var(--nbw-text);
+  background: var(--nbw-surface-soft);
+  font-size: .61rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.customer-ai-addon-grid input {
+  width: 17px;
+  height: 17px;
+}
+
+.customer-ai-character-count {
+  margin-top: 5px;
+  color: var(--nbw-muted);
+  font-size: .55rem;
+  text-align: right;
+}
+
+.customer-ai-message {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: .64rem;
+  font-weight: 750;
+}
+
+.customer-ai-message.error {
+  color: #87342e;
+  border: 1px solid #e8bbb7;
+  background: #fff2f0;
+}
+
+.customer-ai-message.success {
+  color: #245d3e;
+  border: 1px solid #bcdcc8;
+  background: #edf8f1;
+}
+
+.customer-ai-generate-button {
+  min-width: 190px;
+}
+
+.customer-ai-button-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.customer-ai-button-loading i {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: customerAiSpin .8s linear infinite;
+}
+
+@keyframes customerAiSpin {
+  to { transform: rotate(360deg); }
+}
+
+.customer-ai-preview-list {
+  margin: 17px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  list-style: none;
+}
+
+.customer-ai-preview-list li {
+  padding-left: 18px;
+  position: relative;
+  color: rgba(255,255,255,.72);
+  font-size: .62rem;
+}
+
+.customer-ai-preview-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #e0b65b;
+  font-weight: 900;
+}
+
+.customer-ai-results-panel,
+.customer-ai-selected-panel {
+  margin-top: 15px;
+}
+
+.customer-ai-result-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 13px;
+}
+
+.customer-ai-result-card {
+  overflow: hidden;
+  border: 1px solid var(--nbw-border);
+  border-radius: 20px;
+  background: var(--nbw-surface);
+  box-shadow: 0 16px 45px rgba(52,31,22,.08);
+}
+
+.customer-ai-result-card.selected {
+  border-color: #bd8c32;
+  box-shadow:
+    0 0 0 3px rgba(189,140,50,.14),
+    0 18px 48px rgba(52,31,22,.12);
+}
+
+.customer-ai-result-card figure {
+  position: relative;
+  height: 330px;
+  margin: 0;
+  overflow: hidden;
+  background: #ede2d7;
+}
+
+.customer-ai-result-card figure img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.customer-ai-result-card figure span {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(44,27,20,.82);
+  font-size: .54rem;
+  font-weight: 850;
+  backdrop-filter: blur(8px);
+}
+
+.customer-ai-result-card-body {
+  padding: 16px;
+}
+
+.customer-ai-result-card-body h3 {
+  margin: 0;
+  color: var(--nbw-text);
+  font-family: "Cormorant Garamond",Georgia,serif;
+  font-size: 1.5rem;
+}
+
+.customer-ai-result-card-body p {
+  min-height: 42px;
+  margin: 7px 0 14px;
+  color: var(--nbw-muted);
+  font-size: .6rem;
+  line-height: 1.5;
+}
+
+.customer-ai-selected-panel {
+  border-color: rgba(75,142,94,.3);
+  background:
+    radial-gradient(circle at 90% 0,rgba(91,166,111,.12),transparent 30%),
+    var(--nbw-surface);
+}
+
+@media (max-width: 950px) {
+  .customer-ai-result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-ai-result-card {
+    display: grid;
+    grid-template-columns: minmax(220px,.85fr) minmax(0,1fr);
+  }
+
+  .customer-ai-result-card figure {
+    height: 280px;
+  }
+}
+
+@media (max-width: 680px) {
+  .customer-ai-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .customer-ai-addon-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-ai-result-card {
+    display: block;
+  }
+
+  .customer-ai-result-card figure {
+    height: 320px;
+  }
+}
+
+
+/* SmartBooking V2 Update 061 — AI loading indicator fix */
+
+/*
+The previous stylesheet assigned display:inline-flex to the loading element.
+That author rule overrode the browser's default [hidden] behavior, which made
+"Creating concepts" and its spinner remain visible even after generation ended.
+*/
+
+.customer-ai-button-loading[hidden],
+.customer-ai-button-label[hidden] {
+  display: none !important;
+}
+
+.customer-ai-button-loading:not([hidden]) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* General protection for dynamically hidden AI Studio sections. */
+.customer-ai-results-panel[hidden],
+.customer-ai-selected-panel[hidden],
+.customer-ai-message[hidden] {
+  display: none !important;
+}
