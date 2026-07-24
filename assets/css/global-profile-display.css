@@ -1,0 +1,158 @@
+/* SmartBooking V2 Update 055 — Global profile photo display */
+
+.role-sidebar-logo-link {
+  display: block;
+  width: 100%;
+}
+
+.role-sidebar-business-logo {
+  width: 150px;
+  height: 76px;
+  margin: 0 0 13px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.28));
+}
+
+.role-sidebar-account {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(239,207,143,.18);
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+}
+
+.role-sidebar-account:hover {
+  background: rgba(255,255,255,.08);
+}
+
+.role-sidebar-avatar {
+  width: 43px;
+  height: 43px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(239,207,143,.55);
+  border-radius: 13px;
+  color: #f2d18c;
+  background:
+    radial-gradient(circle at 75% 10%,rgba(231,190,107,.25),transparent 35%),
+    #251812;
+  font-family: Georgia,serif;
+  font-size: .92rem;
+}
+
+.role-sidebar-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.role-sidebar-account-copy {
+  min-width: 0;
+  display: block;
+}
+
+.role-sidebar-account-copy strong,
+.role-sidebar-account-copy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-sidebar-account-copy strong {
+  color: #fffaf4;
+  font-size: .67rem;
+  font-weight: 800;
+}
+
+.role-sidebar-account-copy small {
+  margin-top: 3px;
+  color: rgba(255,255,255,.56);
+  font-size: .52rem;
+}
+
+.admin-sidebar-brand > p,
+.staff-sidebar-brand > p,
+.sidebar-brand > p {
+  display: none;
+}
+
+.admin-sidebar-brand,
+.staff-sidebar-brand,
+.sidebar-brand {
+  align-items: stretch !important;
+}
+
+@media (max-width: 760px) {
+  .role-sidebar-business-logo {
+    width: 132px;
+    height: 68px;
+  }
+
+  .role-sidebar-account {
+    padding: 8px;
+  }
+
+  .role-sidebar-avatar {
+    width: 39px;
+    height: 39px;
+  }
+}
+
+
+/* Update 056 — resilient business-logo rendering */
+.role-sidebar-business-logo {
+  min-width: 120px;
+  min-height: 58px;
+  color: transparent;
+  font-size: 0;
+}
+
+.role-sidebar-logo-link {
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+}
+
+.role-sidebar-business-logo:not([src]),
+.role-sidebar-business-logo[src=""] {
+  visibility: hidden;
+}
+
+
+/* Update 057 — Official black-background NBW logo */
+.role-sidebar-logo-link {
+  min-height: 92px;
+  justify-content: flex-start;
+}
+
+.role-sidebar-business-logo {
+  width: 150px;
+  height: 90px;
+  min-width: 150px;
+  min-height: 90px;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 7px 12px rgba(0,0,0,.34))
+    brightness(1.02);
+}
+
+@media (max-width: 760px) {
+  .role-sidebar-business-logo {
+    width: 135px;
+    height: 81px;
+    min-width: 135px;
+    min-height: 81px;
+  }
+}

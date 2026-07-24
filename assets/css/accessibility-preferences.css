@@ -1,0 +1,1018 @@
+/*
+|--------------------------------------------------------------------------
+| NBW Language and Appearance Preferences
+|--------------------------------------------------------------------------
+| Default = current brown, gold, and cream brand.
+| Light   = brighter neutral background with high contrast.
+| Dark    = dark chocolate background with accessible light text.
+*/
+
+:root {
+  --nbw-page-bg: #f7f1e9;
+  --nbw-surface: #ffffff;
+  --nbw-surface-soft: #fbf7f1;
+  --nbw-text: #211512;
+  --nbw-text-muted: #786a62;
+  --nbw-border: rgba(65, 38, 28, 0.15);
+  --nbw-accent: #bd8b37;
+  --nbw-accent-strong: #8d571d;
+  --nbw-focus: #2f6fda;
+  color-scheme: light;
+}
+
+html[data-theme="light"] {
+  --nbw-page-bg: #f6f7f9;
+  --nbw-surface: #ffffff;
+  --nbw-surface-soft: #f0f2f5;
+  --nbw-text: #161616;
+  --nbw-text-muted: #555b63;
+  --nbw-border: rgba(22, 22, 22, 0.20);
+  --nbw-accent: #9d6d1f;
+  --nbw-accent-strong: #71470f;
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  --nbw-page-bg: #171310;
+  --nbw-surface: #241d19;
+  --nbw-surface-soft: #2e2520;
+  --nbw-text: #fffaf2;
+  --nbw-text-muted: #d2c5bb;
+  --nbw-border: rgba(255, 250, 242, 0.18);
+  --nbw-accent: #e2bd70;
+  --nbw-accent-strong: #f2d797;
+  color-scheme: dark;
+}
+
+html[data-theme="light"] body,
+html[data-theme="dark"] body {
+  color: var(--nbw-text) !important;
+  background: var(--nbw-page-bg) !important;
+}
+
+html[data-theme="light"] .nbw-public,
+html[data-theme="light"] .customer-v2-body,
+html[data-theme="light"] .auth-v3,
+html[data-theme="dark"] .nbw-public,
+html[data-theme="dark"] .customer-v2-body,
+html[data-theme="dark"] .auth-v3 {
+  color: var(--nbw-text) !important;
+  background: var(--nbw-page-bg) !important;
+}
+
+html[data-theme="light"] :where(
+  .nbw-header,
+  .service-card,
+  .catalog-card,
+  .booking-wizard-shell,
+  .customer-panel,
+  .customer-stat-grid article,
+  .auth-card,
+  .card
+),
+html[data-theme="dark"] :where(
+  .nbw-header,
+  .service-card,
+  .catalog-card,
+  .booking-wizard-shell,
+  .customer-panel,
+  .customer-stat-grid article,
+  .auth-card,
+  .card
+) {
+  color: var(--nbw-text) !important;
+  background: var(--nbw-surface) !important;
+  border-color: var(--nbw-border) !important;
+}
+
+html[data-theme="dark"] :where(
+  .nbw-header,
+  .customer-topbar
+) {
+  background: rgba(36, 29, 25, 0.94) !important;
+}
+
+html[data-theme="light"] :where(
+  input,
+  select,
+  textarea
+),
+html[data-theme="dark"] :where(
+  input,
+  select,
+  textarea
+) {
+  color: var(--nbw-text) !important;
+  background: var(--nbw-surface) !important;
+  border-color: var(--nbw-border) !important;
+}
+
+html[data-theme="light"] :where(
+  p,
+  small,
+  .lead,
+  .field-note
+),
+html[data-theme="dark"] :where(
+  p,
+  small,
+  .lead,
+  .field-note
+) {
+  color: var(--nbw-text-muted);
+}
+
+html[data-theme="dark"] :where(
+  h1,
+  h2,
+  h3,
+  h4,
+  strong,
+  label,
+  .nbw-nav a,
+  .customer-nav a
+) {
+  color: var(--nbw-text);
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--nbw-focus) !important;
+  outline-offset: 3px !important;
+}
+
+/* Floating accessibility widget */
+.nbw-preferences {
+  position: fixed;
+  z-index: 1000;
+  right: 22px;
+  bottom: 22px;
+  font-family: "DM Sans", Arial, sans-serif;
+}
+
+.nbw-preferences-trigger {
+  min-height: 52px;
+  padding: 7px 16px 7px 7px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--nbw-border);
+  border-radius: 999px;
+  color: var(--nbw-text);
+  background: var(--nbw-surface);
+  box-shadow: 0 16px 42px rgba(35, 20, 14, 0.20);
+  cursor: pointer;
+}
+
+.nbw-preferences-trigger > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(145deg, var(--nbw-accent), var(--nbw-accent-strong));
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+}
+
+.nbw-preferences-trigger strong {
+  color: inherit;
+  font-size: 0.72rem;
+}
+
+.nbw-preferences-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  width: min(370px, calc(100vw - 28px));
+  padding: 20px;
+  display: none;
+  border: 1px solid var(--nbw-border);
+  border-radius: 23px;
+  color: var(--nbw-text);
+  background: var(--nbw-surface);
+  box-shadow: 0 24px 70px rgba(30, 17, 12, 0.28);
+}
+
+.nbw-preferences-panel.open {
+  display: block;
+  animation: nbwPreferencesEnter 170ms ease-out;
+}
+
+@keyframes nbwPreferencesEnter {
+  from {
+    opacity: 0;
+    transform: translateY(9px) scale(0.98);
+  }
+}
+
+.nbw-preferences-panel header {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.nbw-preferences-panel header small {
+  display: block;
+  color: var(--nbw-accent);
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nbw-preferences-panel h2 {
+  margin: 5px 0 0;
+  color: var(--nbw-text);
+  font-family: Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 500;
+}
+
+.nbw-preferences-close {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--nbw-border);
+  border-radius: 50%;
+  color: var(--nbw-text);
+  background: var(--nbw-surface-soft);
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.nbw-preference-group + .nbw-preference-group {
+  margin-top: 19px;
+  padding-top: 19px;
+  border-top: 1px solid var(--nbw-border);
+}
+
+.nbw-preference-group > span {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--nbw-text);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.nbw-preference-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.nbw-preference-options button {
+  min-height: 42px;
+  border: 1px solid var(--nbw-border);
+  border-radius: 11px;
+  color: var(--nbw-text-muted);
+  background: var(--nbw-surface-soft);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nbw-preference-options button.active {
+  color: #fff;
+  border-color: var(--nbw-accent-strong);
+  background: var(--nbw-accent-strong);
+}
+
+.nbw-theme-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.nbw-theme-options button {
+  padding: 8px;
+  border: 1px solid var(--nbw-border);
+  border-radius: 13px;
+  color: var(--nbw-text-muted);
+  background: var(--nbw-surface-soft);
+  font: inherit;
+  font-size: 0.67rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nbw-theme-options button.active {
+  color: var(--nbw-text);
+  border-color: var(--nbw-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--nbw-accent) 22%, transparent);
+}
+
+.nbw-theme-options button > span {
+  display: block;
+  margin-top: 7px;
+}
+
+.nbw-theme-preview {
+  height: 48px;
+  display: block;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.13);
+  border-radius: 9px;
+}
+
+.nbw-theme-preview-default {
+  background:
+    linear-gradient(90deg, #4e3024 0 24%, transparent 24%),
+    linear-gradient(#ffffff 0 63%, #f7f1e9 63%);
+}
+
+.nbw-theme-preview-light {
+  background:
+    linear-gradient(90deg, #d8dce2 0 24%, transparent 24%),
+    linear-gradient(#ffffff 0 63%, #f3f5f8 63%);
+}
+
+.nbw-theme-preview-dark {
+  border-color: rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(90deg, #0f0d0c 0 24%, transparent 24%),
+    linear-gradient(#2b2420 0 63%, #171310 63%);
+}
+
+.nbw-preferences-note {
+  margin: 16px 0 0;
+  color: var(--nbw-text-muted);
+  font-size: 0.63rem;
+  line-height: 1.5;
+}
+
+.nbw-preferences-status {
+  min-height: 18px;
+  margin-top: 6px;
+  color: var(--nbw-accent-strong);
+  font-size: 0.64rem;
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .nbw-preferences {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .nbw-preferences-trigger {
+    width: 52px;
+    padding: 7px;
+  }
+
+  .nbw-preferences-trigger strong {
+    display: none;
+  }
+
+  .nbw-preferences-panel {
+    position: fixed;
+    right: 10px;
+    bottom: 75px;
+    left: 10px;
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nbw-preferences-panel.open {
+    animation: none;
+  }
+}
+
+
+/* ==========================================================================
+   UPDATE 037 — COMPONENT-SPECIFIC THEME CONTRAST
+   These rules intentionally override inherited colors from public-v3.css.
+   ========================================================================== */
+
+/* ---------- Light mode ---------- */
+html[data-theme="light"] {
+  --nbw-page-bg: #f2f4f7;
+  --nbw-surface: #ffffff;
+  --nbw-surface-soft: #f7f8fa;
+  --nbw-text: #15171a;
+  --nbw-text-muted: #505862;
+  --nbw-border: #c8ced6;
+  --nbw-accent: #946516;
+  --nbw-accent-strong: #68450d;
+  --nbw-focus: #145fc1;
+}
+
+html[data-theme="light"] body,
+html[data-theme="light"] .nbw-public {
+  color: #15171a !important;
+  background: #f2f4f7 !important;
+}
+
+html[data-theme="light"] :where(
+  .nbw-hero,
+  .section,
+  .packages,
+  .services-page,
+  .detail-page,
+  .booking-v3-page
+) {
+  color: #15171a !important;
+  background-color: #f2f4f7 !important;
+}
+
+html[data-theme="light"] :where(
+  .service-card,
+  .catalog-card,
+  .package-list article,
+  .package-main > div,
+  .booking-wizard-shell,
+  .booking-service-card,
+  .booking-staff-card,
+  .booking-date-card,
+  .detail-notes article,
+  .customer-panel,
+  .auth-card,
+  .card
+) {
+  color: #15171a !important;
+  background: #ffffff !important;
+  border-color: #c8ced6 !important;
+}
+
+html[data-theme="light"] :where(
+  .service-copy h3,
+  .catalog-copy h2,
+  .package-list h3,
+  .package-main h2,
+  .detail-copy h1,
+  .detail-notes h2,
+  .section-heading h2,
+  .services-hero h1,
+  .nbw-hero h1
+) {
+  color: #15171a !important;
+}
+
+html[data-theme="light"] :where(
+  .service-copy p,
+  .catalog-copy em,
+  .section-heading p,
+  .services-hero > p:last-child,
+  .detail-copy > p:not(.eyebrow),
+  .detail-notes p,
+  .lead
+) {
+  color: #505862 !important;
+}
+
+html[data-theme="light"] :where(
+  .service-copy strong,
+  .catalog-copy strong,
+  .package-list strong,
+  .package-main strong,
+  .detail-price strong
+) {
+  color: #352011 !important;
+}
+
+html[data-theme="light"] .lookbook {
+  color: #ffffff !important;
+  background: #2a1d18 !important;
+}
+
+html[data-theme="light"] .lookbook :where(h2, .eyebrow) {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .lookbook-copy > p:not(.eyebrow) {
+  color: #e0d7d1 !important;
+}
+
+html[data-theme="light"] .visit {
+  color: #ffffff !important;
+  background: #3f2a21 !important;
+}
+
+html[data-theme="light"] .visit :where(h2, .eyebrow) {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .visit p:not(.eyebrow) {
+  color: #e7ddd7 !important;
+}
+
+html[data-theme="light"] .nbw-footer {
+  color: #e5ddd8 !important;
+  background: #17100d !important;
+}
+
+html[data-theme="light"] .nbw-footer :where(strong, a) {
+  color: #ffffff !important;
+}
+
+/* ---------- Dark mode ---------- */
+html[data-theme="dark"] {
+  --nbw-page-bg: #14110f;
+  --nbw-surface: #26211e;
+  --nbw-surface-soft: #302925;
+  --nbw-text: #fffaf4;
+  --nbw-text-muted: #d5cbc4;
+  --nbw-border: #5a4e47;
+  --nbw-accent: #f0c77a;
+  --nbw-accent-strong: #d5a84f;
+  --nbw-focus: #7db5ff;
+}
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] .nbw-public {
+  color: #fffaf4 !important;
+  background: #14110f !important;
+}
+
+html[data-theme="dark"] :where(
+  .nbw-hero,
+  .section,
+  .packages,
+  .services-page,
+  .detail-page,
+  .booking-v3-page
+) {
+  color: #fffaf4 !important;
+  background-color: #14110f !important;
+  background-image: none !important;
+}
+
+html[data-theme="dark"] :where(
+  .service-card,
+  .catalog-card,
+  .package-list article,
+  .package-main > div,
+  .booking-wizard-shell,
+  .booking-service-card,
+  .booking-staff-card,
+  .booking-date-card,
+  .detail-notes article,
+  .customer-panel,
+  .auth-card,
+  .card
+) {
+  color: #fffaf4 !important;
+  background: #26211e !important;
+  border-color: #5a4e47 !important;
+}
+
+html[data-theme="dark"] :where(
+  .service-copy h3,
+  .catalog-copy h2,
+  .package-list h3,
+  .package-main h2,
+  .detail-copy h1,
+  .detail-notes h2,
+  .section-heading h2,
+  .services-hero h1,
+  .nbw-hero h1,
+  .booking-step-heading h2,
+  .booking-summary h2
+) {
+  color: #fffaf4 !important;
+}
+
+html[data-theme="dark"] :where(
+  .service-copy p,
+  .catalog-copy em,
+  .section-heading p,
+  .services-hero > p:last-child,
+  .detail-copy > p:not(.eyebrow),
+  .detail-notes p,
+  .lead,
+  .booking-step-heading > p,
+  .booking-time-heading span
+) {
+  color: #d5cbc4 !important;
+}
+
+html[data-theme="dark"] :where(
+  .service-copy strong,
+  .catalog-copy strong,
+  .package-list strong,
+  .package-main strong,
+  .detail-price strong,
+  .booking-summary-total strong
+) {
+  color: #f0c77a !important;
+}
+
+html[data-theme="dark"] :where(
+  .service-copy small,
+  .catalog-copy small,
+  .booking-service-card-copy em,
+  .booking-staff-card em
+) {
+  color: #c8bcb4 !important;
+}
+
+html[data-theme="dark"] :where(
+  .service-copy > div,
+  .catalog-copy > div,
+  .detail-price,
+  .booking-step-footer
+) {
+  border-color: #5a4e47 !important;
+}
+
+html[data-theme="dark"] .package-main > div {
+  background: rgba(38, 33, 30, 0.96) !important;
+}
+
+html[data-theme="dark"] .package-main :where(h2, strong, a) {
+  color: #fffaf4 !important;
+}
+
+html[data-theme="dark"] .package-main .eyebrow {
+  color: #f0c77a !important;
+}
+
+html[data-theme="dark"] .lookbook {
+  color: #fffaf4 !important;
+  background: #0e0c0b !important;
+}
+
+html[data-theme="dark"] .lookbook :where(h2, .eyebrow) {
+  color: #fffaf4 !important;
+}
+
+html[data-theme="dark"] .lookbook-copy > p:not(.eyebrow) {
+  color: #d5cbc4 !important;
+}
+
+html[data-theme="dark"] .gallery-tabs button {
+  color: #eee4de !important;
+  border-color: #6a5b53 !important;
+  background: #211c19 !important;
+}
+
+html[data-theme="dark"] .gallery-tabs button.active {
+  color: #1d130d !important;
+  background: #f0c77a !important;
+}
+
+html[data-theme="dark"] .visit {
+  color: #fffaf4 !important;
+  background: #211a17 !important;
+}
+
+html[data-theme="dark"] .visit :where(h2, .eyebrow) {
+  color: #fffaf4 !important;
+}
+
+html[data-theme="dark"] .visit p:not(.eyebrow) {
+  color: #d5cbc4 !important;
+}
+
+html[data-theme="dark"] .pricelists {
+  color: #fffaf4 !important;
+  background: #1b1714 !important;
+}
+
+html[data-theme="dark"] .price-scroll button {
+  border-color: #5a4e47 !important;
+  background: #26211e !important;
+}
+
+html[data-theme="dark"] .category-strip {
+  background: #0e0c0b !important;
+}
+
+html[data-theme="dark"] .nbw-footer {
+  color: #d9cec7 !important;
+  background: #090807 !important;
+}
+
+html[data-theme="dark"] .nbw-footer :where(strong, a) {
+  color: #fffaf4 !important;
+}
+
+/* Header and navigation readability */
+html[data-theme="light"] .nbw-header {
+  color: #15171a !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: #c8ced6 !important;
+}
+
+html[data-theme="light"] .nbw-nav a {
+  color: #1e242a !important;
+}
+
+html[data-theme="dark"] .nbw-header {
+  color: #fffaf4 !important;
+  background: rgba(30, 25, 22, 0.96) !important;
+  border-color: #5a4e47 !important;
+}
+
+html[data-theme="dark"] .nbw-nav a {
+  color: #fffaf4 !important;
+}
+
+html[data-theme="dark"] .nbw-logo small,
+html[data-theme="dark"] .nbw-logo strong {
+  color: #fffaf4 !important;
+}
+
+/* Inputs, filters, buttons, and modal surfaces */
+html[data-theme="dark"] :where(
+  input,
+  select,
+  textarea,
+  .toolbar,
+  .catalog-sidebar > button,
+  .nbw-preferences-panel,
+  .nbw-preferences-trigger
+) {
+  color: #fffaf4 !important;
+  background: #26211e !important;
+  border-color: #5a4e47 !important;
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: #b7aaa2 !important;
+  opacity: 1;
+}
+
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder {
+  color: #68717b !important;
+  opacity: 1;
+}
+
+/* Prevent transparent/white text caused by inherited section colors */
+html[data-theme="light"] .package-list article *,
+html[data-theme="light"] .service-card *,
+html[data-theme="light"] .catalog-card * {
+  text-shadow: none !important;
+}
+
+html[data-theme="dark"] .package-list article *,
+html[data-theme="dark"] .service-card *,
+html[data-theme="dark"] .catalog-card * {
+  text-shadow: none !important;
+}
+
+/* High contrast selection and accessibility */
+html[data-theme="dark"] ::selection {
+  color: #17110d;
+  background: #f0c77a;
+}
+
+html[data-theme="light"] ::selection {
+  color: #ffffff;
+  background: #68450d;
+}
+
+
+/* ==========================================================================
+   UPDATE 038 — MISSED COMPONENTS AND AUTH CONTRAST
+   ========================================================================== */
+
+/* Floating AI note on the homepage */
+html[data-theme="light"] .floating {
+  color: #1b1714 !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  border: 1px solid #c8ced6 !important;
+}
+
+html[data-theme="light"] .floating small {
+  color: #82560f !important;
+}
+
+html[data-theme="light"] .floating strong {
+  color: #1b1714 !important;
+}
+
+html[data-theme="dark"] .floating {
+  color: #fffaf4 !important;
+  background: rgba(38, 33, 30, 0.97) !important;
+  border: 1px solid #655850 !important;
+}
+
+html[data-theme="dark"] .floating small {
+  color: #f0c77a !important;
+}
+
+html[data-theme="dark"] .floating strong {
+  color: #fffaf4 !important;
+}
+
+/* Service category sidebar */
+html[data-theme="light"] .catalog-sidebar nav a {
+  color: #39414a !important;
+}
+
+html[data-theme="light"] .catalog-sidebar nav a span {
+  color: #555f69 !important;
+}
+
+html[data-theme="light"] .catalog-sidebar nav a.active {
+  color: #ffffff !important;
+  background: #5a3425 !important;
+}
+
+html[data-theme="light"] .catalog-sidebar nav a.active span {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .catalog-sidebar nav a {
+  color: #d9cec7 !important;
+}
+
+html[data-theme="dark"] .catalog-sidebar nav a span {
+  color: #c5b7ae !important;
+}
+
+html[data-theme="dark"] .catalog-sidebar nav a:hover {
+  color: #ffffff !important;
+  background: #302722 !important;
+}
+
+html[data-theme="dark"] .catalog-sidebar nav a.active {
+  color: #ffffff !important;
+  background: #6c3e2c !important;
+}
+
+html[data-theme="dark"] .catalog-sidebar nav a.active span {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .notice {
+  color: #5a452d !important;
+  background: #fff4df !important;
+  border: 1px solid #e3c58e !important;
+}
+
+html[data-theme="dark"] .notice {
+  color: #fff3de !important;
+  background: #3a2d20 !important;
+  border: 1px solid #7d6240 !important;
+}
+
+/* Services toolbar and category count */
+html[data-theme="dark"] .toolbar {
+  color: #fffaf4 !important;
+  background: #26211e !important;
+  border-color: #5a4e47 !important;
+}
+
+html[data-theme="dark"] .toolbar strong {
+  color: #fffaf4 !important;
+}
+
+html[data-theme="dark"] .toolbar span {
+  color: #d5cbc4 !important;
+}
+
+/* Service cards */
+html[data-theme="dark"] .catalog-copy > p {
+  color: #f0c77a !important;
+}
+
+html[data-theme="dark"] .catalog-copy h2,
+html[data-theme="dark"] .catalog-copy em,
+html[data-theme="dark"] .catalog-copy strong,
+html[data-theme="dark"] .catalog-copy small {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .catalog-copy > p {
+  color: #805713 !important;
+}
+
+/* Sign-in and registration layouts */
+html[data-theme="light"] .auth-v3,
+html[data-theme="light"] .customer-auth-body {
+  color: #161616 !important;
+  background: #f3f5f7 !important;
+}
+
+html[data-theme="light"] :where(
+  .auth-form-side,
+  .customer-auth-form-section
+) {
+  background: #f3f5f7 !important;
+}
+
+html[data-theme="light"] :where(
+  .auth-card,
+  .customer-auth-form-shell
+) {
+  color: #161616 !important;
+  background: #ffffff !important;
+  border-color: #c8ced6 !important;
+}
+
+html[data-theme="light"] :where(
+  .auth-card h2,
+  .auth-card label,
+  .auth-card strong,
+  .customer-auth-form-shell h2,
+  .customer-auth-form-shell label
+) {
+  color: #161616 !important;
+}
+
+html[data-theme="light"] :where(
+  .auth-card p,
+  .auth-switch,
+  .customer-auth-form-heading > p:last-child,
+  .customer-auth-switch
+) {
+  color: #505862 !important;
+}
+
+html[data-theme="dark"] .auth-v3,
+html[data-theme="dark"] .customer-auth-body {
+  color: #fffaf4 !important;
+  background: #14110f !important;
+}
+
+html[data-theme="dark"] :where(
+  .auth-form-side,
+  .customer-auth-form-section
+) {
+  background: #14110f !important;
+}
+
+html[data-theme="dark"] :where(
+  .auth-card,
+  .customer-auth-form-shell
+) {
+  color: #fffaf4 !important;
+  background: #26211e !important;
+  border-color: #5a4e47 !important;
+}
+
+html[data-theme="dark"] :where(
+  .auth-card h2,
+  .auth-card label,
+  .auth-card strong,
+  .customer-auth-form-shell h2,
+  .customer-auth-form-shell label
+) {
+  color: #fffaf4 !important;
+}
+
+html[data-theme="dark"] :where(
+  .auth-card p,
+  .auth-switch,
+  .customer-auth-form-heading > p:last-child,
+  .customer-auth-switch,
+  .auth-row label
+) {
+  color: #d5cbc4 !important;
+}
+
+html[data-theme="dark"] :where(
+  .auth-field input,
+  .auth-password input,
+  .customer-auth-field input,
+  .customer-auth-field select
+) {
+  color: #fffaf4 !important;
+  background: #1b1714 !important;
+  border-color: #685950 !important;
+}
+
+html[data-theme="dark"] :where(
+  .auth-social,
+  .customer-social-button
+) {
+  color: #fffaf4 !important;
+  background: #302925 !important;
+  border-color: #685950 !important;
+}
+
+html[data-theme="dark"] .auth-divider {
+  color: #c9bdb5 !important;
+}
+
+html[data-theme="dark"] .auth-divider::before,
+html[data-theme="dark"] .auth-divider::after {
+  background: #5a4e47 !important;
+}
+
+html[data-theme="dark"] .auth-back,
+html[data-theme="dark"] .auth-switch a,
+html[data-theme="dark"] .auth-row a,
+html[data-theme="dark"] .customer-auth-switch a {
+  color: #f0c77a !important;
+}
+
+/* Mobile service filter button */
+html[data-theme="dark"] .catalog-sidebar > button {
+  color: #fffaf4 !important;
+  background: #26211e !important;
+  border-color: #5a4e47 !important;
+}
+
+/* Prevent hidden/washed-out content in all themes */
+html[data-theme="light"] :where(.floating, .catalog-sidebar, .catalog-card, .auth-card) *,
+html[data-theme="dark"] :where(.floating, .catalog-sidebar, .catalog-card, .auth-card) * {
+  text-shadow: none !important;
+}

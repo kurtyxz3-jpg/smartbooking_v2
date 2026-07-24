@@ -1,0 +1,3 @@
+<FilesMatch "^(oauth-credentials\.php)$">
+    Require all denied
+</FilesMatch>

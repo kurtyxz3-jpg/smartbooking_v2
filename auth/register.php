@@ -7,6 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once '../config/database.php';
 require_once '../config/oauth.php';
+require_once '../includes/language.php';
 
 if (!empty($_SESSION['user_id'])) {
     $role = $_SESSION['role'] ?? '';
@@ -265,7 +266,7 @@ $googleEnabled = oauthProviderEnabled('google');
 $facebookEnabled = oauthProviderEnabled('facebook');
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($languageCode, ENT_QUOTES, 'UTF-8') ?>" data-theme="<?= htmlspecialchars($themeMode, ENT_QUOTES, 'UTF-8') ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -273,14 +274,22 @@ $facebookEnabled = oauthProviderEnabled('facebook');
     <title>Create Account | Nails &amp; Body Worx</title>
 
     <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/theme-bootstrap.js"></script>
     <link rel="stylesheet" href="../assets/css/customer-auth-v2.css">
+    <link rel="stylesheet" href="../assets/css/accessibility-preferences.css">
+    <link rel="icon" type="image/png" href="../assets/images/branding/nbw-favicon.png">
+    <link rel="stylesheet" href="../assets/css/official-logo.css">
 </head>
 
 <body class="customer-auth-body">
 <main class="customer-auth-layout">
     <section class="customer-auth-showcase">
         <a class="customer-auth-brand" href="../index.php">
-            <span>N</span>
+            <img
+    class="nbw-official-logo auth-brand-logo"
+    src="../assets/images/branding/nbw-official-logo.webp"
+    alt="Nails and Body Worx official logo"
+>
 
             <div>
                 <strong>Nails &amp; Body Worx</strong>
@@ -563,6 +572,8 @@ $facebookEnabled = oauthProviderEnabled('facebook');
     </div>
 </div>
 
+<?php include __DIR__ . '/../includes/display-preferences-widget.php'; ?>
 <script src="../assets/js/customer-auth-v2.js"></script>
+<script src="../assets/js/accessibility-preferences.js"></script>
 </body>
 </html>

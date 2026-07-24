@@ -1,1 +1,22 @@
-document.querySelectorAll('[data-password]').forEach(b=>b.addEventListener('click',()=>{const i=document.getElementById(b.dataset.password);if(!i)return;const show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'Hide':'Show'}));document.querySelectorAll('[data-disabled-provider]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();alert(`${a.dataset.disabledProvider} login needs its Client ID and Secret in config/oauth.php.`)}));
+document.querySelectorAll('[data-password]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const input = document.getElementById(button.dataset.password);
+    if (!input) return;
+
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    button.textContent = show ? 'Hide' : 'Show';
+  });
+});
+
+document.querySelectorAll('[data-disabled-provider]').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    window.location.href =
+      '/smartbooking_v2/auth/oauth-status.php?provider='
+      + encodeURIComponent(
+          String(link.dataset.disabledProvider || '').toLowerCase()
+        );
+  });
+});

@@ -1,0 +1,233 @@
+/* SmartBooking V2 Update 058 — Customer profile redesign */
+
+/*
+|--------------------------------------------------------------------------
+| Customer header profile picture
+|--------------------------------------------------------------------------
+*/
+
+.customer-profile-link > .customer-header-profile-photo {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  padding: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(177, 125, 35, 0.34);
+  border-radius: 14px;
+  color: #fff;
+  background:
+    radial-gradient(
+      circle at 75% 12%,
+      rgba(226, 184, 96, 0.24),
+      transparent 35%
+    ),
+    #44291f;
+  box-shadow: 0 8px 20px rgba(54, 31, 22, 0.13);
+}
+
+.customer-header-profile-photo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.customer-header-profile-photo b {
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Customer My Account hero
+|--------------------------------------------------------------------------
+| The three low-value boxes are removed for customer accounts.
+| The profile image becomes the main visual focus.
+*/
+
+.account-center-customer-hero {
+  min-height: 345px;
+  padding: 38px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.account-center-customer-hero .account-center-identity {
+  width: 100%;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 17px;
+}
+
+.account-center-customer-hero .account-center-avatar {
+  width: 170px;
+  height: 170px;
+  border-width: 3px;
+  border-radius: 34px;
+  box-shadow:
+    0 21px 48px rgba(0, 0, 0, 0.27),
+    0 0 0 8px rgba(255, 255, 255, 0.045);
+}
+
+.account-center-customer-hero .account-center-avatar span {
+  font-size: 3.1rem;
+}
+
+.account-center-customer-hero .account-center-identity h1 {
+  font-size: clamp(3rem, 7vw, 5.2rem);
+}
+
+.account-center-customer-hero
+  .account-center-identity
+  > div
+  > p:not(.account-center-kicker) {
+  font-size: 0.75rem;
+}
+
+.account-center-customer-hero .account-center-status {
+  margin-top: 3px;
+}
+
+/* Give profile editing a larger, clearly rectangular photo area. */
+.account-center-customer-shell .account-center-avatar.large {
+  width: 180px;
+  height: 180px;
+  border-radius: 34px;
+}
+
+.account-center-customer-shell .account-center-photo-editor {
+  padding: 18px;
+  border: 1px solid rgba(82, 47, 31, 0.12);
+  border-radius: 22px;
+  background: #fcfaf7;
+}
+
+html[data-theme="dark"]
+  .account-center-customer-shell
+  .account-center-photo-editor {
+  border-color: var(--nbw-border);
+  background: var(--nbw-surface-soft);
+}
+
+@media (max-width: 760px) {
+  .customer-profile-link > .customer-header-profile-photo {
+    width: 43px;
+    height: 43px;
+  }
+
+  .account-center-customer-hero {
+    min-height: 305px;
+    padding: 28px 18px;
+  }
+
+  .account-center-customer-hero .account-center-avatar {
+    width: 145px;
+    height: 145px;
+    border-radius: 29px;
+  }
+}
+
+@media (max-width: 520px) {
+  .account-center-customer-hero {
+    min-height: 280px;
+  }
+
+  .account-center-customer-hero .account-center-avatar {
+    width: 128px;
+    height: 128px;
+    border-radius: 25px;
+  }
+
+  .account-center-customer-hero .account-center-identity h1 {
+    font-size: 2.8rem;
+  }
+}
+
+
+/* Update 059 — Restore original left-aligned customer hero layout */
+.account-center-customer-hero {
+  min-height: 250px;
+  padding: 30px 34px;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.account-center-customer-hero .account-center-identity {
+  width: auto;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 22px;
+}
+
+.account-center-customer-hero .account-center-avatar {
+  width: 145px;
+  height: 145px;
+  flex: 0 0 145px;
+  border-radius: 30px;
+}
+
+.account-center-customer-hero .account-center-avatar span {
+  font-size: 2.65rem;
+}
+
+.account-center-customer-hero .account-center-identity h1 {
+  font-size: clamp(2.8rem, 5.2vw, 4.8rem);
+  text-align: left;
+}
+
+.account-center-customer-hero
+  .account-center-identity
+  > div
+  > p:not(.account-center-kicker) {
+  text-align: left;
+}
+
+.account-center-customer-hero .account-center-status {
+  margin-top: 3px;
+}
+
+@media (max-width: 760px) {
+  .account-center-customer-hero {
+    min-height: 230px;
+    padding: 24px 20px;
+  }
+
+  .account-center-customer-hero .account-center-identity {
+    gap: 17px;
+  }
+
+  .account-center-customer-hero .account-center-avatar {
+    width: 115px;
+    height: 115px;
+    flex-basis: 115px;
+    border-radius: 24px;
+  }
+
+  .account-center-customer-hero .account-center-identity h1 {
+    font-size: clamp(2.2rem, 8vw, 3.4rem);
+  }
+}
+
+@media (max-width: 560px) {
+  .account-center-customer-hero {
+    align-items: flex-start;
+  }
+
+  .account-center-customer-hero .account-center-identity {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .account-center-customer-hero .account-center-avatar {
+    width: 105px;
+    height: 105px;
+    flex-basis: 105px;
+  }
+}

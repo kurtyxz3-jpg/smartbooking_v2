@@ -1,0 +1,132 @@
+/*
+|--------------------------------------------------------------------------
+| SmartBooking V2 Update 044 — Final Official NBW Logo
+|--------------------------------------------------------------------------
+| This stylesheet uses the selected gold-and-white NBW logo.
+| The artwork remains unchanged. Theme modes adjust only its container.
+*/
+
+.nbw-official-logo {
+  display: block;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.nbw-logo-image,
+.auth-brand-logo,
+.customer-brand-logo,
+.sidebar-brand-logo,
+.admin-sidebar-brand-logo,
+.staff-sidebar-brand-logo {
+  padding: 5px;
+  border-radius: 13px;
+  background: #050505;
+  border: 1px solid rgba(229, 183, 91, .58);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, .22),
+    inset 0 0 18px rgba(255, 215, 130, .05);
+}
+
+.nbw-logo-image {
+  width: 68px;
+  height: 48px;
+  flex: 0 0 auto;
+}
+
+.nbw-footer .nbw-logo-image {
+  width: 96px;
+  height: 68px;
+}
+
+.auth-brand-logo {
+  width: 150px;
+  height: 92px;
+}
+
+.customer-brand-logo {
+  width: 86px;
+  height: 58px;
+}
+
+.sidebar-brand-logo,
+.admin-sidebar-brand-logo,
+.staff-sidebar-brand-logo {
+  width: 138px;
+  height: 88px;
+  margin-bottom: 12px;
+}
+
+/* Default branded mode */
+html[data-theme="default"] :where(
+  .nbw-logo-image,
+  .auth-brand-logo,
+  .customer-brand-logo,
+  .sidebar-brand-logo,
+  .admin-sidebar-brand-logo,
+  .staff-sidebar-brand-logo
+) {
+  background: #050505;
+  border-color: rgba(226, 178, 77, .62);
+}
+
+/* Light mode keeps the black logo plate so white lettering remains visible. */
+html[data-theme="light"] :where(
+  .nbw-logo-image,
+  .auth-brand-logo,
+  .customer-brand-logo,
+  .sidebar-brand-logo,
+  .admin-sidebar-brand-logo,
+  .staff-sidebar-brand-logo
+) {
+  background: #050505;
+  border-color: #a97824;
+  box-shadow:
+    0 8px 22px rgba(28, 20, 14, .2),
+    0 0 0 1px rgba(255, 255, 255, .7);
+}
+
+/* Dark mode uses a slightly lighter outline for separation. */
+html[data-theme="dark"] :where(
+  .nbw-logo-image,
+  .auth-brand-logo,
+  .customer-brand-logo,
+  .sidebar-brand-logo,
+  .admin-sidebar-brand-logo,
+  .staff-sidebar-brand-logo
+) {
+  background: #000;
+  border-color: rgba(244, 202, 119, .78);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, .42),
+    0 0 18px rgba(226, 178, 77, .08);
+}
+
+.nbw-brand-wordmark strong,
+.nbw-brand-wordmark small {
+  display: block;
+}
+
+@media (max-width: 760px) {
+  .sidebar-brand-logo,
+  .admin-sidebar-brand-logo,
+  .staff-sidebar-brand-logo {
+    width: 118px;
+    height: 76px;
+  }
+
+  .auth-brand-logo {
+    width: 125px;
+    height: 78px;
+  }
+}
+
+@media (max-width: 520px) {
+  .nbw-logo-image {
+    width: 58px;
+    height: 42px;
+  }
+
+  .nbw-logo .nbw-brand-wordmark {
+    display: none;
+  }
+}

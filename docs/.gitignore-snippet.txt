@@ -1,0 +1,2 @@
+# Never commit real OAuth secrets
+/config/oauth-credentials.php

@@ -8,23 +8,30 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once '../config/oauth.php';
 
 if (!oauthProviderEnabled('facebook')) {
-    header('Location: register.php?social=facebook_not_configured');
+    $_SESSION['social_login_error'] =
+        'Facebook login needs an App ID and App Secret.';
+    header('Location: login.php');
     exit;
 }
 
-$state = bin2hex(random_bytes(24));
+$state = bin2hex(random_bytes(32));
 $_SESSION['facebook_oauth_state'] = $state;
 
+$version =
+    (string) (oauthConfig('facebook', 'graph_version') ?: 'v25.0');
+
 $params = [
-    'client_id' => FACEBOOK_APP_ID,
-    'redirect_uri' => FACEBOOK_REDIRECT_URI,
+    'client_id' => oauthConfig('facebook', 'app_id'),
+    'redirect_uri' => oauthConfig('facebook', 'redirect_uri'),
     'state' => $state,
     'scope' => 'email,public_profile',
     'response_type' => 'code',
 ];
 
 header(
-    'Location: https://www.facebook.com/v20.0/dialog/oauth?'
+    'Location: https://www.facebook.com/'
+    . rawurlencode($version)
+    . '/dialog/oauth?'
     . http_build_query($params)
 );
 exit;

@@ -13,36 +13,51 @@ try {
         throw new RuntimeException('Google login is not configured.');
     }
 
-    $state = $_GET['state'] ?? '';
-    $code = $_GET['code'] ?? '';
+    if (isset($_GET['error'])) {
+        throw new RuntimeException(
+            'Google login was cancelled: '
+            . ($_GET['error_description'] ?? $_GET['error'])
+        );
+    }
+
+    $state = (string) ($_GET['state'] ?? '');
+    $code = (string) ($_GET['code'] ?? '');
+    $savedState = (string) ($_SESSION['google_oauth_state'] ?? '');
 
     if (
         $state === ''
-        || !hash_equals(
-            $_SESSION['google_oauth_state'] ?? '',
-            $state
-        )
+        || $savedState === ''
+        || !hash_equals($savedState, $state)
     ) {
-        throw new RuntimeException('Invalid Google login state.');
+        throw new RuntimeException(
+            'The Google login state did not match. Please try again.'
+        );
     }
 
     if ($code === '') {
-        throw new RuntimeException('Google authorization was cancelled.');
+        throw new RuntimeException(
+            'Google did not return an authorization code.'
+        );
     }
 
-    unset($_SESSION['google_oauth_state']);
+    unset(
+        $_SESSION['google_oauth_state'],
+        $_SESSION['google_oauth_nonce']
+    );
 
-    $tokenUrl = 'https://oauth2.googleapis.com/token?'
-        . http_build_query([
+    $tokenData = oauthRequest(
+        'https://oauth2.googleapis.com/token',
+        'POST',
+        [
             'code' => $code,
-            'client_id' => GOOGLE_OAUTH_CLIENT_ID,
-            'client_secret' => GOOGLE_OAUTH_CLIENT_SECRET,
-            'redirect_uri' => GOOGLE_OAUTH_REDIRECT_URI,
+            'client_id' => oauthConfig('google', 'client_id'),
+            'client_secret' => oauthConfig('google', 'client_secret'),
+            'redirect_uri' => oauthConfig('google', 'redirect_uri'),
             'grant_type' => 'authorization_code',
-        ]);
+        ]
+    );
 
-    $tokenData = oauthHttpGet($tokenUrl);
-    $accessToken = $tokenData['access_token'] ?? '';
+    $accessToken = (string) ($tokenData['access_token'] ?? '');
 
     if ($accessToken === '') {
         throw new RuntimeException(
@@ -50,10 +65,21 @@ try {
         );
     }
 
-    $profile = oauthHttpGet(
-        'https://openidconnect.googleapis.com/v1/userinfo?'
-        . http_build_query(['access_token' => $accessToken])
+    $profile = oauthRequest(
+        'https://openidconnect.googleapis.com/v1/userinfo',
+        'GET',
+        [],
+        ['Authorization: Bearer ' . $accessToken]
     );
+
+    if (
+        isset($profile['email_verified'])
+        && $profile['email_verified'] !== true
+    ) {
+        throw new RuntimeException(
+            'Google has not verified this email address.'
+        );
+    }
 
     oauthCreateOrLoginCustomer(
         $pdo,
@@ -61,14 +87,18 @@ try {
         (string) ($profile['sub'] ?? ''),
         (string) ($profile['email'] ?? ''),
         (string) ($profile['name'] ?? 'Google Customer'),
-        $profile['given_name'] ?? null,
-        $profile['family_name'] ?? null
+        isset($profile['given_name'])
+            ? (string) $profile['given_name']
+            : null,
+        isset($profile['family_name'])
+            ? (string) $profile['family_name']
+            : null
     );
 
-    header('Location: ../customer/dashboard.php');
+    header('Location: ' . oauthCustomerDestination());
     exit;
 } catch (Throwable $exception) {
     $_SESSION['social_login_error'] = $exception->getMessage();
-    header('Location: register.php?social=failed');
+    header('Location: login.php');
     exit;
 }

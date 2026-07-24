@@ -206,7 +206,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 300,
       "duration": 50,
       "description": "Soak, exfoliation, callus care, and relaxing foot treatment.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-05.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/foot-spa.webp",
       "featured": true,
       "price_note": ""
     },
@@ -216,7 +216,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 350,
       "duration": 50,
       "description": "Foot spa care tailored for gentlemen.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-08.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/foot-spa.webp",
       "featured": false,
       "price_note": ""
     },
@@ -226,7 +226,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 250,
       "duration": 30,
       "description": "Exfoliating hand treatment for smoother skin.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-10.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hand-scrub.webp",
       "featured": false,
       "price_note": ""
     },
@@ -256,7 +256,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 500,
       "duration": 60,
       "description": "Relaxing full-body massage.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-19.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
       "featured": true,
       "price_note": ""
     },
@@ -266,7 +266,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 600,
       "duration": 60,
       "description": "Massage paired with guided stretching.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-03.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
       "featured": false,
       "price_note": ""
     },
@@ -276,7 +276,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 650,
       "duration": 60,
       "description": "Massage with traditional ventosa treatment.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-06.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
       "featured": false,
       "price_note": ""
     },
@@ -286,7 +286,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 680,
       "duration": 60,
       "description": "Full massage combined with ear candling.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-07.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
       "featured": false,
       "price_note": ""
     },
@@ -296,7 +296,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 800,
       "duration": 90,
       "description": "Heated-stone massage for deep relaxation.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-30.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
       "featured": true,
       "price_note": ""
     },
@@ -316,7 +316,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 350,
       "duration": 30,
       "description": "Focused back massage.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-22.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
       "featured": false,
       "price_note": ""
     },
@@ -326,7 +326,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 250,
       "duration": 30,
       "description": "Focused hand and arm massage.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-23.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hand-massage.webp",
       "featured": false,
       "price_note": ""
     },
@@ -336,7 +336,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 300,
       "duration": 30,
       "description": "Focused foot and lower-leg massage.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/foot-massage.webp",
       "featured": false,
       "price_note": ""
     },
@@ -876,7 +876,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 5500,
       "duration": 150,
       "description": "Semi-permanent ombre-brow procedure.",
-      "image": "/smartbooking_v2/assets/images/services/semi-permanent/ombre-brows.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/ombre-brows.webp",
       "featured": true,
       "price_note": ""
     },
@@ -886,7 +886,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 4500,
       "duration": 150,
       "description": "Nano combo-brow procedure.",
-      "image": "/smartbooking_v2/assets/images/services/semi-permanent/nano-combo-brows.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/nano-combo-brows.webp",
       "featured": false,
       "price_note": ""
     },
@@ -896,7 +896,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 7900,
       "duration": 180,
       "description": "Nano machine-stroke brow procedure.",
-      "image": "/smartbooking_v2/assets/images/services/semi-permanent/nano-machine-strokes.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/nano-machine-strokes.webp",
       "featured": false,
       "price_note": ""
     },
@@ -906,7 +906,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 7900,
       "duration": 180,
       "description": "Semi-permanent brow procedure designed for men.",
-      "image": "/smartbooking_v2/assets/images/services/semi-permanent/menstrokes.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/menstrokes.webp",
       "featured": false,
       "price_note": ""
     },
@@ -926,7 +926,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 3500,
       "duration": 150,
       "description": "Semi-permanent eyeliner procedure.",
-      "image": "/smartbooking_v2/assets/images/services/semi-permanent/eyeliner-tattoo.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/eyeliner-tattoo.webp",
       "featured": false,
       "price_note": "₱3,500-₱4,000"
     },
@@ -936,7 +936,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 500,
       "duration": 45,
       "description": "Cover-up and correction consultation starts at the listed charge.",
-      "image": "/smartbooking_v2/assets/images/services/semi-permanent/brow-reconstruction.webp",
+      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/brow-reconstruction.webp",
       "featured": false,
       "price_note": "charges vary"
     }

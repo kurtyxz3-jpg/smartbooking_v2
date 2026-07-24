@@ -8,20 +8,27 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once '../config/oauth.php';
 
 if (!oauthProviderEnabled('google')) {
-    header('Location: register.php?social=google_not_configured');
+    $_SESSION['social_login_error'] =
+        'Google login needs a Client ID and Client Secret.';
+    header('Location: login.php');
     exit;
 }
 
-$state = bin2hex(random_bytes(24));
+$state = bin2hex(random_bytes(32));
+$nonce = bin2hex(random_bytes(32));
+
 $_SESSION['google_oauth_state'] = $state;
+$_SESSION['google_oauth_nonce'] = $nonce;
 
 $params = [
-    'client_id' => GOOGLE_OAUTH_CLIENT_ID,
-    'redirect_uri' => GOOGLE_OAUTH_REDIRECT_URI,
+    'client_id' => oauthConfig('google', 'client_id'),
+    'redirect_uri' => oauthConfig('google', 'redirect_uri'),
     'response_type' => 'code',
     'scope' => 'openid email profile',
     'state' => $state,
+    'nonce' => $nonce,
     'access_type' => 'online',
+    'include_granted_scopes' => 'true',
     'prompt' => 'select_account',
 ];
 

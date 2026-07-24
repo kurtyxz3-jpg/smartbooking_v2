@@ -19,12 +19,13 @@ $defaults = [
     'closing_time' => '18:00',
     'downpayment_percentage' => '50',
     'grace_period_minutes' => '15',
-    'default_language' => 'English',
+    'default_language' => 'english',
+    'default_theme' => 'default',
     'timezone' => 'Asia/Manila',
 ];
 
 $statement = $pdo->query("SELECT * FROM system_settings WHERE id = 1 LIMIT 1");
-$settings = $statement->fetch() ?: $defaults;
+$settings = array_merge($defaults, $statement->fetch() ?: []);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $salonName = trim($_POST['salon_name'] ?? '');
@@ -36,8 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $closingTime = $_POST['closing_time'] ?? '';
     $downpaymentPercentage = filter_input(INPUT_POST, 'downpayment_percentage', FILTER_VALIDATE_INT);
     $gracePeriodMinutes = filter_input(INPUT_POST, 'grace_period_minutes', FILTER_VALIDATE_INT);
-    $defaultLanguage = $_POST['default_language'] ?? 'English';
+    $defaultLanguage = strtolower(trim($_POST['default_language'] ?? 'english'));
+    $defaultTheme = strtolower(trim($_POST['default_theme'] ?? 'default'));
     $timezone = $_POST['timezone'] ?? 'Asia/Manila';
+
+    $allowedLanguages = ['english', 'filipino', 'taglish'];
+    $allowedThemes = ['default', 'light', 'dark'];
 
     if ($salonName === '') {
         $error = 'Salon name is required.';
@@ -47,6 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Down payment percentage must be between 0 and 100.';
     } elseif ($gracePeriodMinutes === false || $gracePeriodMinutes < 0 || $gracePeriodMinutes > 120) {
         $error = 'Grace period must be between 0 and 120 minutes.';
+    } elseif (!in_array($defaultLanguage, $allowedLanguages, true)) {
+        $error = 'Please select a valid default language.';
+    } elseif (!in_array($defaultTheme, $allowedThemes, true)) {
+        $error = 'Please select a valid default appearance.';
     } else {
         $statement = $pdo->prepare(
             "INSERT INTO system_settings (
@@ -61,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 downpayment_percentage,
                 grace_period_minutes,
                 default_language,
+                default_theme,
                 timezone
             ) VALUES (
                 1,
@@ -74,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 :downpayment_percentage,
                 :grace_period_minutes,
                 :default_language,
+                :default_theme,
                 :timezone
             )
             ON DUPLICATE KEY UPDATE
@@ -87,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 downpayment_percentage = VALUES(downpayment_percentage),
                 grace_period_minutes = VALUES(grace_period_minutes),
                 default_language = VALUES(default_language),
+                default_theme = VALUES(default_theme),
                 timezone = VALUES(timezone)"
         );
 
@@ -101,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'downpayment_percentage' => $downpaymentPercentage,
             'grace_period_minutes' => $gracePeriodMinutes,
             'default_language' => $defaultLanguage,
+            'default_theme' => $defaultTheme,
             'timezone' => $timezone,
         ]);
 
@@ -108,13 +121,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo,
             'Updated system settings',
             'System Settings',
-            'Salon information and booking rules were updated.'
+            'Salon information, booking rules, and visitor defaults were updated.'
         );
 
         $message = 'System settings saved successfully.';
 
         $statement = $pdo->query("SELECT * FROM system_settings WHERE id = 1 LIMIT 1");
-        $settings = $statement->fetch() ?: $defaults;
+        $settings = array_merge($defaults, $statement->fetch() ?: []);
     }
 }
 
@@ -128,7 +141,7 @@ include '../includes/superadmin-header.php';
         <div class="page-header">
             <div>
                 <h1 class="gold-title">System Settings</h1>
-                <p>Configure salon information, operating hours, and booking rules.</p>
+                <p>Configure salon information, operating hours, booking rules, and visitor defaults.</p>
             </div>
         </div>
 
@@ -153,31 +166,31 @@ include '../includes/superadmin-header.php';
                         <div class="form-group form-span-2">
                             <label for="salon_name">Salon Name</label>
                             <input id="salon_name" name="salon_name" type="text"
-                                   value="<?= htmlspecialchars($settings['salon_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                   value="<?= htmlspecialchars($settings['salon_name'], ENT_QUOTES, 'UTF-8') ?>"
                                    required>
                         </div>
 
                         <div class="form-group">
                             <label for="contact_number">Contact Number</label>
                             <input id="contact_number" name="contact_number" type="text"
-                                   value="<?= htmlspecialchars($settings['contact_number'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                   value="<?= htmlspecialchars($settings['contact_number'], ENT_QUOTES, 'UTF-8') ?>">
                         </div>
 
                         <div class="form-group">
                             <label for="email">Business Email</label>
                             <input id="email" name="email" type="email"
-                                   value="<?= htmlspecialchars($settings['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                   value="<?= htmlspecialchars($settings['email'], ENT_QUOTES, 'UTF-8') ?>">
                         </div>
 
                         <div class="form-group form-span-2">
                             <label for="address">Business Address</label>
-                            <textarea id="address" name="address" rows="3"><?= htmlspecialchars($settings['address'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                            <textarea id="address" name="address" rows="3"><?= htmlspecialchars($settings['address'], ENT_QUOTES, 'UTF-8') ?></textarea>
                         </div>
 
                         <div class="form-group form-span-2">
                             <label for="facebook_url">Facebook Page URL</label>
                             <input id="facebook_url" name="facebook_url" type="url"
-                                   value="<?= htmlspecialchars($settings['facebook_url'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                   value="<?= htmlspecialchars($settings['facebook_url'], ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                     </div>
                 </div>
@@ -189,13 +202,13 @@ include '../includes/superadmin-header.php';
                         <div class="form-group">
                             <label for="opening_time">Opening Time</label>
                             <input id="opening_time" name="opening_time" type="time"
-                                   value="<?= htmlspecialchars($settings['opening_time'] ?? '09:00', ENT_QUOTES, 'UTF-8') ?>">
+                                   value="<?= htmlspecialchars(substr((string) $settings['opening_time'], 0, 5), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
 
                         <div class="form-group">
                             <label for="closing_time">Closing Time</label>
                             <input id="closing_time" name="closing_time" type="time"
-                                   value="<?= htmlspecialchars($settings['closing_time'] ?? '18:00', ENT_QUOTES, 'UTF-8') ?>">
+                                   value="<?= htmlspecialchars(substr((string) $settings['closing_time'], 0, 5), ENT_QUOTES, 'UTF-8') ?>">
                         </div>
                     </div>
                 </div>
@@ -208,33 +221,73 @@ include '../includes/superadmin-header.php';
                             <label for="downpayment_percentage">Down Payment Percentage</label>
                             <input id="downpayment_percentage" name="downpayment_percentage"
                                    type="number" min="0" max="100"
-                                   value="<?= (int) ($settings['downpayment_percentage'] ?? 50) ?>">
+                                   value="<?= (int) $settings['downpayment_percentage'] ?>">
                         </div>
 
                         <div class="form-group">
                             <label for="grace_period_minutes">Grace Period (Minutes)</label>
                             <input id="grace_period_minutes" name="grace_period_minutes"
                                    type="number" min="0" max="120"
-                                   value="<?= (int) ($settings['grace_period_minutes'] ?? 15) ?>">
+                                   value="<?= (int) $settings['grace_period_minutes'] ?>">
                         </div>
+                    </div>
+                </div>
 
+                <div class="settings-section">
+                    <div class="settings-section-heading">
+                        <div>
+                            <h3>Public Website Defaults</h3>
+                            <p>
+                                These settings are used only when a visitor has not chosen
+                                a personal language or appearance preference.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label for="default_language">Default Language</label>
+                            <label for="default_language">Default Website Language</label>
                             <select id="default_language" name="default_language">
-                                <?php foreach (['English', 'Filipino'] as $language): ?>
-                                    <option value="<?= $language ?>"
-                                        <?= ($settings['default_language'] ?? 'English') === $language ? 'selected' : '' ?>>
-                                        <?= $language ?>
+                                <?php foreach ([
+                                    'english' => 'English',
+                                    'filipino' => 'Filipino',
+                                    'taglish' => 'Taglish',
+                                ] as $value => $label): ?>
+                                    <option value="<?= $value ?>"
+                                        <?= strtolower((string) $settings['default_language']) === $value ? 'selected' : '' ?>>
+                                        <?= $label ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                            <small class="field-note">
+                                Visitors can override this using the floating Language &amp; Display control.
+                            </small>
                         </div>
 
                         <div class="form-group">
+                            <label for="default_theme">Default Website Appearance</label>
+                            <select id="default_theme" name="default_theme">
+                                <?php foreach ([
+                                    'default' => 'Default — Brown, Gold & Cream',
+                                    'light' => 'Light — Bright & High Contrast',
+                                    'dark' => 'Dark — Reduced Brightness',
+                                ] as $value => $label): ?>
+                                    <option value="<?= $value ?>"
+                                        <?= strtolower((string) $settings['default_theme']) === $value ? 'selected' : '' ?>>
+                                        <?= $label ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="field-note">
+                                This is a fallback. Each visitor may choose a different mode.
+                            </small>
+                        </div>
+
+                        <div class="form-group form-span-2">
                             <label for="timezone">Timezone</label>
                             <select id="timezone" name="timezone">
                                 <option value="Asia/Manila"
-                                    <?= ($settings['timezone'] ?? 'Asia/Manila') === 'Asia/Manila' ? 'selected' : '' ?>>
+                                    <?= $settings['timezone'] === 'Asia/Manila' ? 'selected' : '' ?>>
                                     Asia/Manila
                                 </option>
                             </select>

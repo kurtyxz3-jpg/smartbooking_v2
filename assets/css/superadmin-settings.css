@@ -94,3 +94,32 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+.settings-section-heading {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.settings-section-heading h3 {
+  margin: 0;
+}
+
+.settings-section-heading p {
+  max-width: 720px;
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.settings-section select {
+  min-height: 50px;
+}
+
+.field-note {
+  display: block;
+  line-height: 1.45;
+}
