@@ -51,6 +51,7 @@ $customerProfilePictureUrl = $customerProfilePicture
     <link rel="stylesheet" href="../assets/css/customer-profile-redesign.css">
     <link rel="stylesheet" href="../assets/css/accessibility-preferences.css">
     <link rel="stylesheet" href="../assets/css/official-logo.css">
+    <link rel="stylesheet" href="../assets/css/global-theme-system.css">
     <link rel="icon" href="../assets/images/branding/nbw-favicon.png">
 </head>
 
@@ -85,7 +86,7 @@ $customerProfilePictureUrl = $customerProfilePicture
         <a class="<?= $customerPage === 'services' ? 'active' : '' ?>" href="services.php">Services</a>
         <a class="<?= $customerPage === 'book' ? 'active' : '' ?>" href="book.php">Book</a>
         <a class="<?= in_array($customerPage, ['appointments', 'appointment-details'], true) ? 'active' : '' ?>" href="appointments.php">Appointments</a>
-        <a class="<?= $customerPage === 'ai' ? 'active' : '' ?>" href="ai-generator.php">AI Studio</a>
+        <a class="<?= in_array($customerPage, ['ai', 'ai-beauty', 'ai-beauty-history', 'ai-designs'], true) ? 'active' : '' ?>" href="beauty-studio.php?area=nails">AI Studio</a>
         <a class="<?= $customerPage === 'payments' ? 'active' : '' ?>" href="payments.php">Payments</a>
         <a class="<?= $customerPage === 'feedback' ? 'active' : '' ?>" href="feedback.php">Feedback</a>
     </nav>

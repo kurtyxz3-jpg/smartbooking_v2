@@ -5,129 +5,314 @@ require_once '../includes/superadmin-auth.php';
 require_once '../config/database.php';
 require_once '../includes/audit-helper.php';
 
+date_default_timezone_set('Asia/Manila');
+
 $pageTitle = 'System Settings';
 $message = '';
 $error = '';
 
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
+if (empty($_SESSION['system_settings_csrf'])) {
+    $_SESSION['system_settings_csrf'] = bin2hex(random_bytes(32));
+}
+
+function settingsEscape(mixed $value): string
+{
+    return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
+}
+
+function settingsColumns(PDO $pdo): array
+{
+    $columns = [];
+    foreach ($pdo->query('SHOW COLUMNS FROM system_settings')->fetchAll() as $column) {
+        $columns[] = (string) $column['Field'];
+    }
+    return $columns;
+}
+
+function loadSystemSettings(PDO $pdo, array $defaults, bool $keyValueSchema): array
+{
+    if ($keyValueSchema) {
+        $rows = $pdo->query(
+            'SELECT setting_key, setting_value FROM system_settings'
+        )->fetchAll();
+
+        $stored = [];
+        foreach ($rows as $row) {
+            $stored[(string) $row['setting_key']] =
+                $row['setting_value'] ?? '';
+        }
+
+        return array_merge($defaults, $stored);
+    }
+
+    $row = $pdo->query(
+        'SELECT * FROM system_settings WHERE id = 1 LIMIT 1'
+    )->fetch() ?: [];
+
+    return array_merge($defaults, $row);
+}
+
+function saveKeyValueSetting(
+    PDO $pdo,
+    string $key,
+    mixed $value,
+    string $type,
+    string $group,
+    bool $public,
+    ?int $userId
+): void {
+    $statement = $pdo->prepare(
+        'INSERT INTO system_settings (
+            setting_key,
+            setting_value,
+            value_type,
+            setting_group,
+            is_public,
+            updated_by
+        ) VALUES (
+            :setting_key,
+            :setting_value,
+            :value_type,
+            :setting_group,
+            :is_public,
+            :updated_by
+        )
+        ON DUPLICATE KEY UPDATE
+            setting_value = VALUES(setting_value),
+            value_type = VALUES(value_type),
+            setting_group = VALUES(setting_group),
+            is_public = VALUES(is_public),
+            updated_by = VALUES(updated_by)'
+    );
+
+    $statement->execute([
+        'setting_key' => $key,
+        'setting_value' => (string) $value,
+        'value_type' => $type,
+        'setting_group' => $group,
+        'is_public' => $public ? 1 : 0,
+        'updated_by' => $userId,
+    ]);
+}
+
 $defaults = [
     'salon_name' => 'Nails & Body Worx',
-    'contact_number' => '',
-    'email' => '',
-    'address' => '',
+    'business_phone' => '',
+    'business_email' => '',
+    'business_address' => '',
     'facebook_url' => '',
     'opening_time' => '09:00',
     'closing_time' => '18:00',
     'downpayment_percentage' => '50',
     'grace_period_minutes' => '15',
+    'reminder_minutes_before' => '30',
+    'booking_cancellation_hours' => '24',
     'default_language' => 'english',
     'default_theme' => 'default',
     'timezone' => 'Asia/Manila',
+    'currency' => 'PHP',
 ];
 
-$statement = $pdo->query("SELECT * FROM system_settings WHERE id = 1 LIMIT 1");
-$settings = array_merge($defaults, $statement->fetch() ?: []);
+$columns = settingsColumns($pdo);
+$keyValueSchema = in_array('setting_key', $columns, true)
+    && in_array('setting_value', $columns, true);
+
+/*
+ * Map old field names to the master database keys so this page remains
+ * compatible with projects that previously used contact_number/email/address.
+ */
+$settings = loadSystemSettings($pdo, $defaults, $keyValueSchema);
+$settings['business_phone'] = $settings['business_phone']
+    ?? $settings['contact_number']
+    ?? '';
+$settings['business_email'] = $settings['business_email']
+    ?? $settings['email']
+    ?? '';
+$settings['business_address'] = $settings['business_address']
+    ?? $settings['address']
+    ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $salonName = trim($_POST['salon_name'] ?? '');
-    $contactNumber = trim($_POST['contact_number'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $address = trim($_POST['address'] ?? '');
-    $facebookUrl = trim($_POST['facebook_url'] ?? '');
-    $openingTime = $_POST['opening_time'] ?? '';
-    $closingTime = $_POST['closing_time'] ?? '';
-    $downpaymentPercentage = filter_input(INPUT_POST, 'downpayment_percentage', FILTER_VALIDATE_INT);
-    $gracePeriodMinutes = filter_input(INPUT_POST, 'grace_period_minutes', FILTER_VALIDATE_INT);
-    $defaultLanguage = strtolower(trim($_POST['default_language'] ?? 'english'));
-    $defaultTheme = strtolower(trim($_POST['default_theme'] ?? 'default'));
-    $timezone = $_POST['timezone'] ?? 'Asia/Manila';
+    $csrf = (string) ($_POST['csrf_token'] ?? '');
 
-    $allowedLanguages = ['english', 'filipino', 'taglish'];
-    $allowedThemes = ['default', 'light', 'dark'];
+    $values = [
+        'salon_name' => trim((string) ($_POST['salon_name'] ?? '')),
+        'business_phone' => trim((string) ($_POST['business_phone'] ?? '')),
+        'business_email' => trim((string) ($_POST['business_email'] ?? '')),
+        'business_address' => trim((string) ($_POST['business_address'] ?? '')),
+        'facebook_url' => trim((string) ($_POST['facebook_url'] ?? '')),
+        'opening_time' => trim((string) ($_POST['opening_time'] ?? '09:00')),
+        'closing_time' => trim((string) ($_POST['closing_time'] ?? '18:00')),
+        'downpayment_percentage' =>
+            filter_input(INPUT_POST, 'downpayment_percentage', FILTER_VALIDATE_INT),
+        'grace_period_minutes' =>
+            filter_input(INPUT_POST, 'grace_period_minutes', FILTER_VALIDATE_INT),
+        'reminder_minutes_before' =>
+            filter_input(INPUT_POST, 'reminder_minutes_before', FILTER_VALIDATE_INT),
+        'booking_cancellation_hours' =>
+            filter_input(INPUT_POST, 'booking_cancellation_hours', FILTER_VALIDATE_INT),
+        'default_language' =>
+            strtolower(trim((string) ($_POST['default_language'] ?? 'english'))),
+        'default_theme' =>
+            strtolower(trim((string) ($_POST['default_theme'] ?? 'default'))),
+        /*
+         * SmartBooking V2 is configured exclusively for Philippine operations.
+         * These values remain available to reports, bookings, and receipts, but
+         * are intentionally not editable through the interface.
+         */
+        'timezone' => 'Asia/Manila',
+        'currency' => 'PHP',
+    ];
 
-    if ($salonName === '') {
+    if (!hash_equals($_SESSION['system_settings_csrf'], $csrf)) {
+        $error = 'Your session token expired. Refresh the page and try again.';
+    } elseif ($values['salon_name'] === '') {
         $error = 'Salon name is required.';
-    } elseif ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Please enter a valid email address.';
-    } elseif ($downpaymentPercentage === false || $downpaymentPercentage < 0 || $downpaymentPercentage > 100) {
+    } elseif (
+        $values['business_email'] !== ''
+        && !filter_var($values['business_email'], FILTER_VALIDATE_EMAIL)
+    ) {
+        $error = 'Please enter a valid business email address.';
+    } elseif (
+        $values['facebook_url'] !== ''
+        && !filter_var($values['facebook_url'], FILTER_VALIDATE_URL)
+    ) {
+        $error = 'Please enter a valid Facebook page URL.';
+    } elseif (
+        $values['downpayment_percentage'] === false
+        || $values['downpayment_percentage'] < 0
+        || $values['downpayment_percentage'] > 100
+    ) {
         $error = 'Down payment percentage must be between 0 and 100.';
-    } elseif ($gracePeriodMinutes === false || $gracePeriodMinutes < 0 || $gracePeriodMinutes > 120) {
+    } elseif (
+        $values['grace_period_minutes'] === false
+        || $values['grace_period_minutes'] < 0
+        || $values['grace_period_minutes'] > 120
+    ) {
         $error = 'Grace period must be between 0 and 120 minutes.';
-    } elseif (!in_array($defaultLanguage, $allowedLanguages, true)) {
+    } elseif (
+        $values['reminder_minutes_before'] === false
+        || $values['reminder_minutes_before'] < 0
+        || $values['reminder_minutes_before'] > 10080
+    ) {
+        $error = 'Reminder time must be between 0 and 10,080 minutes.';
+    } elseif (
+        $values['booking_cancellation_hours'] === false
+        || $values['booking_cancellation_hours'] < 0
+        || $values['booking_cancellation_hours'] > 720
+    ) {
+        $error = 'Cancellation limit must be between 0 and 720 hours.';
+    } elseif (
+        !in_array(
+            $values['default_language'],
+            ['english', 'filipino', 'taglish'],
+            true
+        )
+    ) {
         $error = 'Please select a valid default language.';
-    } elseif (!in_array($defaultTheme, $allowedThemes, true)) {
+    } elseif (
+        !in_array($values['default_theme'], ['default', 'light', 'dark'], true)
+    ) {
         $error = 'Please select a valid default appearance.';
+    } elseif ($values['opening_time'] >= $values['closing_time']) {
+        $error = 'Closing time must be later than opening time.';
     } else {
-        $statement = $pdo->prepare(
-            "INSERT INTO system_settings (
-                id,
-                salon_name,
-                contact_number,
-                email,
-                address,
-                facebook_url,
-                opening_time,
-                closing_time,
-                downpayment_percentage,
-                grace_period_minutes,
-                default_language,
-                default_theme,
-                timezone
-            ) VALUES (
-                1,
-                :salon_name,
-                :contact_number,
-                :email,
-                :address,
-                :facebook_url,
-                :opening_time,
-                :closing_time,
-                :downpayment_percentage,
-                :grace_period_minutes,
-                :default_language,
-                :default_theme,
-                :timezone
-            )
-            ON DUPLICATE KEY UPDATE
-                salon_name = VALUES(salon_name),
-                contact_number = VALUES(contact_number),
-                email = VALUES(email),
-                address = VALUES(address),
-                facebook_url = VALUES(facebook_url),
-                opening_time = VALUES(opening_time),
-                closing_time = VALUES(closing_time),
-                downpayment_percentage = VALUES(downpayment_percentage),
-                grace_period_minutes = VALUES(grace_period_minutes),
-                default_language = VALUES(default_language),
-                default_theme = VALUES(default_theme),
-                timezone = VALUES(timezone)"
-        );
+        try {
+            $pdo->beginTransaction();
+            $userId = isset($_SESSION['user_id'])
+                ? (int) $_SESSION['user_id']
+                : null;
 
-        $statement->execute([
-            'salon_name' => $salonName,
-            'contact_number' => $contactNumber,
-            'email' => $email,
-            'address' => $address,
-            'facebook_url' => $facebookUrl,
-            'opening_time' => $openingTime,
-            'closing_time' => $closingTime,
-            'downpayment_percentage' => $downpaymentPercentage,
-            'grace_period_minutes' => $gracePeriodMinutes,
-            'default_language' => $defaultLanguage,
-            'default_theme' => $defaultTheme,
-            'timezone' => $timezone,
-        ]);
+            if ($keyValueSchema) {
+                $metadata = [
+                    'salon_name' => ['string', 'business', true],
+                    'business_phone' => ['string', 'business', true],
+                    'business_email' => ['string', 'business', true],
+                    'business_address' => ['string', 'business', true],
+                    'facebook_url' => ['string', 'business', true],
+                    'opening_time' => ['string', 'operating_hours', true],
+                    'closing_time' => ['string', 'operating_hours', true],
+                    'downpayment_percentage' => ['decimal', 'booking', true],
+                    'grace_period_minutes' => ['integer', 'booking', true],
+                    'reminder_minutes_before' => ['integer', 'booking', true],
+                    'booking_cancellation_hours' => ['integer', 'booking', true],
+                    'default_language' => ['string', 'localization', true],
+                    'default_theme' => ['string', 'appearance', true],
+                    'timezone' => ['string', 'localization', true],
+                    'currency' => ['string', 'localization', true],
+                ];
 
-        writeAuditLog(
-            $pdo,
-            'Updated system settings',
-            'System Settings',
-            'Salon information, booking rules, and visitor defaults were updated.'
-        );
+                foreach ($values as $key => $value) {
+                    [$type, $group, $public] = $metadata[$key];
+                    saveKeyValueSetting(
+                        $pdo,
+                        $key,
+                        $value,
+                        $type,
+                        $group,
+                        $public,
+                        $userId
+                    );
+                }
+            } else {
+                $statement = $pdo->prepare(
+                    'UPDATE system_settings SET
+                        salon_name = :salon_name,
+                        contact_number = :business_phone,
+                        email = :business_email,
+                        address = :business_address,
+                        facebook_url = :facebook_url,
+                        opening_time = :opening_time,
+                        closing_time = :closing_time,
+                        downpayment_percentage = :downpayment_percentage,
+                        grace_period_minutes = :grace_period_minutes,
+                        default_language = :default_language,
+                        default_theme = :default_theme,
+                        timezone = :timezone
+                     WHERE id = 1'
+                );
+                $statement->execute([
+                    'salon_name' => $values['salon_name'],
+                    'business_phone' => $values['business_phone'],
+                    'business_email' => $values['business_email'],
+                    'business_address' => $values['business_address'],
+                    'facebook_url' => $values['facebook_url'],
+                    'opening_time' => $values['opening_time'],
+                    'closing_time' => $values['closing_time'],
+                    'downpayment_percentage' =>
+                        $values['downpayment_percentage'],
+                    'grace_period_minutes' =>
+                        $values['grace_period_minutes'],
+                    'default_language' => $values['default_language'],
+                    'default_theme' => $values['default_theme'],
+                    'timezone' => $values['timezone'],
+                ]);
+            }
 
-        $message = 'System settings saved successfully.';
+            $pdo->commit();
 
-        $statement = $pdo->query("SELECT * FROM system_settings WHERE id = 1 LIMIT 1");
-        $settings = array_merge($defaults, $statement->fetch() ?: []);
+            if (function_exists('writeAuditLog')) {
+                writeAuditLog(
+                    $pdo,
+                    'Updated system settings',
+                    'System Settings',
+                    'Business information, operating hours, booking rules, and visitor defaults were updated.'
+                );
+            }
+
+            $message = 'System settings saved successfully.';
+            $settings = loadSystemSettings($pdo, $defaults, $keyValueSchema);
+        } catch (Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            $error = 'The settings could not be saved. Please try again.';
+            error_log('System settings save failed: ' . $exception->getMessage());
+        }
     }
 }
 
@@ -146,89 +331,115 @@ include '../includes/superadmin-header.php';
         </div>
 
         <?php if ($message !== ''): ?>
-            <div class="alert alert-success">
-                <?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?>
-            </div>
+            <div class="alert alert-success"><?= settingsEscape($message) ?></div>
         <?php endif; ?>
 
         <?php if ($error !== ''): ?>
-            <div class="alert alert-danger">
-                <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
-            </div>
+            <div class="alert alert-danger"><?= settingsEscape($error) ?></div>
         <?php endif; ?>
 
         <section class="card settings-card">
             <form method="POST">
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= settingsEscape($_SESSION['system_settings_csrf']) ?>"
+                >
+
                 <div class="settings-section">
                     <h3>Business Information</h3>
-
                     <div class="form-grid">
                         <div class="form-group form-span-2">
                             <label for="salon_name">Salon Name</label>
                             <input id="salon_name" name="salon_name" type="text"
-                                   value="<?= htmlspecialchars($settings['salon_name'], ENT_QUOTES, 'UTF-8') ?>"
-                                   required>
+                                value="<?= settingsEscape($settings['salon_name'] ?? '') ?>"
+                                required>
                         </div>
 
                         <div class="form-group">
-                            <label for="contact_number">Contact Number</label>
-                            <input id="contact_number" name="contact_number" type="text"
-                                   value="<?= htmlspecialchars($settings['contact_number'], ENT_QUOTES, 'UTF-8') ?>">
+                            <label for="business_phone">Contact Number</label>
+                            <input id="business_phone" name="business_phone" type="tel"
+                                value="<?= settingsEscape($settings['business_phone'] ?? '') ?>">
                         </div>
 
                         <div class="form-group">
-                            <label for="email">Business Email</label>
-                            <input id="email" name="email" type="email"
-                                   value="<?= htmlspecialchars($settings['email'], ENT_QUOTES, 'UTF-8') ?>">
+                            <label for="business_email">Business Email</label>
+                            <input id="business_email" name="business_email" type="email"
+                                value="<?= settingsEscape($settings['business_email'] ?? '') ?>">
                         </div>
 
                         <div class="form-group form-span-2">
-                            <label for="address">Business Address</label>
-                            <textarea id="address" name="address" rows="3"><?= htmlspecialchars($settings['address'], ENT_QUOTES, 'UTF-8') ?></textarea>
+                            <label for="business_address">Business Address</label>
+                            <textarea id="business_address" name="business_address"
+                                rows="3"><?= settingsEscape($settings['business_address'] ?? '') ?></textarea>
                         </div>
 
                         <div class="form-group form-span-2">
                             <label for="facebook_url">Facebook Page URL</label>
                             <input id="facebook_url" name="facebook_url" type="url"
-                                   value="<?= htmlspecialchars($settings['facebook_url'], ENT_QUOTES, 'UTF-8') ?>">
+                                value="<?= settingsEscape($settings['facebook_url'] ?? '') ?>">
                         </div>
                     </div>
                 </div>
 
                 <div class="settings-section">
                     <h3>Operating Hours</h3>
-
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="opening_time">Opening Time</label>
                             <input id="opening_time" name="opening_time" type="time"
-                                   value="<?= htmlspecialchars(substr((string) $settings['opening_time'], 0, 5), ENT_QUOTES, 'UTF-8') ?>">
+                                value="<?= settingsEscape(substr((string) ($settings['opening_time'] ?? '09:00'), 0, 5)) ?>"
+                                required>
                         </div>
 
                         <div class="form-group">
                             <label for="closing_time">Closing Time</label>
                             <input id="closing_time" name="closing_time" type="time"
-                                   value="<?= htmlspecialchars(substr((string) $settings['closing_time'], 0, 5), ENT_QUOTES, 'UTF-8') ?>">
+                                value="<?= settingsEscape(substr((string) ($settings['closing_time'] ?? '18:00'), 0, 5)) ?>"
+                                required>
                         </div>
                     </div>
                 </div>
 
                 <div class="settings-section">
                     <h3>Booking Rules</h3>
-
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="downpayment_percentage">Down Payment Percentage</label>
-                            <input id="downpayment_percentage" name="downpayment_percentage"
-                                   type="number" min="0" max="100"
-                                   value="<?= (int) $settings['downpayment_percentage'] ?>">
+                            <input id="downpayment_percentage"
+                                name="downpayment_percentage" type="number"
+                                min="0" max="100"
+                                value="<?= (int) ($settings['downpayment_percentage'] ?? 50) ?>"
+                                required>
                         </div>
 
                         <div class="form-group">
                             <label for="grace_period_minutes">Grace Period (Minutes)</label>
-                            <input id="grace_period_minutes" name="grace_period_minutes"
-                                   type="number" min="0" max="120"
-                                   value="<?= (int) $settings['grace_period_minutes'] ?>">
+                            <input id="grace_period_minutes"
+                                name="grace_period_minutes" type="number"
+                                min="0" max="120"
+                                value="<?= (int) ($settings['grace_period_minutes'] ?? 15) ?>"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reminder_minutes_before">Reminder Before Appointment</label>
+                            <input id="reminder_minutes_before"
+                                name="reminder_minutes_before" type="number"
+                                min="0" max="10080"
+                                value="<?= (int) ($settings['reminder_minutes_before'] ?? 30) ?>"
+                                required>
+                            <small class="field-note">Number of minutes before the appointment.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="booking_cancellation_hours">Cancellation Limit</label>
+                            <input id="booking_cancellation_hours"
+                                name="booking_cancellation_hours" type="number"
+                                min="0" max="720"
+                                value="<?= (int) ($settings['booking_cancellation_hours'] ?? 24) ?>"
+                                required>
+                            <small class="field-note">Minimum hours before an appointment can be cancelled.</small>
                         </div>
                     </div>
                 </div>
@@ -238,8 +449,8 @@ include '../includes/superadmin-header.php';
                         <div>
                             <h3>Public Website Defaults</h3>
                             <p>
-                                These settings are used only when a visitor has not chosen
-                                a personal language or appearance preference.
+                                These are fallback values for visitors who have not
+                                chosen personal language or appearance preferences.
                             </p>
                         </div>
                     </div>
@@ -253,15 +464,12 @@ include '../includes/superadmin-header.php';
                                     'filipino' => 'Filipino',
                                     'taglish' => 'Taglish',
                                 ] as $value => $label): ?>
-                                    <option value="<?= $value ?>"
-                                        <?= strtolower((string) $settings['default_language']) === $value ? 'selected' : '' ?>>
-                                        <?= $label ?>
+                                    <option value="<?= settingsEscape($value) ?>"
+                                        <?= strtolower((string) ($settings['default_language'] ?? 'english')) === $value ? 'selected' : '' ?>>
+                                        <?= settingsEscape($label) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <small class="field-note">
-                                Visitors can override this using the floating Language &amp; Display control.
-                            </small>
                         </div>
 
                         <div class="form-group">
@@ -272,31 +480,21 @@ include '../includes/superadmin-header.php';
                                     'light' => 'Light — Bright & High Contrast',
                                     'dark' => 'Dark — Reduced Brightness',
                                 ] as $value => $label): ?>
-                                    <option value="<?= $value ?>"
-                                        <?= strtolower((string) $settings['default_theme']) === $value ? 'selected' : '' ?>>
-                                        <?= $label ?>
+                                    <option value="<?= settingsEscape($value) ?>"
+                                        <?= strtolower((string) ($settings['default_theme'] ?? 'default')) === $value ? 'selected' : '' ?>>
+                                        <?= settingsEscape($label) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <small class="field-note">
-                                This is a fallback. Each visitor may choose a different mode.
-                            </small>
                         </div>
 
-                        <div class="form-group form-span-2">
-                            <label for="timezone">Timezone</label>
-                            <select id="timezone" name="timezone">
-                                <option value="Asia/Manila"
-                                    <?= $settings['timezone'] === 'Asia/Manila' ? 'selected' : '' ?>>
-                                    Asia/Manila
-                                </option>
-                            </select>
-                        </div>
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button class="btn btn-gold" type="submit">Save System Settings</button>
+                    <button class="btn btn-gold" type="submit">
+                        Save System Settings
+                    </button>
                 </div>
             </form>
         </section>

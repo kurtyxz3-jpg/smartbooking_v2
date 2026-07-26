@@ -1,229 +1,173 @@
 <?php
 declare(strict_types=1);
 
-session_start();
-
+require_once '../../includes/customer-auth.php';
+require_once '../../config/database.php';
+require_once '../../includes/ai-service.php';
+require_once '../../includes/ai-history-helper.php';
 header('Content-Type: application/json; charset=utf-8');
-
-if (
-    !isset($_SESSION['user_id'])
-    || ($_SESSION['role'] ?? '') !== 'customer'
-) {
-    http_response_code(401);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Please sign in as a customer.',
-    ]);
-    exit;
-}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Method not allowed.',
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
     exit;
 }
 
-$rawBody = file_get_contents('php://input');
-$payload = json_decode($rawBody ?: '', true);
-
+$payload = json_decode(file_get_contents('php://input') ?: '', true);
 if (!is_array($payload)) {
     http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Invalid request data.',
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Invalid request data.']);
     exit;
 }
 
-$color = trim((string) ($payload['color'] ?? ''));
-$style = trim((string) ($payload['style'] ?? ''));
-$nailShape = trim((string) ($payload['nail_shape'] ?? 'Almond'));
-$nailLength = trim((string) ($payload['nail_length'] ?? 'Medium'));
-$occasion = trim((string) ($payload['occasion'] ?? 'Everyday'));
-$instructions = trim((string) ($payload['instructions'] ?? ''));
-$addOns = $payload['add_ons'] ?? [];
-
-$errors = [];
-
-if ($color === '') {
-    $errors['color'] = 'Preferred colors are required.';
-}
-
-if ($style === '') {
-    $errors['style'] = 'Design style is required.';
-}
-
-if (!is_array($addOns)) {
-    $errors['add_ons'] = 'Add-ons must be a list.';
-    $addOns = [];
-}
-
-if (mb_strlen($instructions) > 600) {
-    $errors['instructions'] = 'Instructions must not exceed 600 characters.';
-}
-
-if ($errors) {
-    http_response_code(422);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Please correct the form.',
-        'errors' => $errors,
-    ]);
+if (!hash_equals(
+    (string) ($_SESSION['ai_csrf'] ?? ''),
+    (string) ($payload['csrf_token'] ?? '')
+)) {
+    http_response_code(419);
+    echo json_encode(['success' => false, 'message' => 'Refresh the page and try again.']);
     exit;
 }
 
-$pythonPayload = [
-    'color' => $color,
-    'style' => $style,
-    'nail_shape' => $nailShape,
-    'nail_length' => $nailLength,
-    'occasion' => $occasion,
-    'add_ons' => array_values(array_map(
-        static fn ($value): string => trim((string) $value),
-        array_slice($addOns, 0, 10)
-    )),
-    'instructions' => $instructions,
+$settings = aiSettings($pdo);
+if ($settings['ai_enabled'] !== '1' || $settings['nail_generator_enabled'] !== '1') {
+    http_response_code(503);
+    echo json_encode(['success' => false, 'message' => 'AI Nail Studio is disabled.']);
+    exit;
+}
+
+$data = [
+    'color' => trim((string) ($payload['color'] ?? '')),
+    'style' => trim((string) ($payload['style'] ?? '')),
+    'nail_shape' => trim((string) ($payload['nail_shape'] ?? '')),
+    'nail_length' => trim((string) ($payload['nail_length'] ?? '')),
+    'occasion' => trim((string) ($payload['occasion'] ?? '')),
+    'add_ons' => is_array($payload['add_ons'] ?? null)
+        ? array_slice(array_map('strval', $payload['add_ons']), 0, 10)
+        : [],
+    'instructions' => mb_substr(trim((string) ($payload['instructions'] ?? '')), 0, 600),
+    'count' => 3,
 ];
 
-if (!function_exists('curl_init')) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'PHP cURL is not enabled. Enable extension=curl in php.ini and restart Apache.',
-    ]);
-    exit;
+foreach (['color', 'style', 'nail_shape', 'nail_length', 'occasion'] as $field) {
+    if ($data[$field] === '') {
+        http_response_code(422);
+        echo json_encode(['success' => false, 'message' => 'Complete all required design fields.']);
+        exit;
+    }
 }
 
-$pythonUrl = 'http://127.0.0.1:5000/api/nail-designs/generate';
-$curl = curl_init($pythonUrl);
+$customerId = (int) $_SESSION['user_id'];
 
-curl_setopt_array($curl, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'Accept: application/json',
-    ],
-    CURLOPT_POSTFIELDS => json_encode(
-        $pythonPayload,
-        JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-    ),
-    CURLOPT_CONNECTTIMEOUT => 5,
-    CURLOPT_TIMEOUT => 120,
-]);
-
-$responseBody = curl_exec($curl);
-$curlError = curl_error($curl);
-$statusCode = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
-curl_close($curl);
-
-if ($responseBody === false || $curlError !== '') {
+try {
+    $health = callAiService(
+        $settings['ai_service_url'],
+        '/api/health',
+        null,
+        10
+    );
+} catch (Throwable $exception) {
     http_response_code(503);
     echo json_encode([
         'success' => false,
-        'message' => 'The Python AI server is unavailable. Start it using: py app.py',
-        'technical_message' => $curlError,
+        'message' => $exception->getMessage(),
     ]);
     exit;
 }
 
-$response = json_decode($responseBody, true);
+$activeProvider = strtolower(trim((string) ($health['provider'] ?? 'unknown')));
+$enforceDailyLimit = $activeProvider !== 'demo';
 
-if (!is_array($response)) {
-    http_response_code(502);
-    echo json_encode([
-        'success' => false,
-        'message' => 'The AI server returned an invalid response.',
-    ]);
+$resetAt = null;
+try {
+    $reset = $pdo->prepare(
+        "SELECT MAX(reset_at) FROM ai_daily_limit_resets
+         WHERE customer_id=? AND reset_at >= CURDATE()"
+    );
+    $reset->execute([$customerId]);
+    $resetAt = $reset->fetchColumn() ?: null;
+} catch (Throwable $exception) {
+    $resetAt = null;
+}
+$limitStart = $resetAt ?: date('Y-m-d 00:00:00');
+$limitStatement = $pdo->prepare(
+    "SELECT COUNT(*) FROM ai_design_requests
+     WHERE customer_id = ? AND created_at >= ?"
+);
+$limitStatement->execute([$customerId, $limitStart]);
+if (
+    $enforceDailyLimit
+    && (int) $limitStatement->fetchColumn() >= (int) $settings['daily_customer_limit']
+) {
+    http_response_code(429);
+    echo json_encode(['success' => false, 'message' => 'You reached today’s AI generation limit.']);
     exit;
 }
 
-if ($statusCode < 200 || $statusCode >= 300 || empty($response['success'])) {
-    http_response_code($statusCode >= 400 ? $statusCode : 502);
-    echo json_encode([
-        'success' => false,
-        'message' => $response['message'] ?? 'The AI request failed.',
-        'errors' => $response['errors'] ?? [],
-    ]);
-    exit;
-}
-
-$baseUrl = 'http://127.0.0.1:5000';
-$images = [];
-
-foreach (($response['images'] ?? []) as $index => $path) {
-    $path = (string) $path;
-    $images[] = [
-        'number' => $index + 1,
-        'url' => str_starts_with($path, 'http')
-            ? $path
-            : $baseUrl . '/' . ltrim($path, '/'),
-        'path' => $path,
-    ];
-}
-
-if (count($images) !== 3) {
-    http_response_code(502);
-    echo json_encode([
-        'success' => false,
-        'message' => 'The AI server did not return three concepts.',
-    ]);
-    exit;
-}
-
-require_once '../../config/database.php';
-
-$generationId = null;
+$insert = $pdo->prepare(
+    "INSERT INTO ai_design_requests
+        (customer_id, nail_shape, nail_length, colors, design_style,
+         occasion, add_ons, instructions, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'processing')"
+);
+$insert->execute([
+    $customerId, $data['nail_shape'], $data['nail_length'], $data['color'],
+    $data['style'], $data['occasion'],
+    json_encode($data['add_ons'], JSON_UNESCAPED_UNICODE),
+    $data['instructions'] ?: null,
+]);
+$requestId = (int) $pdo->lastInsertId();
 
 try {
-    $statement = $pdo->prepare(
-        "INSERT INTO ai_nail_generations (
-            customer_id,
-            color_palette,
-            design_style,
-            nail_shape,
-            nail_length,
-            occasion,
-            add_ons_json,
-            instructions,
-            prompt_text,
-            image_1_url,
-            image_2_url,
-            image_3_url,
-            provider,
-            status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'generated')"
+    $result = callAiService(
+        $settings['ai_service_url'],
+        '/api/v1/nail-designs/generate',
+        $data,
+        (int) $settings['request_timeout_seconds']
     );
-
-    $statement->execute([
-        (int) $_SESSION['user_id'],
-        $color,
-        $style,
-        $nailShape,
-        $nailLength,
-        $occasion,
-        json_encode($pythonPayload['add_ons'], JSON_UNESCAPED_UNICODE),
-        $instructions !== '' ? $instructions : null,
-        $response['prompt'] ?? null,
-        $images[0]['url'],
-        $images[1]['url'],
-        $images[2]['url'],
-        $response['provider'] ?? 'demo',
+    $images = [];
+    foreach (array_slice((array) ($result['images'] ?? []), 0, 3) as $index => $path) {
+        $url = str_starts_with((string) $path, 'http')
+            ? (string) $path
+            : rtrim($settings['ai_service_url'], '/') . '/' . ltrim((string) $path, '/');
+        $save = $pdo->prepare(
+            "INSERT INTO ai_generated_designs
+                (request_id, customer_id, design_number, image_path, is_saved)
+             VALUES (?, ?, ?, ?, 1)"
+        );
+        $save->execute([$requestId, $customerId, $index + 1, $url]);
+        $images[] = ['id' => (int) $pdo->lastInsertId(), 'number' => $index + 1, 'url' => $url];
+    }
+    if (count($images) !== 3) {
+        throw new RuntimeException('The AI service did not return three designs.');
+    }
+    $done = $pdo->prepare(
+        "UPDATE ai_design_requests SET provider=?, model_name=?, prompt_text=?,
+         status='completed', completed_at=NOW() WHERE id=?"
+    );
+    $done->execute([
+        $result['provider'] ?? 'unknown',
+        $result['model'] ?? null,
+        $result['prompt'] ?? null,
+        $requestId,
     ]);
-
-    $generationId = (int) $pdo->lastInsertId();
+    aiLogUsage(
+        $pdo, $customerId, 'generated', $requestId, null, null,
+        (string) ($result['provider'] ?? 'unknown')
+    );
+    echo json_encode([
+        'success' => true,
+        'message' => $result['message'] ?? 'Three designs were created.',
+        'request_id' => $requestId,
+        'provider' => $result['provider'] ?? 'unknown',
+        'images' => $images,
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 } catch (Throwable $exception) {
-    // The generation still succeeds even if history storage is unavailable.
-    $generationId = null;
+    $failed = $pdo->prepare(
+        "UPDATE ai_design_requests SET status='failed', error_message=? WHERE id=?"
+    );
+    $failed->execute([$exception->getMessage(), $requestId]);
+    aiLogUsage($pdo, $customerId, 'failed', $requestId);
+    http_response_code(503);
+    echo json_encode(['success' => false, 'message' => $exception->getMessage()]);
 }
-
-echo json_encode([
-    'success' => true,
-    'message' => $response['message'] ?? 'Three nail concepts were created.',
-    'generation_id' => $generationId,
-    'prompt' => $response['prompt'] ?? '',
-    'images' => $images,
-], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

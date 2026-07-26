@@ -1,16 +1,75 @@
 (() => {
+  'use strict';
+
   const root = document.documentElement;
   const widget = document.getElementById('nbwPreferences');
   const trigger = document.getElementById('nbwPreferencesTrigger');
   const panel = document.getElementById('nbwPreferencesPanel');
-  const close = document.getElementById('nbwPreferencesClose');
+  const closeButton = document.getElementById('nbwPreferencesClose');
   const status = document.getElementById('nbwPreferencesStatus');
 
   if (!widget || !trigger || !panel) return;
 
-  let language = widget.dataset.currentLanguage || 'english';
-  let theme = widget.dataset.currentTheme || 'default';
+  const loadedUrl = new URL(window.location.href);
+  if (loadedUrl.searchParams.has('_language_changed')) {
+    loadedUrl.searchParams.delete('_language_changed');
+    window.history.replaceState({}, '', loadedUrl.toString());
+  }
+
+  const allowedLanguages = new Set(['english', 'filipino', 'taglish']);
+  const allowedThemes = new Set(['default', 'light', 'dark']);
+
+  let language = allowedLanguages.has(widget.dataset.currentLanguage)
+    ? widget.dataset.currentLanguage
+    : 'english';
+  let theme = allowedThemes.has(widget.dataset.currentTheme)
+    ? widget.dataset.currentTheme
+    : 'default';
   let saving = false;
+  let languageReloadTimer = null;
+
+  const labels = {
+    english: {
+      saving: 'Saving preferences…',
+      changing: 'Changing language…',
+      saved: 'Preferences saved.',
+      error: 'Unable to save the account preference.',
+    },
+    filipino: {
+      saving: 'Sine-save ang preferences…',
+      changing: 'Pinapalitan ang wika…',
+      saved: 'Naka-save na ang preferences.',
+      error: 'Hindi ma-save ang account preference.',
+    },
+    taglish: {
+      saving: 'Saving preferences…',
+      changing: 'Changing language…',
+      saved: 'Saved na ang preferences.',
+      error: 'Hindi ma-save ang account preference.',
+    },
+  };
+
+  function currentLabels() {
+    return labels[language] || labels.english;
+  }
+
+  function setStatus(message) {
+    if (status) status.textContent = message;
+  }
+
+  function setCookie(name, value) {
+    const maxAge = 60 * 60 * 24 * 365;
+    document.cookie =
+      `${name}=${encodeURIComponent(value)}; ` +
+      `path=/smartbooking_v2/; max-age=${maxAge}; SameSite=Lax`;
+  }
+
+  function persistLocally() {
+    localStorage.setItem('nbw_language', language);
+    localStorage.setItem('nbw_theme', theme);
+    setCookie('nbw_language', language);
+    setCookie('nbw_theme', theme);
+  }
 
   function openPanel() {
     panel.classList.add('open');
@@ -38,45 +97,111 @@
     });
   }
 
-  async function savePreferences(reloadAfterSave) {
+  async function sendPreferenceRequest() {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 2500);
+
+    try {
+      const response = await fetch(
+        '/smartbooking_v2/api/save-preferences.php',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          credentials: 'same-origin',
+          cache: 'no-store',
+          signal: controller.signal,
+          body: JSON.stringify({ language, theme }),
+        }
+      );
+
+      let result = {};
+      try {
+        result = await response.json();
+      } catch (_) {
+        result = {};
+      }
+
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || currentLabels().error);
+      }
+
+      return result;
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  function reloadForLanguageChange() {
+    if (languageReloadTimer) {
+      window.clearTimeout(languageReloadTimer);
+    }
+
+    /*
+     * PHP performs the actual interface translation. A cache-busting query
+     * guarantees a fresh request, while replace() avoids adding a duplicate
+     * page to browser history.
+     */
+    languageReloadTimer = window.setTimeout(() => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('_language_changed', String(Date.now()));
+      window.location.replace(url.toString());
+    }, 120);
+  }
+
+  async function saveTheme() {
     if (saving) return;
     saving = true;
 
-    if (status) status.textContent = 'Saving preferences…';
+    persistLocally();
+    root.dataset.theme = theme;
+    reflectButtons();
+    setStatus(currentLabels().saving);
 
     try {
-      const response = await fetch('/smartbooking_v2/api/save-preferences.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({ language, theme }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.ok) {
-        throw new Error(result.message || 'Unable to save preferences.');
-      }
-
-      localStorage.setItem('nbw_language', language);
-      localStorage.setItem('nbw_theme', theme);
-
-      if (status) status.textContent = 'Preferences saved.';
-
-      if (reloadAfterSave) {
-        window.setTimeout(() => window.location.reload(), 180);
-      }
+      await sendPreferenceRequest();
+      setStatus(currentLabels().saved);
     } catch (error) {
-      if (status) {
-        status.textContent =
-          error instanceof Error
-            ? error.message
-            : 'Unable to save preferences.';
-      }
+      /*
+       * Theme remains saved locally even if the optional account database
+       * update fails. This keeps accessibility controls responsive.
+       */
+      setStatus(
+        error instanceof Error ? error.message : currentLabels().error
+      );
     } finally {
       saving = false;
+    }
+  }
+
+  async function saveLanguageAndReload() {
+    if (saving) return;
+    saving = true;
+
+    /*
+     * Save browser state before contacting PHP. This guarantees that the next
+     * request already contains the chosen language cookie.
+     */
+    persistLocally();
+    reflectButtons();
+    setStatus(currentLabels().changing);
+
+    /*
+     * Always schedule the automatic reload. The database request may be slow
+     * or unavailable, but the cookie is enough for PHP to render the selected
+     * language on this device.
+     */
+    const fallbackReload = window.setTimeout(reloadForLanguageChange, 900);
+
+    try {
+      await sendPreferenceRequest();
+    } catch (_) {
+      // The browser preference is already saved; continue with the reload.
+    } finally {
+      window.clearTimeout(fallbackReload);
+      reloadForLanguageChange();
     }
   }
 
@@ -84,12 +209,10 @@
     panel.classList.contains('open') ? closePanel() : openPanel();
   });
 
-  close?.addEventListener('click', closePanel);
+  closeButton?.addEventListener('click', closePanel);
 
   document.addEventListener('click', (event) => {
-    if (!widget.contains(event.target)) {
-      closePanel();
-    }
+    if (!widget.contains(event.target)) closePanel();
   });
 
   document.addEventListener('keydown', (event) => {
@@ -101,18 +224,21 @@
 
   document.querySelectorAll('[data-theme-choice]').forEach((button) => {
     button.addEventListener('click', () => {
-      theme = button.dataset.themeChoice || 'default';
-      root.dataset.theme = theme;
-      reflectButtons();
-      savePreferences(false);
+      const choice = button.dataset.themeChoice || 'default';
+      if (!allowedThemes.has(choice) || choice === theme) return;
+
+      theme = choice;
+      saveTheme();
     });
   });
 
   document.querySelectorAll('[data-language-choice]').forEach((button) => {
     button.addEventListener('click', () => {
-      language = button.dataset.languageChoice || 'english';
-      reflectButtons();
-      savePreferences(true);
+      const choice = button.dataset.languageChoice || 'english';
+      if (!allowedLanguages.has(choice) || choice === language) return;
+
+      language = choice;
+      saveLanguageAndReload();
     });
   });
 

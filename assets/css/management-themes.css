@@ -1,0 +1,399 @@
+/*
+ * SmartBooking management portal themes
+ * Loaded last by Super Admin, Admin, and Staff headers.
+ */
+
+.management-portal {
+  --portal-bg: #f7f3ee;
+  --portal-surface: #ffffff;
+  --portal-surface-soft: #fffaf3;
+  --portal-text: #261812;
+  --portal-muted: #74665e;
+  --portal-border: #e5d7c5;
+  --portal-header: #f2e6d6;
+  --portal-accent: #a97922;
+  --portal-accent-text: #ffffff;
+  --portal-shadow: 0 10px 28px rgba(64, 37, 23, 0.09);
+  color: var(--portal-text);
+  background: var(--portal-bg);
+}
+
+html[data-theme="light"] .management-portal {
+  --portal-bg: #f3f5f7;
+  --portal-surface: #ffffff;
+  --portal-surface-soft: #f8f9fb;
+  --portal-text: #17191c;
+  --portal-muted: #525963;
+  --portal-border: #cbd1d8;
+  --portal-header: #e9edf2;
+  --portal-accent: #80530f;
+  --portal-accent-text: #ffffff;
+  --portal-shadow: 0 8px 24px rgba(17, 24, 39, 0.09);
+}
+
+html[data-theme="dark"] .management-portal {
+  --portal-bg: #14110f;
+  --portal-surface: #24201d;
+  --portal-surface-soft: #2d2723;
+  --portal-text: #fffaf2;
+  --portal-muted: #d4c8bd;
+  --portal-border: #5b4c42;
+  --portal-header: #332a25;
+  --portal-accent: #e3bc69;
+  --portal-accent-text: #21150e;
+  --portal-shadow: 0 12px 34px rgba(0, 0, 0, 0.30);
+}
+
+html[data-theme="light"] .management-portal,
+html[data-theme="dark"] .management-portal {
+  color: var(--portal-text) !important;
+  background: var(--portal-bg) !important;
+}
+
+/* Page backgrounds */
+html[data-theme="light"] .management-portal :where(
+  .content, .admin-content, .staff-content, main
+),
+html[data-theme="dark"] .management-portal :where(
+  .content, .admin-content, .staff-content, main
+) {
+  color: var(--portal-text) !important;
+  background-color: var(--portal-bg) !important;
+}
+
+/* All common surfaces */
+html[data-theme="light"] .management-portal :where(
+  .card, .kpi, .admin-card, .staff-card, .settings-card,
+  .table-card, .filter-card, .admin-panel, .staff-panel,
+  .analytics-card, .report-card, .account-card,
+  .modal-content, .dialog, .quick-action, .empty-state,
+  .staff-timeline-content, .staff-profile-details > div
+),
+html[data-theme="dark"] .management-portal :where(
+  .card, .kpi, .admin-card, .staff-card, .settings-card,
+  .table-card, .filter-card, .admin-panel, .staff-panel,
+  .analytics-card, .report-card, .account-card,
+  .modal-content, .dialog, .quick-action, .empty-state,
+  .staff-timeline-content, .staff-profile-details > div
+) {
+  color: var(--portal-text) !important;
+  background: var(--portal-surface) !important;
+  border-color: var(--portal-border) !important;
+  box-shadow: var(--portal-shadow);
+}
+
+/* Typography: prevent old fixed brown/black text from disappearing */
+html[data-theme="light"] .management-portal :where(
+  h1, h2, h3, h4, h5, h6, label, legend, strong,
+  th, td, .page-title, .admin-page-title, .staff-page-title,
+  .table-heading, .kpi h2, .admin-kpi strong, .staff-kpi strong
+),
+html[data-theme="dark"] .management-portal :where(
+  h1, h2, h3, h4, h5, h6, label, legend, strong,
+  th, td, .page-title, .admin-page-title, .staff-page-title,
+  .table-heading, .kpi h2, .admin-kpi strong, .staff-kpi strong
+) {
+  color: var(--portal-text) !important;
+}
+
+html[data-theme="light"] .management-portal :where(
+  p, small, .field-note, .muted, .text-muted,
+  .page-header p, .admin-page-header p, .staff-page-header p,
+  .content-heading p, .admin-kpi span, .staff-kpi span
+),
+html[data-theme="dark"] .management-portal :where(
+  p, small, .field-note, .muted, .text-muted,
+  .page-header p, .admin-page-header p, .staff-page-header p,
+  .content-heading p, .admin-kpi span, .staff-kpi span
+) {
+  color: var(--portal-muted) !important;
+}
+
+/* Forms */
+html[data-theme="light"] .management-portal :where(
+  input, select, textarea
+),
+html[data-theme="dark"] .management-portal :where(
+  input, select, textarea
+) {
+  color: var(--portal-text) !important;
+  background-color: var(--portal-surface-soft) !important;
+  border-color: var(--portal-border) !important;
+  caret-color: var(--portal-text);
+}
+
+html[data-theme="light"] .management-portal :where(
+  input, textarea
+)::placeholder,
+html[data-theme="dark"] .management-portal :where(
+  input, textarea
+)::placeholder {
+  color: var(--portal-muted) !important;
+  opacity: 0.85;
+}
+
+html[data-theme="dark"] .management-portal select option {
+  color: #fffaf2;
+  background: #24201d;
+}
+
+/* Tables */
+html[data-theme="light"] .management-portal :where(
+  table, thead, tbody, tr, td
+),
+html[data-theme="dark"] .management-portal :where(
+  table, thead, tbody, tr, td
+) {
+  color: var(--portal-text) !important;
+  background-color: var(--portal-surface) !important;
+  border-color: var(--portal-border) !important;
+}
+
+html[data-theme="light"] .management-portal th,
+html[data-theme="dark"] .management-portal th {
+  color: var(--portal-text) !important;
+  background: var(--portal-header) !important;
+  border-color: var(--portal-border) !important;
+}
+
+html[data-theme="light"] .management-portal tbody tr:hover td,
+html[data-theme="dark"] .management-portal tbody tr:hover td {
+  color: var(--portal-text) !important;
+  background: var(--portal-surface-soft) !important;
+}
+
+/* Gold titles remain readable in every mode */
+html[data-theme="dark"] .management-portal .gold-title {
+  color: #f0cf86 !important;
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+html[data-theme="light"] .management-portal .gold-title {
+  color: #6f4310 !important;
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Buttons and links */
+html[data-theme="light"] .management-portal :where(
+  .btn-gold, .btn-primary, .admin-btn-primary, .staff-btn-primary
+),
+html[data-theme="dark"] .management-portal :where(
+  .btn-gold, .btn-primary, .admin-btn-primary, .staff-btn-primary
+) {
+  color: var(--portal-accent-text) !important;
+  background: var(--portal-accent) !important;
+  border-color: var(--portal-accent) !important;
+}
+
+html[data-theme="light"] .management-portal :where(
+  .btn-light, .btn-secondary, .action-link, .action-button
+),
+html[data-theme="dark"] .management-portal :where(
+  .btn-light, .btn-secondary, .action-link, .action-button
+) {
+  color: var(--portal-text) !important;
+  background: var(--portal-surface-soft) !important;
+  border-color: var(--portal-border) !important;
+}
+
+/* Sidebar stays deliberately dark and high-contrast in all modes */
+.management-portal :where(
+  .sidebar, .admin-sidebar, .staff-sidebar
+) {
+  color: #ffffff !important;
+}
+
+.management-portal :where(
+  .sidebar, .admin-sidebar, .staff-sidebar
+) :where(a, strong, small, b) {
+  color: #ffffff !important;
+}
+
+.management-portal :where(
+  .sidebar-nav, .admin-sidebar-nav, .staff-sidebar-nav
+) a.active {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Footer */
+html[data-theme="light"] .management-portal :where(
+  .footer, .admin-footer, .staff-footer
+),
+html[data-theme="dark"] .management-portal :where(
+  .footer, .admin-footer, .staff-footer
+) {
+  color: #ffffff !important;
+  background: #2b1b14 !important;
+  border: 1px solid rgba(226, 189, 112, 0.28);
+}
+
+/* The theme control must remain visible above management content. */
+.management-portal .nbw-preferences {
+  z-index: 5000;
+}
+
+.management-portal .nbw-preferences-trigger {
+  color: var(--portal-text);
+  background: var(--portal-surface);
+  border-color: var(--portal-border);
+}
+
+.management-portal .nbw-preferences-panel {
+  color: var(--portal-text);
+  background: var(--portal-surface);
+  border-color: var(--portal-border);
+}
+
+/*
+ * Super Admin analytics/dashboard components use their own class family and
+ * therefore need explicit theme surfaces rather than generic .card rules.
+ */
+html[data-theme="light"] .management-portal :where(
+  .executive-kpi:not(.executive-kpi-revenue),
+  .analytics-kpi:not(.analytics-kpi-featured),
+  .executive-alert-card,
+  .executive-quick-actions a,
+  .analytics-summary-list > div,
+  .analytics-ranking-item,
+  .report-meta > div
+),
+html[data-theme="dark"] .management-portal :where(
+  .executive-kpi:not(.executive-kpi-revenue),
+  .analytics-kpi:not(.analytics-kpi-featured),
+  .executive-alert-card,
+  .executive-quick-actions a,
+  .analytics-summary-list > div,
+  .analytics-ranking-item,
+  .report-meta > div
+) {
+  color: var(--portal-text) !important;
+  background: var(--portal-surface) !important;
+  border-color: var(--portal-border) !important;
+  box-shadow: var(--portal-shadow);
+}
+
+html[data-theme="light"] .management-portal :where(
+  .executive-kpi small,
+  .executive-kpi p,
+  .analytics-kpi small,
+  .analytics-kpi p,
+  .executive-alert-card span,
+  .executive-alert-card small,
+  .executive-quick-actions span,
+  .analytics-empty,
+  .activity-stream-item span,
+  .activity-stream-item small,
+  .analytics-bar-label span,
+  .analytics-summary-list span,
+  .analytics-ranking-item small,
+  .report-meta span
+),
+html[data-theme="dark"] .management-portal :where(
+  .executive-kpi small,
+  .executive-kpi p,
+  .analytics-kpi small,
+  .analytics-kpi p,
+  .executive-alert-card span,
+  .executive-alert-card small,
+  .executive-quick-actions span,
+  .analytics-empty,
+  .activity-stream-item span,
+  .activity-stream-item small,
+  .analytics-bar-label span,
+  .analytics-summary-list span,
+  .analytics-ranking-item small,
+  .report-meta span
+) {
+  color: var(--portal-muted) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+html[data-theme="light"] .management-portal :where(
+  .executive-kpi h2,
+  .analytics-kpi h2,
+  .executive-alert-card strong,
+  .executive-quick-actions strong,
+  .analytics-summary-list strong,
+  .analytics-ranking-item strong,
+  .report-meta strong
+),
+html[data-theme="dark"] .management-portal :where(
+  .executive-kpi h2,
+  .analytics-kpi h2,
+  .executive-alert-card strong,
+  .executive-quick-actions strong,
+  .analytics-summary-list strong,
+  .analytics-ranking-item strong,
+  .report-meta strong
+) {
+  color: var(--portal-text) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Preserve the featured revenue card as a deliberately dark brand card. */
+html[data-theme="light"] .management-portal :where(
+  .executive-kpi-revenue,
+  .analytics-kpi-featured
+),
+html[data-theme="dark"] .management-portal :where(
+  .executive-kpi-revenue,
+  .analytics-kpi-featured
+) {
+  color: #ffffff !important;
+  background:
+    radial-gradient(circle at top right, rgba(216, 181, 106, 0.28), transparent 40%),
+    linear-gradient(135deg, #5b3822, #2a1a12) !important;
+}
+
+html[data-theme="light"] .management-portal :where(
+  .executive-kpi-revenue h2,
+  .executive-kpi-revenue small,
+  .executive-kpi-revenue p,
+  .analytics-kpi-featured h2,
+  .analytics-kpi-featured small,
+  .analytics-kpi-featured p
+),
+html[data-theme="dark"] .management-portal :where(
+  .executive-kpi-revenue h2,
+  .executive-kpi-revenue small,
+  .executive-kpi-revenue p,
+  .analytics-kpi-featured h2,
+  .analytics-kpi-featured small,
+  .analytics-kpi-featured p
+) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"] .management-portal .analytics-card-heading > a {
+  color: #efc875 !important;
+}
+
+html[data-theme="dark"] .management-portal .analytics-empty {
+  color: #d8ccc2 !important;
+}
+
+html[data-theme="dark"] .management-portal :where(
+  .activity-stream-item:not(:last-child)::before,
+  .analytics-bar-track
+) {
+  background: #55473e !important;
+}
+
+html[data-theme="dark"] .management-portal .activity-stream-marker {
+  border-color: #4a3b32 !important;
+}
+
+@media (max-width: 760px) {
+  .management-portal .nbw-preferences {
+    right: 14px;
+    bottom: 14px;
+  }
+
+  .management-portal .nbw-preferences-trigger strong {
+    display: none;
+  }
+}

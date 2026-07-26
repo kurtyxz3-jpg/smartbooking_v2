@@ -46,7 +46,7 @@ $ui = [
         'submit' => 'Sign in securely ↗',
         'new' => 'New to SmartBooking?',
         'create' => 'Create a customer account',
-        'return' => '← Return to public website',
+        'return' => '← Return to Home page',
         'required' => 'Please enter your username or email and password.',
         'invalid' => 'Invalid username/email or password.',
         'inactive' => 'Your account is inactive. Please contact the system administrator.',
@@ -73,7 +73,7 @@ $ui = [
         'submit' => 'Ligtas na mag-sign in ↗',
         'new' => 'Bago sa SmartBooking?',
         'create' => 'Gumawa ng customer account',
-        'return' => '← Bumalik sa pampublikong website',
+        'return' => '← Bumalik sa Home page',
         'required' => 'Ilagay ang iyong username o email at password.',
         'invalid' => 'Mali ang username/email o password.',
         'inactive' => 'Hindi aktibo ang iyong account. Makipag-ugnayan sa system administrator.',
@@ -100,7 +100,7 @@ $ui = [
         'submit' => 'Sign in securely ↗',
         'new' => 'New sa SmartBooking?',
         'create' => 'Create a customer account',
-        'return' => '← Return sa public website',
+        'return' => '← Return sa Home page',
         'required' => 'I-enter ang username or email at password.',
         'invalid' => 'Invalid ang username/email or password.',
         'inactive' => 'Inactive ang account mo. Please contact the system administrator.',
@@ -188,6 +188,7 @@ $facebook = oauthProviderEnabled('facebook');
     <link rel="stylesheet" href="../assets/css/accessibility-preferences.css">
     <link rel="icon" type="image/png" href="../assets/images/branding/nbw-favicon.png">
     <link rel="stylesheet" href="../assets/css/official-logo.css">
+    <link rel="stylesheet" href="../assets/css/global-theme-system.css">
 </head>
 
 <body class="auth-v3">

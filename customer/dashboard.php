@@ -170,7 +170,7 @@ if (customerTableExists($pdo, 'bookings')) {
                     <p>Creative tools</p>
                     <h2>AI Nail Studio</h2>
                 </div>
-                <a href="ai-generator.php">Open studio</a>
+                <a href="beauty-studio.php?area=nails">Open studio</a>
             </div>
 
             <p>
@@ -178,7 +178,7 @@ if (customerTableExists($pdo, 'bookings')) {
                 into three concepts that can be attached to a booking.
             </p>
 
-            <a class="customer-btn customer-btn-primary" href="ai-generator.php">
+            <a class="customer-btn customer-btn-primary" href="beauty-studio.php?area=nails">
                 Start creating ↗
             </a>
         </article>

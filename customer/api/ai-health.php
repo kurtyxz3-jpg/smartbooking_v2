@@ -1,46 +1,26 @@
 <?php
 declare(strict_types=1);
 
+require_once '../../includes/customer-auth.php';
+require_once '../../config/database.php';
+require_once '../../includes/ai-service.php';
 header('Content-Type: application/json; charset=utf-8');
 
-if (!function_exists('curl_init')) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'status' => 'curl_disabled',
-        'message' => 'PHP cURL is disabled.',
-    ]);
-    exit;
-}
-
-$curl = curl_init('http://127.0.0.1:5000/api/health');
-
-curl_setopt_array($curl, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_CONNECTTIMEOUT => 2,
-    CURLOPT_TIMEOUT => 4,
-]);
-
-$responseBody = curl_exec($curl);
-$curlError = curl_error($curl);
-$statusCode = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
-curl_close($curl);
-
-if ($responseBody === false || $curlError !== '' || $statusCode !== 200) {
+$settings = aiSettings($pdo);
+if ($settings['ai_enabled'] !== '1' || $settings['nail_generator_enabled'] !== '1') {
     http_response_code(503);
-    echo json_encode([
-        'success' => false,
-        'status' => 'offline',
-        'message' => 'Python AI server is offline.',
-    ]);
+    echo json_encode(['success' => false, 'message' => 'AI Nail Studio is disabled.']);
     exit;
 }
 
-$response = json_decode($responseBody, true);
-
-echo json_encode([
-    'success' => true,
-    'status' => 'online',
-    'provider' => $response['provider'] ?? 'unknown',
-    'message' => 'Python AI server is online.',
-]);
+try {
+    echo json_encode(callAiService(
+        $settings['ai_service_url'],
+        '/api/health',
+        null,
+        5
+    ));
+} catch (Throwable $exception) {
+    http_response_code(503);
+    echo json_encode(['success' => false, 'message' => $exception->getMessage()]);
+}

@@ -1,92 +1,62 @@
 <?php
 declare(strict_types=1);
 
-session_start();
-
+require_once '../../includes/customer-auth.php';
+require_once '../../config/database.php';
+require_once '../../includes/ai-history-helper.php';
 header('Content-Type: application/json; charset=utf-8');
 
-if (
-    !isset($_SESSION['user_id'])
-    || ($_SESSION['role'] ?? '') !== 'customer'
-) {
-    http_response_code(401);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Please sign in as a customer.',
-    ]);
-    exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Method not allowed.',
-    ]);
-    exit;
-}
-
 $payload = json_decode(file_get_contents('php://input') ?: '', true);
-
-$generationId = isset($payload['generation_id'])
-    ? (int) $payload['generation_id']
-    : 0;
-
-$selectedNumber = isset($payload['selected_number'])
-    ? (int) $payload['selected_number']
-    : 0;
-
-$selectedUrl = trim((string) ($payload['selected_url'] ?? ''));
-
-if (
-    $selectedNumber < 1
-    || $selectedNumber > 3
-    || $selectedUrl === ''
-) {
-    http_response_code(422);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Choose a valid generated design.',
-    ]);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !is_array($payload)) {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Invalid request.']);
+    exit;
+}
+if (!hash_equals(
+    (string) ($_SESSION['ai_csrf'] ?? ''),
+    (string) ($payload['csrf_token'] ?? '')
+)) {
+    http_response_code(419);
+    echo json_encode(['success' => false, 'message' => 'Refresh the page and try again.']);
     exit;
 }
 
-require_once '../../config/database.php';
-
+$designId = (int) ($payload['design_id'] ?? 0);
+$customerId = (int) $_SESSION['user_id'];
+$pdo->beginTransaction();
 try {
-    if ($generationId > 0) {
-        $statement = $pdo->prepare(
-            "UPDATE ai_nail_generations
-             SET selected_image_number = ?,
-                 selected_image_url = ?,
-                 status = 'selected',
-                 selected_at = NOW()
-             WHERE id = ?
-               AND customer_id = ?"
-        );
-
-        $statement->execute([
-            $selectedNumber,
-            $selectedUrl,
-            $generationId,
-            (int) $_SESSION['user_id'],
-        ]);
+    $find = $pdo->prepare(
+        "SELECT request_id FROM ai_generated_designs
+         WHERE id=? AND customer_id=? LIMIT 1"
+    );
+    $find->execute([$designId, $customerId]);
+    $requestId = (int) $find->fetchColumn();
+    if ($requestId < 1) {
+        throw new RuntimeException('Generated design was not found.');
     }
-
-    $_SESSION['selected_ai_design'] = [
-        'generation_id' => $generationId,
-        'selected_number' => $selectedNumber,
-        'selected_url' => $selectedUrl,
-    ];
-
+    $clear = $pdo->prepare(
+        "UPDATE ai_generated_designs SET is_selected=0
+         WHERE request_id=? AND customer_id=?"
+    );
+    $clear->execute([$requestId, $customerId]);
+    $selectedAt = aiTableHasColumn($pdo, 'ai_generated_designs', 'selected_at')
+        ? ', selected_at=NOW()' : '';
+    $select = $pdo->prepare(
+        "UPDATE ai_generated_designs SET is_selected=1, is_saved=1 {$selectedAt}
+         WHERE id=? AND customer_id=?"
+    );
+    $select->execute([$designId, $customerId]);
+    $pdo->commit();
+    $_SESSION['selected_ai_design_id'] = $designId;
+    aiLogUsage($pdo, $customerId, 'selected', $requestId, $designId);
     echo json_encode([
         'success' => true,
-        'message' => 'Your preferred nail design was saved.',
+        'message' => 'Design saved to your account.',
+        'history_url' => 'ai-designs.php',
+        'booking_url' => 'book-ai-design.php?design_id=' . $designId,
     ]);
 } catch (Throwable $exception) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'The selected design could not be saved.',
-    ]);
+    $pdo->rollBack();
+    http_response_code(422);
+    echo json_encode(['success' => false, 'message' => $exception->getMessage()]);
 }

@@ -1,0 +1,20 @@
+.ai-status{display:inline-flex;padding:9px 13px;border-radius:999px;font-weight:800;font-size:.72rem}
+.ai-status.online{color:#22613f;background:#e9f7ee;border:1px solid #b8dec6}
+.ai-status.offline{color:#8b352f;background:#fff0ee;border:1px solid #e9bbb7}
+.ai-settings-stack{display:grid;gap:18px}.ai-settings-card{padding:22px}
+.ai-section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:18px}
+.ai-section-heading h2{margin:0 0 5px}.ai-section-heading p{margin:0;color:var(--muted,#755f54)}
+.ai-master-toggle,.ai-module-card{display:flex;gap:10px;align-items:flex-start}
+.ai-master-toggle{padding:10px 13px;border:1px solid #dec89e;border-radius:12px;font-weight:800;white-space:nowrap}
+.ai-module-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ai-module-card{padding:16px;border:1px solid #e4d4bb;border-radius:14px;background:var(--card,#fff)}
+.ai-module-card input{margin-top:4px}.ai-module-card span{display:grid;gap:4px}
+.ai-module-card small{color:var(--muted,#755f54)}.ai-module-card em{font-style:normal;font-size:.7rem;color:#8a6a47}
+.ai-module-card em.ready{color:#267148}.ai-connection-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.ai-connection-summary div{padding:14px;border:1px solid #e4d4bb;border-radius:12px;background:var(--surface-soft,#faf7f2)}
+.ai-connection-summary small,.ai-connection-summary strong{display:block}.ai-connection-summary small{margin-bottom:5px;color:var(--muted,#755f54)}
+.ai-form-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:16px}.ai-form-grid label span{display:block;margin-bottom:7px;font-weight:800}
+.ai-form-grid input{width:100%;box-sizing:border-box}.ai-connection-error{padding:11px 13px;color:#8b352f;background:#fff0ee;border-radius:10px}
+html[data-theme="dark"] .ai-module-card,html[data-theme="dark"] .ai-connection-summary div{background:#241e1a;color:#f8eee2;border-color:#58493e}
+html[data-theme="dark"] .ai-section-heading p,html[data-theme="dark"] .ai-module-card small,html[data-theme="dark"] .ai-connection-summary small{color:#d7c7b7}
+@media(max-width:850px){.ai-module-grid,.ai-connection-summary,.ai-form-grid{grid-template-columns:1fr}.ai-section-heading{flex-direction:column}}

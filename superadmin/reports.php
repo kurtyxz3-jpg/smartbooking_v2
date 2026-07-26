@@ -300,7 +300,6 @@ include '../includes/superadmin-header.php';
         <section class="card report-card">
             <div class="report-heading">
                 <div>
-                    <span>SmartBooking V2</span>
                     <h2><?= htmlspecialchars($reportTitle, ENT_QUOTES, 'UTF-8') ?></h2>
                     <p><?= htmlspecialchars($reportDescription, ENT_QUOTES, 'UTF-8') ?></p>
                 </div>

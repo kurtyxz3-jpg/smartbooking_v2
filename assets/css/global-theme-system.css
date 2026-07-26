@@ -1,0 +1,228 @@
+/*
+ * SmartBooking global theme contract
+ *
+ * This file is loaded by every shared layout. New pages automatically inherit
+ * accessible Default, Light, and Dark colors when they use a shared header and
+ * semantic card/panel/form classes.
+ */
+
+:root {
+    --theme-page: var(--nbw-page-bg, #f7f1e9);
+    --theme-surface: var(--nbw-surface, #fff);
+    --theme-surface-soft: var(--nbw-surface-soft, #fbf7f1);
+    --theme-text: var(--nbw-text, #211512);
+    --theme-muted: var(--nbw-text-muted, #786a62);
+    --theme-border: var(--nbw-border, rgba(65, 38, 28, .15));
+    --theme-link: #8a561b;
+    --theme-accent: #bd8b37;
+    --theme-accent-text: #fff;
+}
+
+html[data-theme="light"] {
+    --theme-page: #f6f7f9;
+    --theme-surface: #fff;
+    --theme-surface-soft: #f0f2f5;
+    --theme-text: #161616;
+    --theme-muted: #555b63;
+    --theme-border: rgba(22, 22, 22, .20);
+    --theme-link: #72440d;
+    --theme-accent: #9d6d1f;
+    --theme-accent-text: #fff;
+}
+
+html[data-theme="dark"] {
+    --theme-page: #15110f;
+    --theme-surface: #251f1c;
+    --theme-surface-soft: #302824;
+    --theme-text: #fffaf2;
+    --theme-muted: #d8ccc2;
+    --theme-border: #625248;
+    --theme-link: #f1ca78;
+    --theme-accent: #e2bd70;
+    --theme-accent-text: #21150e;
+
+    /* Existing Customer UI variables now follow the global theme. */
+    --cu-ink: var(--theme-text);
+    --cu-cocoa: #f5dfb5;
+    --cu-gold: #efc873;
+    --cu-gold-light: #f4d994;
+    --cu-cream: var(--theme-page);
+    --cu-white: var(--theme-surface);
+    --cu-muted: var(--theme-muted);
+    --cu-line: var(--theme-border);
+    --cu-shadow: 0 18px 46px rgba(0, 0, 0, .30);
+}
+
+html[data-theme="light"] body,
+html[data-theme="dark"] body {
+    color: var(--theme-text) !important;
+    background-color: var(--theme-page) !important;
+}
+
+/*
+ * Reusable surfaces. The suffix selectors also protect future cards and panels
+ * without requiring another page-specific dark-theme patch.
+ */
+html[data-theme="dark"] body :where(
+    .theme-surface,
+    .card,
+    [class$="-card"],
+    [class*="-card "],
+    [class$="-panel"],
+    [class*="-panel "],
+    .customer-stat-grid article,
+    .customer-ui-panel,
+    .settings-section,
+    .table-wrap,
+    .modal-content,
+    .dialog
+) {
+    color: var(--theme-text) !important;
+    background-color: var(--theme-surface) !important;
+    border-color: var(--theme-border) !important;
+}
+
+/*
+ * Buttons are centered through layout instead of line-height. This prevents
+ * inherited page rules such as padding-top from pushing labels downward.
+ */
+body :where(
+    .customer-btn,
+    .btn,
+    .btn-primary,
+    .btn-gold,
+    .admin-btn,
+    .staff-btn,
+    .auth-submit
+) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.customer-ai-panel > a.customer-btn {
+    min-height: 48px;
+    padding: 0 19px !important;
+    align-items: center;
+    justify-content: center;
+    border-top: 0;
+}
+
+html[data-theme="dark"] body :where(
+    h1, h2, h3, h4, h5, h6,
+    label, legend, th, td,
+    .title, .heading, .card-title, .panel-title
+) {
+    color: var(--theme-text) !important;
+}
+
+html[data-theme="dark"] body :where(
+    p, small, .muted, .text-muted, .field-note, .help-text,
+    .customer-stat-grid span, .customer-brand small,
+    .customer-profile-link small
+) {
+    color: var(--theme-muted) !important;
+}
+
+html[data-theme="dark"] body :where(input, select, textarea) {
+    color: var(--theme-text) !important;
+    background-color: var(--theme-surface-soft) !important;
+    border-color: var(--theme-border) !important;
+    caret-color: var(--theme-text);
+}
+
+html[data-theme="dark"] body :where(input, textarea)::placeholder {
+    color: #c8b9ae !important;
+    opacity: 1;
+}
+
+html[data-theme="dark"] body select option {
+    color: var(--theme-text);
+    background: var(--theme-surface);
+}
+
+html[data-theme="dark"] body :where(
+    .customer-btn-primary,
+    .btn-primary,
+    .btn-gold,
+    .admin-btn-primary,
+    .staff-btn-primary,
+    .auth-submit
+) {
+    color: var(--theme-accent-text) !important;
+    background: var(--theme-accent) !important;
+    border-color: var(--theme-accent) !important;
+}
+
+html[data-theme="dark"] body :where(
+    .customer-panel-heading > a,
+    .customer-empty-state a,
+    .customer-quick-links a,
+    .action-link
+) {
+    color: var(--theme-link) !important;
+}
+
+/* Customer dashboard readability and the overlapping Quick Links defect. */
+html[data-theme="dark"] .customer-v2-body {
+    background:
+        radial-gradient(circle at 88% 5%, rgba(226, 189, 112, .08), transparent 25%),
+        var(--theme-page) !important;
+}
+
+html[data-theme="dark"] :where(
+    .customer-topbar,
+    .customer-stat-grid article,
+    .customer-panel,
+    .customer-appointment-card
+) {
+    color: var(--theme-text) !important;
+    background: var(--theme-surface) !important;
+    border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .customer-quick-links a,
+.customer-quick-links a {
+    grid-template-columns: minmax(125px, .34fr) minmax(0, 1fr);
+    column-gap: 14px;
+}
+
+html[data-theme="dark"] .customer-quick-links strong {
+    color: var(--theme-text) !important;
+}
+
+html[data-theme="dark"] .customer-quick-links span {
+    color: var(--theme-muted) !important;
+}
+
+/* Accessible status colors retain meaning in Dark mode. */
+html[data-theme="dark"] :where(.alert-success, .status-success, .online) {
+    color: #bce8ca !important;
+}
+
+html[data-theme="dark"] :where(.alert-danger, .alert-error, .status-danger, .offline) {
+    color: #ffc1ba !important;
+}
+
+/* Shared utility classes for every new page created from this update onward. */
+.theme-surface {
+    color: var(--theme-text);
+    background: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+}
+
+.theme-muted {
+    color: var(--theme-muted);
+}
+
+.theme-link {
+    color: var(--theme-link);
+}
+
+@media (max-width: 620px) {
+    .customer-quick-links a {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+}
