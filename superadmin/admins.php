@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once '../includes/superadmin-auth.php';
 require_once '../config/database.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle = 'Administrator Management';
 $message = '';
@@ -34,21 +35,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $search = trim($_GET['search'] ?? '');
 $status = $_GET['status'] ?? '';
+$branchFilter = filter_input(INPUT_GET, 'branch_id', FILTER_VALIDATE_INT);
+$branches = activeBranches($pdo);
 
 $createdAtCheck = $pdo->query("SHOW COLUMNS FROM users LIKE 'created_at'");
 $hasCreatedAt = (bool) $createdAtCheck->fetch();
-$createdAtSelect = $hasCreatedAt ? 'created_at' : 'NULL AS created_at';
+$createdAtSelect = $hasCreatedAt ? 'u.created_at' : 'NULL AS created_at';
 
-$sql = "SELECT id, fullname, username, email, status, {$createdAtSelect}
-        FROM users
-        WHERE role = 'admin'";
+$sql = "SELECT u.id, u.fullname, u.username, u.email, u.status, {$createdAtSelect},
+               b.branch_name
+        FROM users u
+        LEFT JOIN branches b ON b.id=u.branch_id
+        WHERE u.role = 'admin'";
 $params = [];
 
 if ($search !== '') {
     $sql .= " AND (
-        fullname LIKE :search_name
-        OR username LIKE :search_username
-        OR email LIKE :search_email
+        u.fullname LIKE :search_name
+        OR u.username LIKE :search_username
+        OR u.email LIKE :search_email
     )";
 
     $term = '%' . $search . '%';
@@ -58,11 +63,15 @@ if ($search !== '') {
 }
 
 if (in_array($status, ['active', 'inactive'], true)) {
-    $sql .= " AND status = :status";
+    $sql .= " AND u.status = :status";
     $params['status'] = $status;
 }
+if ($branchFilter) {
+    $sql .= " AND u.branch_id = :branch_id";
+    $params['branch_id'] = $branchFilter;
+}
 
-$sql .= $hasCreatedAt ? ' ORDER BY created_at DESC' : ' ORDER BY id DESC';
+$sql .= $hasCreatedAt ? ' ORDER BY u.created_at DESC' : ' ORDER BY u.id DESC';
 
 $statement = $pdo->prepare($sql);
 $statement->execute($params);
@@ -108,6 +117,18 @@ include '../includes/superadmin-header.php';
                 </div>
 
                 <div class="filter-field">
+                    <label for="branch_id">Branch</label>
+                    <select id="branch_id" name="branch_id">
+                        <option value="">All branches</option>
+                        <?php foreach ($branches as $branch): ?>
+                            <option value="<?= (int)$branch['id'] ?>" <?= $branchFilter === (int)$branch['id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($branch['branch_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="filter-field">
                     <label for="status">Status</label>
                     <select id="status" name="status">
                         <option value="">All statuses</option>
@@ -136,6 +157,7 @@ include '../includes/superadmin-header.php';
                             <th>Administrator</th>
                             <th>Username</th>
                             <th>Email</th>
+                            <th>Branch</th>
                             <th>Status</th>
                             <th>Date Created</th>
                             <th>Actions</th>
@@ -145,7 +167,7 @@ include '../includes/superadmin-header.php';
                     <tbody>
                     <?php if (!$administrators): ?>
                         <tr>
-                            <td colspan="6" class="empty-state">No administrator accounts found.</td>
+                            <td colspan="7" class="empty-state">No administrator accounts found.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($administrators as $administrator): ?>
@@ -153,6 +175,7 @@ include '../includes/superadmin-header.php';
                                 <td><strong><?= htmlspecialchars($administrator['fullname'], ENT_QUOTES, 'UTF-8') ?></strong></td>
                                 <td><?= htmlspecialchars($administrator['username'], ENT_QUOTES, 'UTF-8') ?></td>
                                 <td><?= htmlspecialchars($administrator['email'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars($administrator['branch_name'] ?? 'Unassigned', ENT_QUOTES, 'UTF-8') ?></td>
                                 <td>
                                     <span class="badge badge-<?= $administrator['status'] === 'active' ? 'success' : 'inactive' ?>">
                                         <?= ucfirst($administrator['status']) ?>

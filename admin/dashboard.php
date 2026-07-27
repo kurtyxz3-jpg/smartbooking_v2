@@ -4,39 +4,44 @@ declare(strict_types=1);
 require_once '../includes/admin-auth.php';
 require_once '../config/database.php';
 require_once '../includes/admin-helper.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle = 'Admin Dashboard';
+$branchId = requireAssignedBranch($pdo);
+$currentBranchName = branchName($pdo, $branchId);
 
 $today = date('Y-m-d');
 $monthStart = date('Y-m-01');
 $monthEnd = date('Y-m-t');
 
-$bookingCount = adminSafeCount($pdo, 'bookings');
+$bookingCount = adminSafeCount($pdo, 'bookings', 'branch_id = ?', [$branchId]);
 $serviceCount = adminSafeCount($pdo, 'services', "status = 'active'");
-$staffCount = adminSafeCount($pdo, 'users', "role = 'staff' AND status = 'active'");
+$staffCount = adminSafeCount($pdo, 'users', "role = 'staff' AND status = 'active' AND branch_id = ?", [$branchId]);
 $lowStockCount = adminSafeCount(
     $pdo,
     'inventory',
-    "status IN ('low_stock', 'out_of_stock')"
+    "status IN ('low_stock', 'out_of_stock') AND branch_id = ?",
+    [$branchId]
 );
 
 $todayBookings = adminSafeCount(
     $pdo,
     'bookings',
     "booking_date = CURDATE()
-     AND status IN ('pending', 'confirmed')"
+     AND status IN ('pending', 'confirmed') AND branch_id = ?",
+    [$branchId]
 );
 
 $pendingBookings = adminSafeCount(
     $pdo,
     'bookings',
-    "status = 'pending'"
+    "status = 'pending' AND branch_id = ?", [$branchId]
 );
 
 $confirmedBookings = adminSafeCount(
     $pdo,
     'bookings',
-    "status = 'confirmed'"
+    "status = 'confirmed' AND branch_id = ?", [$branchId]
 );
 
 $completedThisMonth = adminSafeCount(
@@ -44,32 +49,37 @@ $completedThisMonth = adminSafeCount(
     'bookings',
     "status = 'completed'
      AND booking_date BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01')
-     AND LAST_DAY(CURDATE())"
+     AND LAST_DAY(CURDATE()) AND branch_id = ?",
+    [$branchId]
 );
 
 $verifiedRevenue = 0.0;
 $monthlyRevenue = 0.0;
 
 if (adminTableExists($pdo, 'payments')) {
-    $verifiedRevenue = (float) $pdo->query(
+    $revenueStatement = $pdo->prepare(
         "SELECT COALESCE(SUM(amount), 0)
-         FROM payments
-         WHERE status = 'verified'"
-    )->fetchColumn();
+         FROM payments p JOIN bookings b ON b.id=p.booking_id
+         WHERE p.status = 'verified' AND b.branch_id=?"
+    );
+    $revenueStatement->execute([$branchId]);
+    $verifiedRevenue = (float)$revenueStatement->fetchColumn();
 
-    $monthlyRevenue = (float) $pdo->query(
-        "SELECT COALESCE(SUM(amount), 0)
-         FROM payments
-         WHERE status = 'verified'
-           AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
-           AND created_at < DATE_ADD(LAST_DAY(CURDATE()), INTERVAL 1 DAY)"
-    )->fetchColumn();
+    $monthlyStatement = $pdo->prepare(
+        "SELECT COALESCE(SUM(p.amount), 0)
+         FROM payments p JOIN bookings b ON b.id=p.booking_id
+         WHERE p.status = 'verified' AND b.branch_id=?
+           AND p.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+           AND p.created_at < DATE_ADD(LAST_DAY(CURDATE()), INTERVAL 1 DAY)"
+    );
+    $monthlyStatement->execute([$branchId]);
+    $monthlyRevenue = (float)$monthlyStatement->fetchColumn();
 }
 
 $recentBookings = [];
 
 if (adminTableExists($pdo, 'bookings')) {
-    $recentBookings = $pdo->query(
+    $recentStatement = $pdo->prepare(
         "SELECT
             b.id,
             b.booking_date,
@@ -84,9 +94,12 @@ if (adminTableExists($pdo, 'bookings')) {
          LEFT JOIN services s ON s.id = b.service_id
          LEFT JOIN users st ON st.id = b.staff_id
          LEFT JOIN payments p ON p.booking_id = b.id
+         WHERE b.branch_id=?
          ORDER BY b.created_at DESC, b.id DESC
          LIMIT 7"
-    )->fetchAll(PDO::FETCH_ASSOC);
+    );
+    $recentStatement->execute([$branchId]);
+    $recentBookings = $recentStatement->fetchAll(PDO::FETCH_ASSOC);
 }
 
 $todaySchedule = [];
@@ -105,20 +118,21 @@ if (adminTableExists($pdo, 'bookings')) {
          LEFT JOIN services s ON s.id = b.service_id
          LEFT JOIN users st ON st.id = b.staff_id
          WHERE b.booking_date = CURDATE()
+           AND b.branch_id=?
            AND b.status IN ('pending', 'confirmed')
          ORDER BY b.booking_time ASC"
     );
-    $statement->execute();
+    $statement->execute([$branchId]);
     $todaySchedule = $statement->fetchAll(PDO::FETCH_ASSOC);
 }
 
 $stockAlerts = [];
 
 if (adminTableExists($pdo, 'inventory')) {
-    $stockAlerts = $pdo->query(
+    $stockStatement = $pdo->prepare(
         "SELECT id, item_name, quantity, reorder_level, unit, status
          FROM inventory
-         WHERE status IN ('low_stock', 'out_of_stock')
+         WHERE status IN ('low_stock', 'out_of_stock') AND branch_id=?
          ORDER BY
             CASE status
                 WHEN 'out_of_stock' THEN 0
@@ -127,7 +141,9 @@ if (adminTableExists($pdo, 'inventory')) {
             quantity ASC,
             item_name ASC
          LIMIT 6"
-    )->fetchAll(PDO::FETCH_ASSOC);
+    );
+    $stockStatement->execute([$branchId]);
+    $stockAlerts = $stockStatement->fetchAll(PDO::FETCH_ASSOC);
 }
 
 $trendLabels = [];
@@ -142,13 +158,15 @@ for ($daysAgo = 6; $daysAgo >= 0; $daysAgo--) {
 }
 
 if (adminTableExists($pdo, 'bookings')) {
-    $statement = $pdo->query(
+    $statement = $pdo->prepare(
         "SELECT booking_date, COUNT(*) AS total
          FROM bookings
          WHERE booking_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY)
              AND CURDATE()
+           AND branch_id=?
          GROUP BY booking_date"
     );
+    $statement->execute([$branchId]);
 
     foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $bookingTrend[$row['booking_date']] = (int) $row['total'];
@@ -156,14 +174,15 @@ if (adminTableExists($pdo, 'bookings')) {
 }
 
 if (adminTableExists($pdo, 'payments')) {
-    $statement = $pdo->query(
-        "SELECT DATE(created_at) AS payment_date, SUM(amount) AS total
-         FROM payments
-         WHERE status = 'verified'
-           AND DATE(created_at) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    $statement = $pdo->prepare(
+        "SELECT DATE(p.created_at) AS payment_date, SUM(p.amount) AS total
+         FROM payments p JOIN bookings b ON b.id=p.booking_id
+         WHERE p.status = 'verified' AND b.branch_id=?
+           AND DATE(p.created_at) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY)
                AND CURDATE()
-         GROUP BY DATE(created_at)"
+         GROUP BY DATE(p.created_at)"
     );
+    $statement->execute([$branchId]);
 
     foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $revenueTrend[$row['payment_date']] = (float) $row['total'];
@@ -188,10 +207,11 @@ if (adminTableExists($pdo, 'bookings')) {
         "SELECT booking_date, COUNT(*) AS total
          FROM bookings
          WHERE booking_date BETWEEN ? AND ?
+           AND branch_id=?
            AND status IN ('pending', 'confirmed', 'completed')
          GROUP BY booking_date"
     );
-    $statement->execute([$monthStart, $monthEnd]);
+    $statement->execute([$monthStart, $monthEnd, $branchId]);
 
     foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $calendarCounts[$row['booking_date']] = (int) $row['total'];
@@ -209,7 +229,7 @@ include '../includes/admin-header.php';
     <main class="admin-content">
         <header class="admin-page-header premium-dashboard-header">
             <div>
-                <p class="premium-dashboard-kicker">Operations overview</p>
+                <p class="premium-dashboard-kicker"><?= htmlspecialchars($currentBranchName) ?> · Operations overview</p>
                 <h1>Good day, <?= htmlspecialchars(
                     explode(' ', trim((string) ($_SESSION['fullname'] ?? 'Administrator')))[0],
                     ENT_QUOTES,

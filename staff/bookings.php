@@ -4,9 +4,11 @@ declare(strict_types=1);
 require_once '../includes/staff-auth.php';
 require_once '../config/database.php';
 require_once '../includes/staff-helper.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle = 'My Bookings';
 $staffId = (int) $_SESSION['user_id'];
+$branchId = requireAssignedBranch($pdo);
 $message = '';
 $error = '';
 
@@ -23,9 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "UPDATE bookings
              SET status = ?
              WHERE id = ?
-               AND staff_id = ?"
+               AND staff_id = ?
+               AND branch_id = ?"
         );
-        $statement->execute([$status, $bookingId, $staffId]);
+        $statement->execute([$status, $bookingId, $staffId, $branchId]);
 
         $message = 'Booking status updated successfully.';
     }
@@ -36,8 +39,8 @@ $date = $_GET['date'] ?? '';
 
 $sql = "SELECT *
         FROM bookings
-        WHERE staff_id = ?";
-$params = [$staffId];
+        WHERE staff_id = ? AND branch_id = ?";
+$params = [$staffId, $branchId];
 
 if (in_array($filterStatus, ['pending', 'confirmed', 'completed', 'cancelled', 'no_show'], true)) {
     $sql .= " AND status = ?";

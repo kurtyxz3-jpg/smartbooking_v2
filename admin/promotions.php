@@ -5,10 +5,12 @@ require_once '../includes/admin-auth.php';
 require_once '../config/database.php';
 require_once '../includes/admin-helper.php';
 require_once '../includes/premium-admin-helper.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle='Promotions';$flash=premiumAdminGetFlash();
+$branchId=requireAssignedBranch($pdo);
 
-$pdo->exec("UPDATE promotions SET status='expired' WHERE end_date IS NOT NULL AND end_date<CURDATE() AND status<>'expired'");
+$pdo->prepare("UPDATE promotions SET status='expired' WHERE branch_id=? AND end_date IS NOT NULL AND end_date<CURDATE() AND status<>'expired'")->execute([$branchId]);
 
 if($_SERVER['REQUEST_METHOD']==='POST'){
  if(!premiumAdminVerifyCsrf($_POST['csrf_token']??null))premiumAdminFlash('error','Session token expired.','promotions.php');
@@ -16,15 +18,15 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
  if($action==='save'){
   $title=trim((string)($_POST['title']??''));$description=trim((string)($_POST['description']??''));$discount=(float)($_POST['discount_value']??0);$start=$_POST['start_date']?:null;$end=$_POST['end_date']?:null;$status=$_POST['status']??'inactive';
   if($title===''||$discount<0||($start&&$end&&$start>$end))premiumAdminFlash('error','Enter valid promotion details.','promotions.php');
-  if($id){$pdo->prepare("UPDATE promotions SET title=?,description=?,discount_value=?,start_date=?,end_date=?,status=? WHERE id=?")->execute([$title,$description?:null,$discount,$start,$end,$status,$id]);}
-  else{$pdo->prepare("INSERT INTO promotions(title,description,discount_value,start_date,end_date,status) VALUES(?,?,?,?,?,?)")->execute([$title,$description?:null,$discount,$start,$end,$status]);}
+  if($id){$pdo->prepare("UPDATE promotions SET title=?,description=?,discount_value=?,start_date=?,end_date=?,status=? WHERE id=? AND branch_id=?")->execute([$title,$description?:null,$discount,$start,$end,$status,$id,$branchId]);}
+  else{$pdo->prepare("INSERT INTO promotions(title,description,discount_value,start_date,end_date,status,branch_id) VALUES(?,?,?,?,?,?,?)")->execute([$title,$description?:null,$discount,$start,$end,$status,$branchId]);}
   premiumAdminFlash('success','Promotion saved.','promotions.php');
  }
- if($action==='toggle'&&$id){$pdo->prepare("UPDATE promotions SET status=CASE WHEN status='active' THEN 'inactive' ELSE 'active' END WHERE id=?")->execute([$id]);premiumAdminFlash('success','Promotion status updated.','promotions.php');}
- if($action==='delete'&&$id){$pdo->prepare("DELETE FROM promotions WHERE id=?")->execute([$id]);premiumAdminFlash('success','Promotion removed.','promotions.php');}
+ if($action==='toggle'&&$id){$pdo->prepare("UPDATE promotions SET status=CASE WHEN status='active' THEN 'inactive' ELSE 'active' END WHERE id=? AND branch_id=?")->execute([$id,$branchId]);premiumAdminFlash('success','Promotion status updated.','promotions.php');}
+ if($action==='delete'&&$id){$pdo->prepare("DELETE FROM promotions WHERE id=? AND branch_id=?")->execute([$id,$branchId]);premiumAdminFlash('success','Promotion removed.','promotions.php');}
 }
 
-$search=trim((string)($_GET['search']??''));$status=trim((string)($_GET['status']??'all'));$where=['1=1'];$params=[];
+$search=trim((string)($_GET['search']??''));$status=trim((string)($_GET['status']??'all'));$where=['branch_id=:branch_scope'];$params=['branch_scope'=>$branchId];
 if($search!==''){$where[]='(title LIKE :title_search OR description LIKE :description_search)';$v='%'.$search.'%';$params=['title_search'=>$v,'description_search'=>$v];}
 if($status!=='all'){$where[]='status=:status';$params['status']=$status;}
 $stmt=$pdo->prepare("SELECT * FROM promotions WHERE ".implode(' AND ',$where)." ORDER BY start_date DESC,id DESC");premiumAdminBind($stmt,$params);$stmt->execute();$rows=$stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -61,6 +61,9 @@ if (customerTableExists($pdo, 'payments')) {
                     <div style="text-align:right">
                         <strong style="font-family:Georgia,serif;font-size:1.5rem"><?= customerMoney($payment['amount']) ?></strong>
                         <p><?= date('M j, Y', strtotime($payment['created_at'])) ?></p>
+                        <a class="customer-ui-button" href="appointment-details.php?id=<?= (int) $payment['booking_id'] ?>">
+                            View appointment
+                        </a>
                     </div>
                 </article>
             <?php endforeach; ?>

@@ -2,6 +2,9 @@
 declare(strict_types=1);
 require_once '../includes/superadmin-auth.php';
 require_once '../config/database.php';
+require_once '../includes/branch-context.php';
+$branches=activeBranches($pdo);
+$branchId=0;
 
 $isEdit = false;
 $pageTitle = $isEdit ? 'Edit Staff' : 'Add Staff';
@@ -19,7 +22,7 @@ $branch='Main Branch'; $employmentStatus='full_time'; $status='active';
 if($isEdit){
     if(!$staffId){header('Location: staff.php');exit;}
     $stmt=$pdo->prepare("SELECT u.fullname,u.username,u.email,u.phone_number,u.status,
-                               sp.specialty,sp.branch,sp.employment_status
+                               sp.specialty,sp.branch,sp.employment_status,u.branch_id
                         FROM users u
                         LEFT JOIN staff_profiles sp ON sp.user_id=u.id
                         WHERE u.id=? AND u.role='staff' LIMIT 1");
@@ -34,6 +37,7 @@ if($isEdit){
     $status=$staff['status'];
     $specialty=$staff['specialty']??'';
     $branch=$staff['branch']??'Main Branch';
+    $branchId=(int)($staff['branch_id']??0);
     $employmentStatus=$staff['employment_status']??'full_time';
 }
 
@@ -45,6 +49,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     $status=$_POST['status']??'active';
     $specialty=trim($_POST['specialty']??'');
     $branch=trim($_POST['branch']??'Main Branch');
+    $branchId=(int)($_POST['branch_id']??0);
     $employmentStatus=$_POST['employment_status']??'full_time';
 
     $password=$isEdit?($_POST['new_password']??''):($_POST['password']??'');
@@ -78,16 +83,16 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
             try{
                 if($isEdit){
                     if($password!==''){
-                        $stmt=$pdo->prepare("UPDATE users SET fullname=:fullname,username=:username,email=:email,phone_number=:phone,password=:password,status=:status WHERE id=:id AND role='staff'");
-                        $stmt->execute(['fullname'=>$fullname,'username'=>$username,'email'=>$email,'phone'=>$phoneNumber,'password'=>password_hash($password,PASSWORD_DEFAULT),'status'=>$status,'id'=>$staffId]);
+                        $stmt=$pdo->prepare("UPDATE users SET fullname=:fullname,username=:username,email=:email,phone_number=:phone,password=:password,status=:status,branch_id=:branch_id WHERE id=:id AND role='staff'");
+                        $stmt->execute(['fullname'=>$fullname,'username'=>$username,'email'=>$email,'phone'=>$phoneNumber,'password'=>password_hash($password,PASSWORD_DEFAULT),'status'=>$status,'branch_id'=>$branchId,'id'=>$staffId]);
                     }else{
-                        $stmt=$pdo->prepare("UPDATE users SET fullname=:fullname,username=:username,email=:email,phone_number=:phone,status=:status WHERE id=:id AND role='staff'");
-                        $stmt->execute(['fullname'=>$fullname,'username'=>$username,'email'=>$email,'phone'=>$phoneNumber,'status'=>$status,'id'=>$staffId]);
+                        $stmt=$pdo->prepare("UPDATE users SET fullname=:fullname,username=:username,email=:email,phone_number=:phone,status=:status,branch_id=:branch_id WHERE id=:id AND role='staff'");
+                        $stmt->execute(['fullname'=>$fullname,'username'=>$username,'email'=>$email,'phone'=>$phoneNumber,'status'=>$status,'branch_id'=>$branchId,'id'=>$staffId]);
                     }
                     $userId=$staffId;
                 }else{
-                    $stmt=$pdo->prepare("INSERT INTO users(fullname,username,email,phone_number,password,role,status) VALUES(:fullname,:username,:email,:phone,:password,'staff',:status)");
-                    $stmt->execute(['fullname'=>$fullname,'username'=>$username,'email'=>$email,'phone'=>$phoneNumber,'password'=>password_hash($password,PASSWORD_DEFAULT),'status'=>$status]);
+                    $stmt=$pdo->prepare("INSERT INTO users(fullname,username,email,phone_number,password,role,status,branch_id) VALUES(:fullname,:username,:email,:phone,:password,'staff',:status,:branch_id)");
+                    $stmt->execute(['fullname'=>$fullname,'username'=>$username,'email'=>$email,'phone'=>$phoneNumber,'password'=>password_hash($password,PASSWORD_DEFAULT),'status'=>$status,'branch_id'=>$branchId]);
                     $userId=(int)$pdo->lastInsertId();
                 }
 
@@ -133,7 +138,7 @@ include '../includes/superadmin-header.php';
 <h2>Employment Details</h2>
 <div class="staff-form-grid">
 <div class="form-group"><label for="specialty">Specialty</label><select id="specialty" name="specialty"><option value="">Select specialty</option><?php foreach($specialtyOptions as $option): ?><option value="<?= htmlspecialchars($option) ?>" <?= $specialty===$option?'selected':'' ?>><?= htmlspecialchars($option) ?></option><?php endforeach; ?></select></div>
-<div class="form-group"><label for="branch">Branch</label><input id="branch" name="branch" value="<?= htmlspecialchars($branch) ?>"></div>
+<div class="form-group"><label for="branch_id">Branch</label><select id="branch_id" name="branch_id" required><option value="">Select branch</option><?php foreach($branches as $branchOption): ?><option value="<?= (int)$branchOption['id'] ?>" <?= $branchId===(int)$branchOption['id']?'selected':'' ?>><?= htmlspecialchars($branchOption['branch_name']) ?></option><?php endforeach; ?></select><input type="hidden" name="branch" value="<?= htmlspecialchars($branch) ?>"></div>
 <div class="form-group"><label for="employment_status">Employment Status</label><select id="employment_status" name="employment_status"><option value="full_time" <?= $employmentStatus==='full_time'?'selected':'' ?>>Full Time</option><option value="part_time" <?= $employmentStatus==='part_time'?'selected':'' ?>>Part Time</option><option value="contractual" <?= $employmentStatus==='contractual'?'selected':'' ?>>Contractual</option></select></div>
 </div>
 </div>

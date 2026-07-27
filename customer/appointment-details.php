@@ -5,6 +5,7 @@ $pageTitle = 'Appointment Details';
 $customerPage = 'appointment-details';
 
 require_once '../includes/customer-header.php';
+require_once '../includes/customer-booking-timeline.php';
 
 $bookingId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT)
     ?: filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
@@ -84,6 +85,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                AND customer_id = ?"
         );
         $statement->execute([$bookingId, $customerId]);
+        bookingManagementRecordHistory(
+            $pdo,
+            $bookingId,
+            (string) $booking['status'],
+            'cancelled',
+            $customerId,
+            'Cancelled by customer'
+        );
 
         customerRedirectWithMessage(
             'appointments.php?filter=cancelled',
@@ -150,6 +159,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $bookingId,
             $customerId,
         ]);
+        bookingManagementRecordHistory(
+            $pdo,
+            $bookingId,
+            (string) $booking['status'],
+            'pending',
+            $customerId,
+            'Customer requested a new schedule'
+        );
 
         customerRedirectWithMessage(
             'appointment-details.php?id=' . $bookingId,
@@ -159,6 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+<link rel="stylesheet" href="../assets/css/booking-management.css">
 
 <main class="customer-page-shell">
     <div class="customer-page-actions" style="margin-bottom:15px">
@@ -232,6 +250,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
         </aside>
+
+        <?php renderCustomerBookingTimeline($pdo, $booking); ?>
 
         <?php if (customerCanChangeBooking($booking)): ?>
             <section class="customer-ui-panel customer-span-7">

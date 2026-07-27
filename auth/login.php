@@ -8,6 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/oauth.php';
 require_once __DIR__ . '/../includes/language.php';
+require_once __DIR__ . '/../includes/branch-context.php';
 
 $redirects = [
     'super_admin' => '../superadmin/dashboard.php',
@@ -121,8 +122,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($loginValue === '' || $password === '') {
         $error = $labels['required'];
     } else {
+        $branchSelect = branchColumnExists($pdo, 'users', 'branch_id')
+            ? ', branch_id'
+            : ', NULL AS branch_id';
         $statement = $pdo->prepare(
-            "SELECT id, fullname, username, email, password, role, status
+            "SELECT id, fullname, username, email, password, role, status {$branchSelect}
              FROM users
              WHERE username = :username OR email = :email
              LIMIT 1"
@@ -147,6 +151,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
+            $_SESSION['branch_id'] = !empty($user['branch_id'])
+                ? (int) $user['branch_id']
+                : null;
 
             if (function_exists('accountCenterLog')) {
                 accountCenterLog(

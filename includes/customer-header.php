@@ -46,7 +46,7 @@ $customerProfilePictureUrl = $customerProfilePicture
 
     <script src="../assets/js/theme-bootstrap.js"></script>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/customer-v2.css">
+    <link rel="stylesheet" href="../assets/css/customer-v2.css?v=071">
     <link rel="stylesheet" href="../assets/css/customer-interface.css">
     <link rel="stylesheet" href="../assets/css/customer-profile-redesign.css">
     <link rel="stylesheet" href="../assets/css/accessibility-preferences.css">

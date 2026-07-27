@@ -414,13 +414,15 @@
   place-items: center;
   align-content: center;
   border-radius: 16px;
-  color: #FFFFFF;
-  background: linear-gradient(145deg, var(--cu-cocoa), var(--cu-ink));
+  color: #FFFFFF !important;
+  background: linear-gradient(145deg, #7a4b32, #2b1a14) !important;
 }
 
 .customer-date-block span,
 .customer-date-block strong {
   display: block;
+  color: #FFFFFF !important;
+  opacity: 1 !important;
 }
 
 .customer-date-block span {
@@ -720,5 +722,131 @@
   .customer-footer {
     gap: 10px;
     flex-direction: column;
+  }
+}
+.gcash-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.gcash-instructions {
+  position: sticky;
+  top: 110px;
+}
+
+.gcash-qr {
+  width: min(320px, 100%);
+  margin: 20px auto;
+  padding: 14px;
+  border: 1px solid var(--cu-line);
+  border-radius: 22px;
+  background: #ffffff;
+}
+
+.gcash-qr img {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+}
+
+.gcash-qr-missing {
+  margin: 20px 0;
+  padding: 28px;
+  border: 1px dashed var(--cu-line);
+  border-radius: 18px;
+  text-align: center;
+}
+
+.gcash-qr-missing strong,
+.gcash-qr-missing p {
+  display: block;
+  color: var(--cu-ink) !important;
+}
+
+.gcash-amount {
+  color: #9a641d !important;
+  font-family: var(--cu-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+html[data-theme="dark"] .gcash-amount {
+  color: #f6d58f !important;
+  text-shadow: 0 0 18px rgba(246, 213, 143, 0.18);
+}
+
+.gcash-reminder,
+.gcash-alert {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  line-height: 1.55;
+}
+
+.gcash-reminder,
+.gcash-alert.pending {
+  color: #5b3a13 !important;
+  border: 1px solid #e2c58f;
+  background: #fff4da !important;
+}
+
+.gcash-alert.error {
+  color: #6e211d !important;
+  border: 1px solid #d99b95;
+  background: #fff0ee !important;
+}
+
+.gcash-alert strong,
+.gcash-alert li {
+  color: inherit !important;
+}
+
+.gcash-alert ul {
+  margin: 7px 0 0;
+  padding-left: 20px;
+}
+
+.gcash-form {
+  display: grid;
+  gap: 18px;
+}
+
+.gcash-form input[type="file"] {
+  padding: 12px;
+  cursor: pointer;
+}
+
+.gcash-form small {
+  color: var(--cu-muted);
+}
+
+.gcash-booking-summary {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  border: 1px solid var(--cu-line);
+  border-radius: 15px;
+  background: var(--cu-soft);
+}
+
+.gcash-booking-summary span,
+.gcash-booking-summary strong {
+  color: var(--cu-ink) !important;
+}
+
+.gcash-submit {
+  width: 100%;
+}
+
+@media (max-width: 880px) {
+  .gcash-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .gcash-instructions {
+    position: static;
   }
 }

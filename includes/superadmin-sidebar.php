@@ -62,6 +62,10 @@ $sidebarPhoto = currentAccountPhotoUrl($sidebarAccount);?>
             <?= htmlspecialchars(t('administrators'), ENT_QUOTES, 'UTF-8') ?>
         </a>
 
+        <a href="branches.php" class="<?= $currentPage === 'branches.php' ? 'active' : '' ?>">
+            Branches
+        </a>
+
         <a href="staff.php" class="<?= in_array($currentPage, ['staff.php', 'add-staff.php', 'edit-staff.php', 'staff-roles.php'], true) ? 'active' : '' ?>">
             <?= htmlspecialchars(t('staff_accounts'), ENT_QUOTES, 'UTF-8') ?>
         </a>

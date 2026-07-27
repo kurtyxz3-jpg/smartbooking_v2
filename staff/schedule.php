@@ -4,19 +4,22 @@ declare(strict_types=1);
 require_once '../includes/staff-auth.php';
 require_once '../config/database.php';
 require_once '../includes/staff-helper.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle = 'My Schedule';
 $staffId = (int) $_SESSION['user_id'];
+$branchId = requireAssignedBranch($pdo);
 $selectedDate = $_GET['date'] ?? date('Y-m-d');
 
 $statement = $pdo->prepare(
     "SELECT *
      FROM bookings
      WHERE staff_id = ?
+       AND branch_id = ?
        AND booking_date = ?
      ORDER BY booking_time ASC"
 );
-$statement->execute([$staffId, $selectedDate]);
+$statement->execute([$staffId, $branchId, $selectedDate]);
 $schedule = $statement->fetchAll();
 
 include '../includes/staff-header.php';

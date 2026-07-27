@@ -5,9 +5,11 @@ require_once '../includes/admin-auth.php';
 require_once '../config/database.php';
 require_once '../includes/admin-helper.php';
 require_once '../includes/premium-admin-helper.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle='Reports';
 [$from,$to]=premiumAdminDateRange();
+$branchId=requireAssignedBranch($pdo);
 
 $summary=$pdo->prepare(
  "SELECT
@@ -17,9 +19,9 @@ $summary=$pdo->prepare(
    COALESCE(SUM(CASE WHEN p.status='verified' THEN p.amount ELSE 0 END),0) AS revenue
   FROM bookings b
   LEFT JOIN payments p ON p.booking_id=b.id
-  WHERE b.booking_date BETWEEN ? AND ?"
+  WHERE b.booking_date BETWEEN ? AND ? AND b.branch_id=?"
 );
-$summary->execute([$from,$to]);$stats=$summary->fetch(PDO::FETCH_ASSOC);
+$summary->execute([$from,$to,$branchId]);$stats=$summary->fetch(PDO::FETCH_ASSOC);
 
 $services=$pdo->prepare(
  "SELECT s.name,COUNT(b.id) AS bookings,
@@ -27,20 +29,20 @@ $services=$pdo->prepare(
   FROM bookings b
   LEFT JOIN services s ON s.id=b.service_id
   LEFT JOIN payments p ON p.booking_id=b.id
-  WHERE b.booking_date BETWEEN ? AND ?
+  WHERE b.booking_date BETWEEN ? AND ? AND b.branch_id=?
   GROUP BY s.id,s.name ORDER BY bookings DESC LIMIT 8"
 );
-$services->execute([$from,$to]);$serviceRows=$services->fetchAll(PDO::FETCH_ASSOC);
+$services->execute([$from,$to,$branchId]);$serviceRows=$services->fetchAll(PDO::FETCH_ASSOC);
 
 $daily=$pdo->prepare(
  "SELECT b.booking_date,COUNT(DISTINCT b.id) AS bookings,
    COALESCE(SUM(CASE WHEN p.status='verified' THEN p.amount ELSE 0 END),0) AS revenue
   FROM bookings b
   LEFT JOIN payments p ON p.booking_id=b.id
-  WHERE b.booking_date BETWEEN ? AND ?
+  WHERE b.booking_date BETWEEN ? AND ? AND b.branch_id=?
   GROUP BY b.booking_date ORDER BY b.booking_date"
 );
-$daily->execute([$from,$to]);$dailyRows=$daily->fetchAll(PDO::FETCH_ASSOC);
+$daily->execute([$from,$to,$branchId]);$dailyRows=$daily->fetchAll(PDO::FETCH_ASSOC);
 
 if(($_GET['export']??'')==='csv'){
  header('Content-Type:text/csv');

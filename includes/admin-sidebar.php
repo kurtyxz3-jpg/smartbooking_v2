@@ -3,6 +3,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 require_once __DIR__ . '/account-display-helper.php';
 require_once __DIR__ . '/brand-assets.php';
+require_once __DIR__ . '/branch-context.php';
 $sidebarAccount = currentAccountDisplay($pdo ?? null);
 $sidebarPhoto = currentAccountPhotoUrl($sidebarAccount);?>
 
@@ -48,6 +49,13 @@ $sidebarPhoto = currentAccountPhotoUrl($sidebarAccount);?>
                     'UTF-8'
                 ) ?></strong>
                 <small>Administrator</small>
+                <?php if (isset($pdo)): ?>
+                    <small><?= htmlspecialchars(
+                        branchName($pdo, currentUserBranchId($pdo)),
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?></small>
+                <?php endif; ?>
             </span>
         </a>
     </div>

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once '../includes/superadmin-auth.php';
 require_once '../config/database.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle = 'Edit Administrator';
 $error = '';
@@ -15,7 +16,7 @@ if (!$adminId) {
 }
 
 $statement = $pdo->prepare(
-    "SELECT id, fullname, username, email, status
+    "SELECT id, fullname, username, email, status, branch_id
      FROM users
      WHERE id = ? AND role = 'admin'
      LIMIT 1"
@@ -32,16 +33,19 @@ $fullname = $administrator['fullname'];
 $username = $administrator['username'];
 $email = $administrator['email'];
 $status = $administrator['status'];
+$branchId = (int)($administrator['branch_id'] ?? 0);
+$branches = activeBranches($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullname = trim($_POST['fullname'] ?? '');
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $status = $_POST['status'] ?? 'active';
+    $branchId = (int)($_POST['branch_id'] ?? 0);
     $newPassword = $_POST['new_password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
 
-    if ($fullname === '' || $username === '' || $email === '') {
+    if ($fullname === '' || $username === '' || $email === '' || $branchId <= 0) {
         $error = 'Please complete all required fields.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Please enter a valid email address.';
@@ -76,7 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                          username = :username,
                          email = :email,
                          password = :password,
-                         status = :status
+                         status = :status,
+                         branch_id = :branch_id
                      WHERE id = :id AND role = 'admin'"
                 );
 
@@ -86,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'email' => $email,
                     'password' => password_hash($newPassword, PASSWORD_DEFAULT),
                     'status' => $status,
+                    'branch_id' => $branchId,
                     'id' => $adminId,
                 ]);
             } else {
@@ -94,7 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      SET fullname = :fullname,
                          username = :username,
                          email = :email,
-                         status = :status
+                         status = :status,
+                         branch_id = :branch_id
                      WHERE id = :id AND role = 'admin'"
                 );
 
@@ -103,6 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'username' => $username,
                     'email' => $email,
                     'status' => $status,
+                    'branch_id' => $branchId,
                     'id' => $adminId,
                 ]);
             }
@@ -165,6 +173,18 @@ include '../includes/superadmin-header.php';
                     <div class="form-group">
                         <label for="confirm_password">Confirm New Password</label>
                         <input id="confirm_password" name="confirm_password" type="password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="branch_id">Assigned Branch</label>
+                        <select id="branch_id" name="branch_id" required>
+                            <option value="">Select branch</option>
+                            <?php foreach ($branches as $branch): ?>
+                                <option value="<?= (int)$branch['id'] ?>" <?= $branchId === (int)$branch['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($branch['branch_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
 
                     <div class="form-group">

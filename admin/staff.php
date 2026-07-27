@@ -5,16 +5,18 @@ require_once '../includes/admin-auth.php';
 require_once '../config/database.php';
 require_once '../includes/admin-helper.php';
 require_once '../includes/premium-admin-helper.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle='Staff';
 $flash=premiumAdminGetFlash();
+$branchId=requireAssignedBranch($pdo);
 
 if($_SERVER['REQUEST_METHOD']==='POST'){
  if(!premiumAdminVerifyCsrf($_POST['csrf_token']??null))premiumAdminFlash('error','Session token expired.','staff.php');
  $id=filter_input(INPUT_POST,'id',FILTER_VALIDATE_INT);
  $action=$_POST['action']??'';
  if($action==='toggle'&&$id){
-  $pdo->prepare("UPDATE users SET status=CASE WHEN status='active' THEN 'inactive' ELSE 'active' END WHERE id=? AND role='staff'")->execute([$id]);
+  $pdo->prepare("UPDATE users SET status=CASE WHEN status='active' THEN 'inactive' ELSE 'active' END WHERE id=? AND role='staff' AND branch_id=?")->execute([$id,$branchId]);
   premiumAdminFlash('success','Staff status updated.','staff.php');
  }
  if($action==='save'){
@@ -23,16 +25,16 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   if($id){
    $sql="UPDATE users SET fullname=?,username=?,email=?,phone_number=?";$params=[$fullname,$username,$email,$phone?:null];
    if($password!==''){$sql.=",password=?";$params[]=password_hash($password,PASSWORD_DEFAULT);}
-   $sql.=" WHERE id=? AND role='staff'";$params[]=$id;$pdo->prepare($sql)->execute($params);
+   $sql.=" WHERE id=? AND role='staff' AND branch_id=?";$params[]=$id;$params[]=$branchId;$pdo->prepare($sql)->execute($params);
   }else{
    if(strlen($password)<8)premiumAdminFlash('error','New staff password must have at least 8 characters.','staff.php');
-   $pdo->prepare("INSERT INTO users(fullname,username,email,phone_number,password,role,status) VALUES(?,?,?,?,?,'staff','active')")->execute([$fullname,$username,$email,$phone?:null,password_hash($password,PASSWORD_DEFAULT)]);
+   $pdo->prepare("INSERT INTO users(fullname,username,email,phone_number,password,role,status,branch_id) VALUES(?,?,?,?,?,'staff','active',?)")->execute([$fullname,$username,$email,$phone?:null,password_hash($password,PASSWORD_DEFAULT),$branchId]);
   }
   premiumAdminFlash('success','Staff account saved.','staff.php');
  }
 }
 
-$search=trim((string)($_GET['search']??''));$status=trim((string)($_GET['status']??'all'));$where=["u.role='staff'"];$params=[];
+$search=trim((string)($_GET['search']??''));$status=trim((string)($_GET['status']??'all'));$where=["u.role='staff'","u.branch_id=:branch_scope"];$params=['branch_scope'=>$branchId];
 if($search!==''){$where[]="(u.fullname LIKE :name_search OR u.email LIKE :email_search OR u.username LIKE :username_search)";$v='%'.$search.'%';$params=['name_search'=>$v,'email_search'=>$v,'username_search'=>$v];}
 if($status!=='all'){$where[]='u.status=:status';$params['status']=$status;}
 $stmt=$pdo->prepare("SELECT u.*,COUNT(b.id) AS assigned_count,SUM(b.status='completed') AS completed_count FROM users u LEFT JOIN bookings b ON b.staff_id=u.id WHERE ".implode(' AND ',$where)." GROUP BY u.id ORDER BY u.fullname");

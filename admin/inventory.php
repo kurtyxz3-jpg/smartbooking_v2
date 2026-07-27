@@ -5,9 +5,11 @@ require_once '../includes/admin-auth.php';
 require_once '../config/database.php';
 require_once '../includes/admin-helper.php';
 require_once '../includes/premium-admin-helper.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle = 'Inventory';
 $flash = premiumAdminGetFlash();
+$branchId = requireAssignedBranch($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!premiumAdminVerifyCsrf($_POST['csrf_token'] ?? null)) {
@@ -30,11 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $status = $quantity <= 0 ? 'out_of_stock' : ($quantity <= $reorder ? 'low_stock' : 'in_stock');
 
         if ($id) {
-            $statement=$pdo->prepare("UPDATE inventory SET item_name=?,quantity=?,reorder_level=?,unit=?,status=? WHERE id=?");
-            $statement->execute([$name,$quantity,$reorder,$unit,$status,$id]);
+            $statement=$pdo->prepare("UPDATE inventory SET item_name=?,quantity=?,reorder_level=?,unit=?,status=? WHERE id=? AND branch_id=?");
+            $statement->execute([$name,$quantity,$reorder,$unit,$status,$id,$branchId]);
         } else {
-            $statement=$pdo->prepare("INSERT INTO inventory(item_name,quantity,reorder_level,unit,status) VALUES(?,?,?,?,?)");
-            $statement->execute([$name,$quantity,$reorder,$unit,$status]);
+            $statement=$pdo->prepare("INSERT INTO inventory(item_name,quantity,reorder_level,unit,status,branch_id) VALUES(?,?,?,?,?,?)");
+            $statement->execute([$name,$quantity,$reorder,$unit,$status,$branchId]);
         }
 
         premiumAdminFlash('success','Inventory item saved.','inventory.php');
@@ -47,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($amount <= 0) premiumAdminFlash('error','Adjustment amount must be greater than zero.','inventory.php');
 
-        $item=$pdo->prepare("SELECT * FROM inventory WHERE id=?");
-        $item->execute([$id]);
+        $item=$pdo->prepare("SELECT * FROM inventory WHERE id=? AND branch_id=?");
+        $item->execute([$id,$branchId]);
         $row=$item->fetch(PDO::FETCH_ASSOC);
 
         $newQuantity = $type==='out'
@@ -58,8 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $status = $newQuantity <= 0 ? 'out_of_stock' : ($newQuantity <= (float)$row['reorder_level'] ? 'low_stock' : 'in_stock');
 
         $pdo->beginTransaction();
-        $update=$pdo->prepare("UPDATE inventory SET quantity=?,status=? WHERE id=?");
-        $update->execute([$newQuantity,$status,$id]);
+        $update=$pdo->prepare("UPDATE inventory SET quantity=?,status=? WHERE id=? AND branch_id=?");
+        $update->execute([$newQuantity,$status,$id,$branchId]);
 
         if (adminTableExists($pdo,'inventory_movements')) {
             $movement=$pdo->prepare("INSERT INTO inventory_movements(inventory_id,movement_type,quantity,note,created_by) VALUES(?,?,?,?,?)");
@@ -71,14 +73,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'delete' && $id) {
-        $pdo->prepare("DELETE FROM inventory WHERE id=?")->execute([$id]);
+        $pdo->prepare("DELETE FROM inventory WHERE id=? AND branch_id=?")->execute([$id,$branchId]);
         premiumAdminFlash('success','Inventory item removed.','inventory.php');
     }
 }
 
 $search=trim((string)($_GET['search']??''));
 $status=trim((string)($_GET['status']??'all'));
-$where=['1=1'];$params=[];
+$where=['branch_id=:branch_scope'];$params=['branch_scope'=>$branchId];
 if($search!==''){$where[]='item_name LIKE :search';$params['search']='%'.$search.'%';}
 if($status!=='all'){$where[]='status=:status';$params['status']=$status;}
 $stmt=$pdo->prepare("SELECT * FROM inventory WHERE ".implode(' AND ',$where)." ORDER BY CASE status WHEN 'out_of_stock' THEN 0 WHEN 'low_stock' THEN 1 ELSE 2 END,item_name");

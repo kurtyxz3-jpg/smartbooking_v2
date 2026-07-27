@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once '../includes/superadmin-auth.php';
 require_once '../config/database.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle = 'Add Administrator';
 $error = '';
@@ -11,6 +12,8 @@ $fullname = '';
 $username = '';
 $email = '';
 $status = 'active';
+$branchId = 0;
+$branches = activeBranches($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullname = trim($_POST['fullname'] ?? '');
@@ -19,8 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
     $status = $_POST['status'] ?? 'active';
+    $branchId = (int) ($_POST['branch_id'] ?? 0);
 
-    if ($fullname === '' || $username === '' || $email === '' || $password === '') {
+    if ($fullname === '' || $username === '' || $email === '' || $password === '' || $branchId <= 0) {
         $error = 'Please complete all required fields.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Please enter a valid email address.';
@@ -48,9 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $statement = $pdo->prepare(
                 "INSERT INTO users
-                    (fullname, username, email, password, role, status)
+                    (fullname, username, email, password, role, status, branch_id)
                  VALUES
-                    (:fullname, :username, :email, :password, 'admin', :status)"
+                    (:fullname, :username, :email, :password, 'admin', :status, :branch_id)"
             );
 
             $statement->execute([
@@ -59,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'email' => $email,
                 'password' => password_hash($password, PASSWORD_DEFAULT),
                 'status' => $status,
+                'branch_id' => $branchId,
             ]);
 
             header('Location: admins.php');
@@ -118,6 +123,18 @@ include '../includes/superadmin-header.php';
                     <div class="form-group">
                         <label for="confirm_password">Confirm Password</label>
                         <input id="confirm_password" name="confirm_password" type="password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="branch_id">Assigned Branch</label>
+                        <select id="branch_id" name="branch_id" required>
+                            <option value="">Select branch</option>
+                            <?php foreach ($branches as $branch): ?>
+                                <option value="<?= (int)$branch['id'] ?>" <?= $branchId === (int)$branch['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($branch['branch_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
 
                     <div class="form-group">

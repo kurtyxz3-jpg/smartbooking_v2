@@ -14,13 +14,28 @@ function adminTableExists(PDO $pdo, string $table): bool
     return (bool) $statement->fetchColumn();
 }
 
-function adminSafeCount(PDO $pdo, string $table, string $where = '1=1'): int
-{
+function adminSafeCount(
+    PDO $pdo,
+    string $table,
+    string $where = '1=1',
+    array $params = []
+): int {
     if (!adminTableExists($pdo, $table)) {
         return 0;
     }
 
-    return (int) $pdo->query("SELECT COUNT(*) FROM `{$table}` WHERE {$where}")->fetchColumn();
+    // Table names cannot be bound as PDO parameters. Restrict the value to a
+    // simple SQL identifier before placing it in the query.
+    if (!preg_match('/^[A-Za-z0-9_]+$/', $table)) {
+        throw new InvalidArgumentException('Invalid table name.');
+    }
+
+    $statement = $pdo->prepare(
+        "SELECT COUNT(*) FROM `{$table}` WHERE {$where}"
+    );
+    $statement->execute($params);
+
+    return (int) $statement->fetchColumn();
 }
 
 function adminFetchRows(
@@ -33,9 +48,16 @@ function adminFetchRows(
         return [];
     }
 
+    if (!preg_match('/^[A-Za-z0-9_]+$/', $table)) {
+        throw new InvalidArgumentException('Invalid table name.');
+    }
+
     $allowedOrderBy = preg_replace('/[^a-zA-Z0-9_ ,.-]/', '', $orderBy);
+    $safeLimit = max(1, min($limit, 500));
 
     return $pdo->query(
-        "SELECT * FROM `{$table}` ORDER BY {$allowedOrderBy} LIMIT {$limit}"
-    )->fetchAll();
+        "SELECT * FROM `{$table}`
+         ORDER BY {$allowedOrderBy}
+         LIMIT {$safeLimit}"
+    )->fetchAll(PDO::FETCH_ASSOC);
 }

@@ -5,18 +5,20 @@ require_once '../includes/admin-auth.php';
 require_once '../config/database.php';
 require_once '../includes/admin-helper.php';
 require_once '../includes/premium-admin-helper.php';
+require_once '../includes/branch-context.php';
 
 $pageTitle='Feedback';$flash=premiumAdminGetFlash();
+$branchId=requireAssignedBranch($pdo);
 
 if($_SERVER['REQUEST_METHOD']==='POST'){
  if(!premiumAdminVerifyCsrf($_POST['csrf_token']??null))premiumAdminFlash('error','Session token expired.','feedback.php');
  $id=filter_input(INPUT_POST,'id',FILTER_VALIDATE_INT);$status=$_POST['status']??'reviewed';
  if(!$id||!in_array($status,['new','reviewed','flagged'],true))premiumAdminFlash('error','Invalid feedback update.','feedback.php');
- $pdo->prepare("UPDATE feedback SET status=? WHERE id=?")->execute([$status,$id]);
+ $pdo->prepare("UPDATE feedback f JOIN bookings b ON b.id=f.booking_id SET f.status=? WHERE f.id=? AND b.branch_id=?")->execute([$status,$id,$branchId]);
  premiumAdminFlash('success','Feedback status updated.','feedback.php');
 }
 
-$search=trim((string)($_GET['search']??''));$status=trim((string)($_GET['status']??'all'));$rating=filter_input(INPUT_GET,'rating',FILTER_VALIDATE_INT);$where=['1=1'];$params=[];
+$search=trim((string)($_GET['search']??''));$status=trim((string)($_GET['status']??'all'));$rating=filter_input(INPUT_GET,'rating',FILTER_VALIDATE_INT);$where=['b.branch_id=:branch_scope'];$params=['branch_scope'=>$branchId];
 if($search!==''){$where[]="(c.fullname LIKE :customer_search OR f.comment LIKE :comment_search OR s.name LIKE :service_search)";$v='%'.$search.'%';$params=['customer_search'=>$v,'comment_search'=>$v,'service_search'=>$v];}
 if($status!=='all'){$where[]='f.status=:status';$params['status']=$status;}
 if($rating){$where[]='f.rating=:rating';$params['rating']=$rating;}
