@@ -42,17 +42,49 @@
 
   let current = 0;
   let timer = null;
+  let animating = false;
+  const transitionDuration = 580;
 
-  function showPromotion(index) {
-    current = (index + slides.length) % slides.length;
+  function showPromotion(index, direction = 1, immediate = false) {
+    const nextIndex = (index + slides.length) % slides.length;
+    if (!immediate && (animating || nextIndex === current)) return;
 
-    slides.forEach((slide, slideIndex) => {
-      slide.classList.toggle('active', slideIndex === current);
-    });
+    const oldIndex = current;
+    const oldSlide = slides[oldIndex];
+    const newSlide = slides[nextIndex];
+    const oldCopy = copies[oldIndex];
+    const newCopy = copies[nextIndex];
+    current = nextIndex;
 
-    copies.forEach((copy, copyIndex) => {
-      copy.classList.toggle('active', copyIndex === current);
-    });
+    if (immediate) {
+      slides.forEach((slide, slideIndex) => {
+        slide.className = `promotion-slide${slideIndex === current ? ' active' : ''}`;
+      });
+      copies.forEach((copy, copyIndex) => {
+        copy.className = `promotion-copy${copyIndex === current ? ' active' : ''}`;
+      });
+    } else {
+      animating = true;
+      const outgoingClass = direction > 0 ? 'slide-out-left' : 'slide-out-right';
+      const incomingClass = direction > 0 ? '' : 'prepare-left';
+
+      newSlide.className = `promotion-slide ${incomingClass}`.trim();
+      newCopy.className = `promotion-copy ${incomingClass}`.trim();
+      void newSlide.offsetWidth;
+
+      oldSlide.classList.remove('active');
+      oldSlide.classList.add(outgoingClass);
+      oldCopy.classList.remove('active');
+      oldCopy.classList.add(outgoingClass);
+      newSlide.className = 'promotion-slide active';
+      newCopy.className = 'promotion-copy active';
+
+      window.setTimeout(() => {
+        oldSlide.className = 'promotion-slide';
+        oldCopy.className = 'promotion-copy';
+        animating = false;
+      }, transitionDuration);
+    }
 
     dots.forEach((dot, dotIndex) => {
       dot.classList.toggle('active', dotIndex === current);
@@ -67,7 +99,7 @@
     stopRotation();
 
     timer = window.setInterval(() => {
-      showPromotion(current + 1);
+      showPromotion(current + 1, 1);
     }, 6000);
   }
 
@@ -82,7 +114,7 @@
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-    showPromotion(0);
+    showPromotion(0, 1, true);
     startRotation();
 
     window.setTimeout(() => {
@@ -109,18 +141,19 @@
   });
 
   previous?.addEventListener('click', () => {
-    showPromotion(current - 1);
+    showPromotion(current - 1, -1);
     startRotation();
   });
 
   next?.addEventListener('click', () => {
-    showPromotion(current + 1);
+    showPromotion(current + 1, 1);
     startRotation();
   });
 
   dots.forEach((dot) => {
     dot.addEventListener('click', () => {
-      showPromotion(Number(dot.dataset.promotionDot));
+      const target = Number(dot.dataset.promotionDot);
+      showPromotion(target, target >= current ? 1 : -1);
       startRotation();
     });
   });
@@ -136,12 +169,12 @@
     }
 
     if (event.key === 'ArrowRight') {
-      showPromotion(current + 1);
+      showPromotion(current + 1, 1);
       startRotation();
     }
 
     if (event.key === 'ArrowLeft') {
-      showPromotion(current - 1);
+      showPromotion(current - 1, -1);
       startRotation();
     }
   });

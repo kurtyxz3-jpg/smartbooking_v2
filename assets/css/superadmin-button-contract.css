@@ -1,0 +1,105 @@
+/*
+ * Super Admin button contract
+ *
+ * Loaded last by superadmin-header.php so older page-level declarations
+ * cannot replace the approved compact white/gold button presentation.
+ */
+
+html body.superadmin-portal :is(
+  .btn,
+  .account-center-button,
+  .admin-action-btn,
+  .staff-action-btn,
+  .employment-action-btn
+) {
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  font-family: "Manrope", Arial, sans-serif !important;
+  font-size: 0.64rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  transform: none !important;
+  transition: none !important;
+  white-space: nowrap !important;
+}
+
+/* White secondary button — identical in Default, Light, and Dark themes. */
+html body.superadmin-portal :is(
+  .btn-light,
+  .account-center-button:not(.primary),
+  .admin-action-btn:not(.admin-action-danger),
+  .staff-action-btn:not(.staff-action-delete),
+  .employment-action-btn:not(.employment-action-delete)
+) {
+  color: #4b2e1a !important;
+  -webkit-text-fill-color: #4b2e1a !important;
+  background: #fffaf5 !important;
+  border: 1px solid #d9c4aa !important;
+}
+
+/* Gold primary button — identical in Default, Light, and Dark themes. */
+html body.superadmin-portal :is(
+  .btn-gold,
+  .account-center-button.primary
+) {
+  color: #2a1a12 !important;
+  -webkit-text-fill-color: #2a1a12 !important;
+  background: #d5a33e !important;
+  border: 1px solid #b98528 !important;
+}
+
+/* Preserve destructive actions while matching the same dimensions. */
+html body.superadmin-portal :is(
+  .btn-danger,
+  .admin-action-danger,
+  .staff-action-delete,
+  .employment-action-delete
+) {
+  color: #8a3428 !important;
+  -webkit-text-fill-color: #8a3428 !important;
+  background: #fff2f0 !important;
+  border: 1px solid #efc9c4 !important;
+}
+
+/*
+ * Profile navigation behaves as a button group:
+ * inactive choices are white and the current choice is gold.
+ */
+html body.superadmin-portal nav.account-center-tabs > a {
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #4b2e1a !important;
+  -webkit-text-fill-color: #4b2e1a !important;
+  background: #fffaf5 !important;
+  border: 1px solid #d9c4aa !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  font-family: "Manrope", Arial, sans-serif !important;
+  font-size: 0.64rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  transform: none !important;
+  transition: none !important;
+  white-space: nowrap !important;
+}
+
+html body.superadmin-portal nav.account-center-tabs > a.active {
+  color: #2a1a12 !important;
+  -webkit-text-fill-color: #2a1a12 !important;
+  background: #d5a33e !important;
+  border-color: #b98528 !important;
+}

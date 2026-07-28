@@ -87,6 +87,14 @@
     setDetail("payment_method", booking.payment_method);
     setDetail("reference_number", booking.reference_number);
 
+    const aiCard = modal.querySelector("[data-ai-design-card]");
+    const aiLink = modal.querySelector("[data-ai-design-link]");
+    const hasAiDesign = Number(booking.selected_ai_design_id || 0) > 0;
+    if (aiCard) aiCard.hidden = !hasAiDesign;
+    if (aiLink && hasAiDesign) {
+      aiLink.href = `${config.aiDesignUrl}${encodeURIComponent(booking.id)}`;
+    }
+
     idInput.value = booking.id;
     staffSelect.value = booking.staff_id || "";
     const statuses = [booking.status, ...(booking.allowed_transitions || [])];

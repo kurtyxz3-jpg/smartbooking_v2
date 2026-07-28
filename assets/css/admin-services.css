@@ -482,6 +482,77 @@
   line-height: 1.4;
 }
 
+.admin-service-image-upload {
+  display: grid;
+  gap: 11px;
+  padding: 12px;
+  border: 1px solid #d7c3a8;
+  border-radius: 15px;
+  background: #fcf8f2;
+}
+
+.admin-service-image-upload.is-dragging {
+  border-color: #b68125;
+  background: #fff3d9;
+}
+
+.admin-service-image-file {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+
+.admin-service-image-drop {
+  width: 100%;
+  min-height: 190px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(180px, .75fr) minmax(0, 1fr);
+  gap: 17px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px dashed #cdb38f;
+  border-radius: 12px;
+  color: var(--admin-dark);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-service-image-drop img {
+  width: 100%;
+  height: 190px;
+  display: block;
+  object-fit: cover;
+}
+
+.admin-service-image-drop span {
+  padding: 20px;
+  display: grid;
+  gap: 5px;
+  color: var(--admin-muted);
+}
+
+.admin-service-image-drop strong {
+  color: var(--admin-dark);
+  font-size: .82rem;
+}
+
+.admin-service-image-drop small {
+  font-size: .66rem;
+  line-height: 1.45;
+}
+
+.admin-service-image-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .admin-service-preview {
   padding: 13px;
   display: grid;
@@ -580,6 +651,10 @@
   }
 
   .admin-service-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-service-image-drop {
     grid-template-columns: 1fr;
   }
 }

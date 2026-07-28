@@ -1,0 +1,93 @@
+/*
+ * Staff button contract
+ *
+ * Loaded last by staff-header.php so older Staff and Account Center styles
+ * cannot override the approved compact white/gold button presentation.
+ */
+
+html body.staff-portal :is(
+  .btn,
+  .staff-btn,
+  .staff-action-btn,
+  .account-center-button
+) {
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  font-family: "Manrope", Arial, sans-serif !important;
+  font-size: 0.64rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  transform: none !important;
+  transition: none !important;
+  white-space: nowrap !important;
+}
+
+/* White secondary button — identical in Default, Light, and Dark themes. */
+html body.staff-portal :is(
+  .btn-light,
+  .staff-btn-light,
+  .staff-action-btn:not(.staff-action-confirm):not(.staff-action-complete),
+  .account-center-button:not(.primary)
+) {
+  color: #4b2e1a !important;
+  -webkit-text-fill-color: #4b2e1a !important;
+  background: #fffaf5 !important;
+  border: 1px solid #d9c4aa !important;
+}
+
+/* Gold primary button — identical in Default, Light, and Dark themes. */
+html body.staff-portal :is(
+  .btn-gold,
+  .staff-btn-primary,
+  .staff-action-confirm,
+  .staff-action-complete,
+  .account-center-button.primary
+) {
+  color: #2a1a12 !important;
+  -webkit-text-fill-color: #2a1a12 !important;
+  background: #d5a33e !important;
+  border: 1px solid #b98528 !important;
+}
+
+/*
+ * Staff Profile navigation behaves as the same button group:
+ * inactive choices are white and the current choice is gold.
+ */
+html body.staff-portal nav.account-center-tabs > a {
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #4b2e1a !important;
+  -webkit-text-fill-color: #4b2e1a !important;
+  background: #fffaf5 !important;
+  border: 1px solid #d9c4aa !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  font-family: "Manrope", Arial, sans-serif !important;
+  font-size: 0.64rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  transform: none !important;
+  transition: none !important;
+  white-space: nowrap !important;
+}
+
+html body.staff-portal nav.account-center-tabs > a.active {
+  color: #2a1a12 !important;
+  -webkit-text-fill-color: #2a1a12 !important;
+  background: #d5a33e !important;
+  border-color: #b98528 !important;
+}

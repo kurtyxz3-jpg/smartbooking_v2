@@ -138,6 +138,7 @@ include '../includes/staff-header.php';
                             <th>Date</th>
                             <th>Time</th>
                             <th>Status</th>
+                            <th>AI Design</th>
                             <th>Update</th>
                         </tr>
                     </thead>
@@ -145,7 +146,7 @@ include '../includes/staff-header.php';
                     <tbody>
                     <?php if (!$bookings): ?>
                         <tr>
-                            <td colspan="7" class="staff-empty">
+                                <td colspan="8" class="staff-empty">
                                 No assigned bookings found.
                             </td>
                         </tr>
@@ -186,11 +187,22 @@ include '../includes/staff-header.php';
                                     ) ?>
                                 </td>
 
-                                <td>
-                                    <span class="staff-badge <?= staffStatusClass((string) $booking['status']) ?>">
-                                        <?= ucfirst(str_replace('_', ' ', (string) $booking['status'])) ?>
-                                    </span>
-                                </td>
+                                    <td>
+                                        <span class="staff-badge <?= staffStatusClass((string) $booking['status']) ?>">
+                                            <?= ucfirst(str_replace('_', ' ', (string) $booking['status'])) ?>
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <?php if (!empty($booking['selected_ai_design_id'])): ?>
+                                            <a class="staff-action-btn staff-action-confirm"
+                                               href="booking-ai-design.php?booking_id=<?= (int) $booking['id'] ?>">
+                                                View design
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="staff-action-muted">None</span>
+                                        <?php endif; ?>
+                                    </td>
 
                                 <td>
                                     <div class="staff-booking-actions">

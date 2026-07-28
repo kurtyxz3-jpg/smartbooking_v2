@@ -2,14 +2,21 @@
 declare(strict_types=1);
 require_once '../includes/staff-auth.php';
 require_once '../config/database.php';
+require_once '../includes/branch-context.php';
 $pageTitle = 'Appointment Design Reference';
 $bookingId = filter_input(INPUT_GET, 'booking_id', FILTER_VALIDATE_INT) ?: 0;
+$branchId = requireAssignedBranch($pdo);
 
 if ($bookingId > 0) {
     $access = $pdo->prepare(
-        "SELECT COUNT(*) FROM bookings WHERE id=? AND assigned_staff_id=?"
+        "SELECT COUNT(*) FROM bookings
+         WHERE id=? AND staff_id=? AND branch_id=?"
     );
-    $access->execute([$bookingId, (int) $_SESSION['user_id']]);
+    $access->execute([
+        $bookingId,
+        (int) $_SESSION['user_id'],
+        $branchId,
+    ]);
     if (!(bool) $access->fetchColumn()) {
         http_response_code(403);
         exit('You are not assigned to this appointment.');
@@ -30,4 +37,3 @@ include '../includes/staff-header.php';
         <?php include '../includes/staff-footer.php'; ?>
     </main>
 </div>
-

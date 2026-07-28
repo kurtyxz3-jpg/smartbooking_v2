@@ -133,6 +133,96 @@ function adminServiceFlash(string $type, string $message): never
     exit;
 }
 
+/**
+ * @return array<string, true>
+ */
+function adminServiceTableColumns(PDO $pdo, string $table): array
+{
+    $statement = $pdo->prepare(
+        "SELECT column_name
+         FROM information_schema.columns
+         WHERE table_schema = DATABASE()
+           AND table_name = ?"
+    );
+    $statement->execute([$table]);
+
+    $columns = [];
+
+    foreach ($statement->fetchAll(PDO::FETCH_COLUMN) as $column) {
+        $columns[(string) $column] = true;
+    }
+
+    return $columns;
+}
+
+$requiredServiceColumns = [
+    'id',
+    'category_id',
+    'slug',
+    'name',
+    'description',
+    'price',
+    'price_note',
+    'duration',
+    'image',
+    'featured',
+    'display_order',
+    'status',
+    'created_at',
+    'updated_at',
+];
+
+$requiredCategoryColumns = [
+    'id',
+    'name',
+    'description',
+    'status',
+    'display_order',
+    'created_at',
+    'updated_at',
+];
+
+$serviceColumns = adminServiceTableColumns($pdo, 'services');
+$categoryColumns = adminServiceTableColumns($pdo, 'service_categories');
+$missingServiceColumns = array_values(
+    array_diff($requiredServiceColumns, array_keys($serviceColumns))
+);
+$missingCategoryColumns = array_values(
+    array_diff($requiredCategoryColumns, array_keys($categoryColumns))
+);
+
+if (!$serviceColumns || $missingServiceColumns || $missingCategoryColumns) {
+    $missingParts = [];
+
+    if (!$serviceColumns) {
+        $missingParts[] = 'the services table';
+    } elseif ($missingServiceColumns) {
+        $missingParts[] =
+            'services.' . implode(', services.', $missingServiceColumns);
+    }
+
+    if (!$categoryColumns) {
+        $missingParts[] = 'the service_categories table';
+    } elseif ($missingCategoryColumns) {
+        $missingParts[] =
+            'service_categories.'
+            . implode(', service_categories.', $missingCategoryColumns);
+    }
+
+    http_response_code(503);
+    exit(
+        'The Services module database migration has not been fully applied. '
+        . 'Missing: '
+        . htmlspecialchars(
+            implode('; ', $missingParts),
+            ENT_QUOTES,
+            'UTF-8'
+        )
+        . '. Import database/063_services_schema_compatibility.sql, '
+        . 'then reload this page.'
+    );
+}
+
 $flash = $_SESSION['admin_service_flash'] ?? null;
 unset($_SESSION['admin_service_flash']);
 
@@ -562,7 +652,7 @@ unset($queryForPagination['page']);
 include '../includes/admin-header.php';
 ?>
 
-<link rel="stylesheet" href="../assets/css/admin-services.css">
+<link rel="stylesheet" href="../assets/css/admin-services.css?v=090">
 
 <div class="admin-layout">
     <?php include '../includes/admin-sidebar.php'; ?>
@@ -1073,20 +1163,54 @@ include '../includes/admin-header.php';
                     ></textarea>
                 </div>
 
-                <div class="admin-field">
-                    <label for="serviceImage">Upload service image</label>
-                    <input
-                        id="serviceImage"
-                        name="service_image"
-                        type="file"
-                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                    >
-                    <small class="admin-service-form-note">
-                        JPG, PNG, or WebP. Maximum 5 MB.
-                    </small>
+                <div class="admin-field admin-service-form-span-2">
+                    <label>Service image</label>
+                    <div class="admin-service-image-upload" data-service-image-upload>
+                        <input
+                            class="admin-service-image-file"
+                            id="serviceImage"
+                            name="service_image"
+                            type="file"
+                            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                        >
+
+                        <button
+                            class="admin-service-image-drop"
+                            type="button"
+                            data-service-image-drop
+                        >
+                            <img
+                                id="serviceImagePreview"
+                                src="../assets/images/services/temporary-placeholders/brow-reconstruction.webp"
+                                alt="Service image preview"
+                            >
+                            <span>
+                                <strong>Drag and drop an image here</strong>
+                                <small>or choose a JPG, PNG, or WebP file up to 5 MB</small>
+                            </span>
+                        </button>
+
+                        <div class="admin-service-image-actions">
+                            <button
+                                class="admin-btn admin-btn-light"
+                                type="button"
+                                data-service-image-choose
+                            >
+                                Choose image
+                            </button>
+                            <button
+                                class="admin-btn admin-btn-light"
+                                type="button"
+                                data-service-image-clear
+                                hidden
+                            >
+                                Remove image
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="admin-field">
+                <div class="admin-field admin-service-form-span-2">
                     <label for="serviceImagePath">Or existing image path</label>
                     <input
                         id="serviceImagePath"
@@ -1099,20 +1223,6 @@ include '../includes/admin-header.php';
                     </small>
                 </div>
 
-                <div class="admin-service-preview admin-service-form-span-2">
-                    <div>
-                        <img
-                            id="serviceImagePreview"
-                            src="../assets/images/services/temporary-placeholders/brow-reconstruction.webp"
-                            alt="Service image preview"
-                        >
-                    </div>
-
-                    <p>
-                        The image preview helps verify the service card before
-                        saving.
-                    </p>
-                </div>
             </div>
 
             <footer class="admin-service-modal-actions">
@@ -1136,4 +1246,4 @@ include '../includes/admin-header.php';
     </section>
 </div>
 
-<script src="../assets/js/admin-services.js"></script>
+<script src="../assets/js/admin-services.js?v=090"></script>

@@ -51,7 +51,7 @@ $customerProfilePictureUrl = $customerProfilePicture
     <link rel="stylesheet" href="../assets/css/customer-profile-redesign.css">
     <link rel="stylesheet" href="../assets/css/accessibility-preferences.css">
     <link rel="stylesheet" href="../assets/css/official-logo.css">
-    <link rel="stylesheet" href="../assets/css/global-theme-system.css">
+    <link rel="stylesheet" href="../assets/css/global-theme-system.css?v=083">
     <link rel="icon" href="../assets/images/branding/nbw-favicon.png">
 </head>
 

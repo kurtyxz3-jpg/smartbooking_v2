@@ -130,8 +130,11 @@
       const response = await fetch(cfg.healthEndpoint, { cache: 'no-store' });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error();
-      health.className = 'phase2-status-text online';
-      health.textContent = `Online · ${data.provider}`;
+      const ready = data.ready !== false && data.configured !== false;
+      health.className = `phase2-status-text ${ready ? 'online' : 'offline'}`;
+      health.textContent = ready
+        ? `Online · ${data.provider}`
+        : `${data.provider} needs configuration`;
     } catch {
       health.className = 'phase2-status-text offline';
       health.textContent = 'Python service offline';

@@ -8,6 +8,8 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once '../config/database.php';
 require_once '../includes/service-catalog.php';
 require_once '../includes/branch-context.php';
+require_once '../includes/staff-schedule-helper.php';
+require_once '../includes/ai-history-helper.php';
 
 $pageTitle = 'Book Appointment';
 $errors = [];
@@ -162,14 +164,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['availability'])) {
     $date = trim($_GET['date'] ?? '');
     $staffId = (int) ($_GET['staff_id'] ?? 0);
     $branchId = (int) ($_GET['branch_id'] ?? 0);
+    $duration = max(15, (int) ($_GET['duration'] ?? 60));
+    $blocked = [];
+    if ($date !== '' && $branchId > 0) {
+        for ($hour = 9; $hour <= 19; $hour++) {
+            foreach ([0, 30] as $minute) {
+                if ($hour === 19 && $minute === 30) {
+                    continue;
+                }
+                $slot = sprintf('%02d:%02d', $hour, $minute);
+                if ($staffId > 0) {
+                    $result = staffScheduleAvailability(
+                        $pdo,
+                        $staffId,
+                        $branchId,
+                        $date,
+                        $slot,
+                        $duration
+                    );
+                    if (!$result['available']) {
+                        $blocked[] = $slot;
+                    }
+                } elseif (!staffScheduleAvailableStaff(
+                    $pdo,
+                    $branchId,
+                    $date,
+                    $slot,
+                    $duration
+                )) {
+                    $blocked[] = $slot;
+                }
+            }
+        }
+    }
 
     echo json_encode([
-        'blocked' => bookingFetchBlockedSlots(
-            $pdo,
-            $date,
-            $staffId > 0 ? $staffId : null,
-            $branchId
-        ),
+        'blocked' => array_values(array_unique($blocked)),
     ]);
     exit;
 }
@@ -235,6 +265,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($serviceId <= 0) {
             $errors[] =
                 'The selected service could not be prepared for booking. Please contact the salon.';
+        }
+    }
+
+    if (!$errors && $service) {
+        $duration = max(15, (int) ($service['duration'] ?? 60));
+        if ($staffId > 0) {
+            $staffAvailability = staffScheduleAvailability(
+                $pdo,
+                $staffId,
+                $branchId,
+                $bookingDate,
+                $bookingTime,
+                $duration
+            );
+            if (!$staffAvailability['available']) {
+                $errors[] = 'The selected staff member is unavailable: '
+                    . $staffAvailability['reason'];
+            }
+        } else {
+            $availableStaff = staffScheduleAvailableStaff(
+                $pdo,
+                $branchId,
+                $bookingDate,
+                $bookingTime,
+                $duration
+            );
+            if (!$availableStaff) {
+                $errors[] = 'No staff member is available for this date and time.';
+            }
         }
     }
 
@@ -345,6 +404,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         unset($_SESSION['booking_draft']);
         $newBookingId = (int) $pdo->lastInsertId();
+        aiAttachSelectedDesignToBooking(
+            $pdo,
+            $newBookingId,
+            (int) $_SESSION['user_id']
+        );
         $_SESSION['booking_success_id'] = $newBookingId;
 
         header('Location: pay-booking.php?id=' . $newBookingId);

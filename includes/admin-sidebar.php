@@ -81,6 +81,10 @@ $sidebarPhoto = currentAccountPhotoUrl($sidebarAccount);?>
             Staff
         </a>
 
+        <a href="staff-schedule.php" class="<?= $currentPage === 'staff-schedule.php' ? 'active' : '' ?>">
+            Staff Schedule
+        </a>
+
         <a href="promotions.php" class="<?= $currentPage === 'promotions.php' ? 'active' : '' ?>">
             Promotions
         </a>

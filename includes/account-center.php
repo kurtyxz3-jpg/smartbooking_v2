@@ -18,11 +18,13 @@ $allowedTabs = [
     'profile',
     'security',
     'notifications',
-    'appearance',
-    'activity',
     'connections',
     'access',
 ];
+
+if ($role === 'customer') {
+    $allowedTabs[] = 'activity';
+}
 $activeTab = trim((string) ($_GET['tab'] ?? 'overview'));
 
 if (!in_array($activeTab, $allowedTabs, true)) {
@@ -245,47 +247,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
         }
 
-        if ($action === 'appearance') {
-            $theme = trim((string) ($_POST['theme_mode'] ?? 'default'));
-            $language = trim((string) ($_POST['language_code'] ?? 'english'));
-
-            if (!in_array($theme, ['default', 'light', 'dark'], true)) {
-                $theme = 'default';
-            }
-
-            if (!in_array($language, ['english', 'filipino', 'taglish'], true)) {
-                $language = 'english';
-            }
-
-            $statement = $pdo->prepare(
-                "INSERT INTO account_preferences (
-                    user_id,
-                    theme_mode,
-                    language_code
-                ) VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE
-                    theme_mode = VALUES(theme_mode),
-                    language_code = VALUES(language_code)"
-            );
-            $statement->execute([$userId, $theme, $language]);
-
-            if (accountCenterTableExists($pdo, 'user_language_preferences')) {
-                $pdo->prepare(
-                    "INSERT INTO user_language_preferences (
-                        user_id,
-                        language_code
-                    ) VALUES (?, ?)
-                    ON DUPLICATE KEY UPDATE
-                        language_code = VALUES(language_code)"
-                )->execute([$userId, $language]);
-            }
-
-            $_SESSION['theme_mode'] = $theme;
-            $_SESSION['language'] = $language;
-
-            accountCenterFlash('success', 'Appearance preferences were saved.', 'profile.php?tab=appearance');
-        }
-
         if ($action === 'notifications') {
             $available = accountCenterNotifications($role);
             $pdo->beginTransaction();
@@ -409,6 +370,7 @@ $profilePhoto = !empty($user['profile_picture'])
 ?>
 
 <link rel="stylesheet" href="../assets/css/account-center.css">
+<link rel="stylesheet" href="../assets/css/account-center-role-themes.css?v=096">
 
 <section class="account-center-hero <?= $role === 'customer'
         ? 'account-center-customer-hero'
@@ -437,28 +399,6 @@ $profilePhoto = !empty($user['profile_picture'])
         </div>
     </div>
 
-    <?php if ($role !== 'customer'): ?>
-        <div class="account-center-hero-meta">
-            <div>
-                <small>Account created</small>
-                <strong><?= date('M j, Y', strtotime($user['created_at'])) ?></strong>
-            </div>
-
-            <div>
-                <small>Role</small>
-                <strong><?= htmlspecialchars(
-                    accountCenterRoleName($role),
-                    ENT_QUOTES,
-                    'UTF-8'
-                ) ?></strong>
-            </div>
-
-            <div>
-                <small>Current session</small>
-                <strong>Active</strong>
-            </div>
-        </div>
-    <?php endif; ?>
 </section>
 
 <?php if ($flash): ?>
@@ -468,16 +408,21 @@ $profilePhoto = !empty($user['profile_picture'])
 <?php endif; ?>
 
 <nav class="account-center-tabs">
-    <?php foreach ([
+    <?php
+    $accountCenterTabs = [
         'overview' => 'Overview',
         'profile' => 'Profile',
         'security' => 'Security',
         'notifications' => 'Notifications',
-        'appearance' => 'Appearance',
-        'activity' => 'Activity',
         'connections' => 'Connected Accounts',
         'access' => 'Access',
-    ] as $tab => $label): ?>
+    ];
+
+    if ($role === 'customer') {
+        $accountCenterTabs['activity'] = 'Activity';
+    }
+    ?>
+    <?php foreach ($accountCenterTabs as $tab => $label): ?>
         <a class="<?= $activeTab === $tab ? 'active' : '' ?>" href="?tab=<?= $tab ?>">
             <?= $label ?>
         </a>
@@ -645,44 +590,6 @@ $profilePhoto = !empty($user['profile_picture'])
 
             <div class="account-center-form-actions">
                 <button class="account-center-button primary">Save notification preferences</button>
-            </div>
-        </form>
-    </section>
-
-<?php elseif ($activeTab === 'appearance'): ?>
-    <section class="account-center-card">
-        <div class="account-center-card-heading">
-            <div><p class="account-center-kicker">Accessibility and localization</p><h2>Appearance and language</h2><p>Choose how SmartBooking should look and which interface language you prefer.</p></div>
-        </div>
-
-        <form method="POST">
-            <input type="hidden" name="csrf_token" value="<?= accountCenterCsrf() ?>">
-            <input type="hidden" name="action" value="appearance">
-
-            <div class="account-center-choice-grid">
-                <?php foreach ([
-                    'default' => ['Default', 'Cream, brown, and gold salon theme'],
-                    'light' => ['Light', 'High-clarity white interface'],
-                    'dark' => ['Dark', 'Low-light charcoal interface'],
-                ] as $value => [$label, $description]): ?>
-                    <label class="account-center-choice">
-                        <input name="theme_mode" type="radio" value="<?= $value ?>" <?= ($preference['theme_mode'] ?? 'default') === $value ? 'checked' : '' ?>>
-                        <span><strong><?= $label ?></strong><small><?= $description ?></small></span>
-                    </label>
-                <?php endforeach; ?>
-            </div>
-
-            <div class="admin-field account-center-language">
-                <label>Language</label>
-                <select name="language_code">
-                    <option value="english" <?= ($preference['language_code'] ?? 'english') === 'english' ? 'selected' : '' ?>>English</option>
-                    <option value="filipino" <?= ($preference['language_code'] ?? '') === 'filipino' ? 'selected' : '' ?>>Filipino</option>
-                    <option value="taglish" <?= ($preference['language_code'] ?? '') === 'taglish' ? 'selected' : '' ?>>Taglish</option>
-                </select>
-            </div>
-
-            <div class="account-center-form-actions">
-                <button class="account-center-button primary">Save appearance</button>
             </div>
         </form>
     </section>

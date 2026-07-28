@@ -15,7 +15,7 @@ function aiSettings(PDO $pdo): array
         'daily_customer_limit' => '10',
         'images_per_request' => '3',
         'request_timeout_seconds' => '240',
-        'image_model' => 'gpt-image-2',
+        'image_model' => 'gpt-image-1',
         'beauty_photo_retention_hours' => '24',
     ];
 
@@ -97,12 +97,16 @@ function callAiService(
     curl_close($curl);
 
     if ($body === false || $error !== '') {
-        throw new RuntimeException('Python AI service is offline: ' . $error);
+        throw new RuntimeException(
+            'The AI Studio is temporarily offline. Start the Python AI service and try again.'
+        );
     }
 
     $data = json_decode($body, true);
     if (!is_array($data)) {
-        throw new RuntimeException('Python AI service returned invalid data.');
+        throw new RuntimeException(
+            'The AI Studio returned an unreadable response. Please try again.'
+        );
     }
     if ($status < 200 || $status >= 300 || empty($data['success'])) {
         throw new RuntimeException(

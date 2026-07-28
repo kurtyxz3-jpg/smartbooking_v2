@@ -2,8 +2,20 @@
 declare(strict_types=1);
 require_once '../includes/admin-auth.php';
 require_once '../config/database.php';
+require_once '../includes/branch-context.php';
 $pageTitle = 'Booking AI Design';
 $bookingId = filter_input(INPUT_GET, 'booking_id', FILTER_VALIDATE_INT) ?: 0;
+$branchId = requireAssignedBranch($pdo);
+if ($bookingId > 0) {
+    $access = $pdo->prepare(
+        "SELECT COUNT(*) FROM bookings WHERE id=? AND branch_id=?"
+    );
+    $access->execute([$bookingId, $branchId]);
+    if (!(bool) $access->fetchColumn()) {
+        http_response_code(403);
+        exit('This booking does not belong to your assigned branch.');
+    }
+}
 include '../includes/admin-header.php';
 ?>
 <link rel="stylesheet" href="../assets/css/booking-ai-reference.css">
@@ -19,4 +31,3 @@ include '../includes/admin-header.php';
         <?php include '../includes/admin-footer.php'; ?>
     </main>
 </div>
-

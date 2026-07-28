@@ -171,6 +171,7 @@
         date: dateInput.value,
         staff_id: String(selectedStaff.id),
         branch_id: branchInput.value,
+        duration: String(selectedService?.duration || 60),
       });
       const response = await fetch(`book.php?${query.toString()}`, {
         headers: { Accept: 'application/json' },

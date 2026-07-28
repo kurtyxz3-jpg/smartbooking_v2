@@ -14,6 +14,10 @@
   const existingImage = document.getElementById('serviceExistingImage');
   const imageInput = document.getElementById('serviceImage');
   const imagePreview = document.getElementById('serviceImagePreview');
+  const imageUpload = document.querySelector('[data-service-image-upload]');
+  const imageDrop = document.querySelector('[data-service-image-drop]');
+  const imageChoose = document.querySelector('[data-service-image-choose]');
+  const imageClear = document.querySelector('[data-service-image-clear]');
   const featured = document.getElementById('serviceFeatured');
   const displayOrder = document.getElementById('serviceDisplayOrder');
   const status = document.getElementById('serviceStatus');
@@ -33,6 +37,28 @@
     return '../' + path.replace(/^\/+/, '');
   }
 
+  function showSelectedImage(file) {
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      window.alert('Choose a JPG, PNG, or WebP image.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      window.alert('The service image must be 5 MB or smaller.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      imagePreview.src = String(reader.result);
+      imageClear.hidden = false;
+    };
+    reader.readAsDataURL(file);
+  }
+
   function openModal(mode, payload = null) {
     form?.reset();
 
@@ -40,6 +66,7 @@
     id.value = '';
     existingImage.value = '';
     imagePreview.src = fallbackImage;
+    imageClear.hidden = true;
 
     if (mode === 'edit' && payload) {
       title.textContent = 'Edit Service';
@@ -61,6 +88,7 @@
       displayOrder.value = payload.display_order ?? 0;
       status.value = payload.status ?? 'active';
       imagePreview.src = resolveImage(payload.image);
+      imageClear.hidden = !payload.image;
     } else {
       title.textContent = 'Add Service';
       descriptionText.textContent =
@@ -134,14 +162,42 @@
   });
 
   imageInput?.addEventListener('change', () => {
-    const file = imageInput.files?.[0];
+    showSelectedImage(imageInput.files?.[0]);
+  });
+
+  imageChoose?.addEventListener('click', () => imageInput.click());
+  imageDrop?.addEventListener('click', () => imageInput.click());
+
+  ['dragenter', 'dragover'].forEach((eventName) => {
+    imageDrop?.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      imageUpload?.classList.add('is-dragging');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach((eventName) => {
+    imageDrop?.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      imageUpload?.classList.remove('is-dragging');
+    });
+  });
+
+  imageDrop?.addEventListener('drop', (event) => {
+    const file = event.dataTransfer?.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      imagePreview.src = String(reader.result);
-    };
-    reader.readAsDataURL(file);
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    imageInput.files = transfer.files;
+    showSelectedImage(file);
+  });
+
+  imageClear?.addEventListener('click', () => {
+    imageInput.value = '';
+    imagePath.value = '';
+    existingImage.value = '';
+    imagePreview.src = fallbackImage;
+    imageClear.hidden = true;
   });
 
   document.querySelectorAll('[data-service-remove-form]').forEach(
@@ -162,7 +218,6 @@
       });
     }
   );
-}
 
   /* ------------------------------------------------------------
      Instant visible-card search

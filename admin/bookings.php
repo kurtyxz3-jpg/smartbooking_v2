@@ -381,6 +381,17 @@ include '../includes/admin-header.php';
                             <div><dt>Reference</dt><dd data-detail="reference_number"></dd></div>
                         </dl>
                     </section>
+
+                    <section class="booking-detail-card" data-ai-design-card hidden>
+                        <h3>Customer AI design</h3>
+                        <p>
+                            This customer attached an AI Nail Studio design to
+                            the appointment.
+                        </p>
+                        <a class="booking-button secondary" data-ai-design-link>
+                            View selected design
+                        </a>
+                    </section>
                 </div>
 
                 <aside class="booking-detail-column">
@@ -431,6 +442,7 @@ include '../includes/admin-header.php';
 window.SmartBookingManagement = <?= json_encode([
     'detailsUrl' => 'ajax/booking-details.php',
     'updateUrl' => 'ajax/update-booking.php',
+    'aiDesignUrl' => 'booking-ai-design.php?booking_id=',
     'bookings' => array_map(static fn(array $booking): array => [
         'id' => (int) $booking['id'],
         'reference' => bookingManagementReference($booking),

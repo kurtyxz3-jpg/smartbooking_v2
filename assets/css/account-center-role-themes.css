@@ -1,0 +1,197 @@
+/*
+ * Shared Account Center presentation for Super Admin, Admin, and Staff.
+ * Loaded after account-center.css so all three roles receive identical fixes.
+ */
+
+:where(.superadmin-portal, .admin-portal, .staff-portal)
+  .account-center-hero .account-center-kicker {
+  color: #d9ad59 !important;
+  -webkit-text-fill-color: #d9ad59 !important;
+}
+
+:where(.superadmin-portal, .admin-portal, .staff-portal)
+  .account-center-hero .account-center-identity h1 {
+  color: #fffaf4 !important;
+  -webkit-text-fill-color: #fffaf4 !important;
+}
+
+:where(.superadmin-portal, .admin-portal, .staff-portal)
+  .account-center-hero .account-center-identity > div > p:not(
+    .account-center-kicker
+  ) {
+  color: #d8c6b9 !important;
+  -webkit-text-fill-color: #d8c6b9 !important;
+}
+
+:where(.superadmin-portal, .admin-portal, .staff-portal)
+  .account-center-avatar {
+  color: #ffd27d !important;
+  -webkit-text-fill-color: #ffd27d !important;
+  background: #3a2118 !important;
+  border-color: #b5904c !important;
+}
+
+:where(.superadmin-portal, .admin-portal, .staff-portal)
+  .account-center-avatar :where(span, strong) {
+  color: #ffd27d !important;
+  -webkit-text-fill-color: #ffd27d !important;
+}
+
+html[data-theme="dark"] :where(
+  .superadmin-portal,
+  .admin-portal,
+  .staff-portal
+) :where(
+  .account-center-tabs,
+  .account-center-card,
+  .account-center-stat-grid article,
+  .account-center-details div,
+  .account-center-security-summary div,
+  .account-center-toggle,
+  .account-center-choice,
+  .account-center-connections article,
+  .account-center-permission-list > div
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] :where(
+  .superadmin-portal,
+  .admin-portal,
+  .staff-portal
+) :where(
+  .account-center-details dd,
+  .account-center-security-summary strong,
+  .account-center-toggle strong,
+  .account-center-choice strong,
+  .account-center-connections strong,
+  .account-center-permission-list strong
+) {
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="dark"] :where(
+  .superadmin-portal,
+  .admin-portal,
+  .staff-portal
+) :where(
+  .account-center-security-summary span,
+  .account-center-permission-list small
+) {
+  color: var(--theme-muted) !important;
+}
+
+html[data-theme="dark"] :where(
+  .superadmin-portal,
+  .admin-portal,
+  .staff-portal
+) .account-center-tabs a.active {
+  color: var(--theme-accent-text) !important;
+  background: var(--theme-accent) !important;
+}
+
+/*
+ * Keep the profile navigation controls consistent with the standardized
+ * management buttons. Admin already receives these rules from its role CSS;
+ * the declarations below complete the same treatment for Super Admin/Staff.
+ */
+:where(.superadmin-portal, .staff-portal) .account-center-tabs a {
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  color: #4b2e1a !important;
+  -webkit-text-fill-color: #4b2e1a !important;
+  background: #fffaf5 !important;
+  border: 1px solid #d9c4aa !important;
+  border-radius: 9px !important;
+  font-family: "Manrope", Arial, sans-serif !important;
+  font-size: 0.64rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  transform: none !important;
+  transition: none !important;
+  white-space: nowrap;
+}
+
+:where(.superadmin-portal, .staff-portal) .account-center-tabs a.active {
+  color: #2a1a12 !important;
+  -webkit-text-fill-color: #2a1a12 !important;
+  background: #d5a33e !important;
+  border-color: #b98528 !important;
+}
+
+/* Standard profile form/action buttons for Super Admin and Staff. */
+:where(.superadmin-portal, .staff-portal) .account-center-button {
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #4b2e1a !important;
+  -webkit-text-fill-color: #4b2e1a !important;
+  background: #fffaf5 !important;
+  border: 1px solid #d9c4aa !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  font-family: "Manrope", Arial, sans-serif !important;
+  font-size: 0.64rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  transform: none !important;
+  transition: none !important;
+  white-space: nowrap;
+}
+
+:where(.superadmin-portal, .staff-portal)
+  .account-center-button.primary {
+  color: #2a1a12 !important;
+  -webkit-text-fill-color: #2a1a12 !important;
+  background: #d5a33e !important;
+  border-color: #b98528 !important;
+}
+
+/*
+ * Access permission controls use the same readable surface, border, spacing,
+ * and typography in every theme.
+ */
+:where(.superadmin-portal, .staff-portal)
+  .account-center-permission-list > div {
+  min-height: 68px;
+  padding: 13px 15px;
+  color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: 12px;
+}
+
+:where(.superadmin-portal, .staff-portal)
+  .account-center-permission-list strong {
+  color: var(--theme-text) !important;
+  font-family: "Manrope", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+:where(.superadmin-portal, .staff-portal)
+  .account-center-permission-list small {
+  color: var(--theme-muted) !important;
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+:where(.superadmin-portal, .staff-portal)
+  .account-center-permission-list .allowed > span {
+  color: #245f3e !important;
+  background: #dff1e5 !important;
+}
+
+:where(.superadmin-portal, .staff-portal)
+  .account-center-permission-list .restricted > span {
+  color: #8c372f !important;
+  background: #f8e1de !important;
+}

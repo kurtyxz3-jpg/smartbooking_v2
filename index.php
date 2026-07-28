@@ -3,7 +3,12 @@ declare(strict_types=1);
 
 $pageTitle = 'Beauty, Reimagined';
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/includes/service-catalog.php';
+require_once __DIR__ . '/config/database.php';
 
 $catalog = serviceCatalog();
 $categories = catalogCategories();
@@ -18,46 +23,64 @@ $featured = array_slice(
     8
 );
 
-$promotions = [
-    [
-        'badge' => 'New Guest Offer',
-        'title' => 'Glow Starter Package',
-        'description' => 'Enjoy a manicure, pedicure, and relaxing foot spa in one introductory visit.',
-        'price' => '₱449',
-        'original_price' => '₱500',
-        'button' => 'Book this offer',
-        'link' => 'customer/book.php?service=Manicure',
-        'image' => '/smartbooking_v2/assets/images/home-packages/package-foot-spa.webp',
-        'theme' => 'gold',
-    ],
-    [
-        'badge' => 'Weekday Beauty Treat',
-        'title' => 'Gel Polish Pair',
-        'description' => 'Book gel polish for hands and feet from Monday to Thursday and save on your set.',
-        'price' => '₱649',
-        'original_price' => '₱750',
-        'button' => 'Choose gel polish',
-        'link' => 'customer/book.php?service=Gel%20Polish%20-%20Hands',
-        'image' => '/smartbooking_v2/assets/images/services/nails/nails-14.webp',
-        'theme' => 'rose',
-    ],
-    [
-        'badge' => 'Relax & Renew',
-        'title' => 'Massage + Foot Spa',
-        'description' => 'A full hour of massage followed by a refreshing ladies’ or gentlemen’s foot spa.',
-        'price' => '₱699',
-        'original_price' => '₱800',
-        'button' => 'Reserve relaxation',
-        'link' => 'customer/book.php?service=Regular%20Massage%20-%201%20Hour',
-        'image' => '/smartbooking_v2/assets/images/home-packages/package-massage.webp',
-        'theme' => 'brown',
-    ],
-];
+$promotions = [];
+$visitorBranchId = filter_input(INPUT_GET, 'branch_id', FILTER_VALIDATE_INT);
+if (!$visitorBranchId && isset($_COOKIE['nbw_selected_branch'])) {
+    $visitorBranchId = filter_var($_COOKIE['nbw_selected_branch'], FILTER_VALIDATE_INT);
+}
+if (!$visitorBranchId && isset($_SESSION['booking_draft']['branch_id'])) {
+    $visitorBranchId = (int) $_SESSION['booking_draft']['branch_id'];
+}
+
+try {
+    $promotionSql = "
+        SELECT badge, title, description, promo_price, original_price,
+               button_label, button_link, image_path, theme
+        FROM promotions
+        WHERE status = 'active'
+          AND show_in_popup = 1
+          AND (start_date IS NULL OR start_date <= CURDATE())
+          AND (end_date IS NULL OR end_date >= CURDATE())
+          AND (is_global = 1";
+    $promotionParams = [];
+    if ($visitorBranchId) {
+        $promotionSql .= " OR branch_id = :visitor_branch";
+        $promotionParams['visitor_branch'] = $visitorBranchId;
+    }
+    $promotionSql .= ")
+        ORDER BY display_order ASC, id DESC
+        LIMIT 10";
+
+    $promotionStatement = $pdo->prepare($promotionSql);
+    $promotionStatement->execute($promotionParams);
+    foreach ($promotionStatement->fetchAll(PDO::FETCH_ASSOC) as $promotion) {
+        $promotions[] = [
+            'badge' => $promotion['badge'] ?: 'Limited-time offer',
+            'title' => $promotion['title'],
+            'description' => $promotion['description'] ?: '',
+            'price' => $promotion['promo_price'] !== null
+                ? '₱' . number_format((float) $promotion['promo_price'], 0)
+                : '',
+            'original_price' => $promotion['original_price'] !== null
+                ? '₱' . number_format((float) $promotion['original_price'], 0)
+                : '',
+            'button' => $promotion['button_label'] ?: 'View offer',
+            'link' => $promotion['button_link'] ?: 'customer/services.php',
+            'image' => $promotion['image_path']
+                ?: '/smartbooking_v2/assets/images/home-packages/package-foot-spa.webp',
+            'theme' => in_array($promotion['theme'], ['gold', 'rose', 'brown'], true)
+                ? $promotion['theme']
+                : 'gold',
+        ];
+    }
+} catch (PDOException $exception) {
+    $promotions = [];
+}
 
 include __DIR__ . '/includes/header.php';
 ?>
 
-<link rel="stylesheet" href="/smartbooking_v2/assets/css/homepage-enhancements.css">
+<link rel="stylesheet" href="/smartbooking_v2/assets/css/homepage-enhancements.css?v=079-logo-small">
 
 <main>
     <section class="nbw-hero">
@@ -313,7 +336,8 @@ include __DIR__ . '/includes/header.php';
     </section>
 </main>
 
-<!-- Promotional popup: three offers -->
+<?php if ($promotions): ?>
+<!-- Promotional popup: active campaigns managed from Admin > Promotions -->
 <div
     class="promotion-modal"
     id="promotionModal"
@@ -348,8 +372,10 @@ include __DIR__ . '/includes/header.php';
             <?php endforeach; ?>
 
             <div class="promotion-brand">
-                <span>N</span>
-                <strong>Nails &amp; Body Worx</strong>
+                <img
+                    src="/smartbooking_v2/assets/images/branding/nbw-logo-popup.png"
+                    alt="Nails and Body Worx"
+                >
             </div>
         </div>
 
@@ -406,6 +432,7 @@ include __DIR__ . '/includes/header.php';
         </div>
     </section>
 </div>
+<?php endif; ?>
 
 <script>
 window.NBW_GALLERIES =

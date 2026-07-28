@@ -1,11 +1,12 @@
 <?php
+require_once '../includes/language.php';
 $role = "Owner";
 $title = "Owner Dashboard";
 ?>
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html><html lang="<?= htmlspecialchars($languageCode, ENT_QUOTES, 'UTF-8') ?>" data-theme="<?= htmlspecialchars($themeMode, ENT_QUOTES, 'UTF-8') ?>"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title><?= $title ?> | NBW</title><link rel="stylesheet" href="../assets/css/style.css"></head>
-<body>
+<title><?= $title ?> | NBW</title><script src="../assets/js/theme-bootstrap.js"></script><link rel="stylesheet" href="../assets/css/style.css"><link rel="stylesheet" href="../assets/css/management-themes.css?v=084"><link rel="stylesheet" href="../assets/css/global-theme-system.css?v=083"></head>
+<body class="management-portal owner-portal">
 <div class="dashboard">
 <aside class="sidebar">
 <h2>NBW</h2><p><?= $role ?> Portal</p>

@@ -16,6 +16,30 @@
     --theme-link: #8a561b;
     --theme-accent: #bd8b37;
     --theme-accent-text: #fff;
+    --theme-overlay: rgba(35, 22, 16, .58);
+    --theme-shadow: 0 12px 34px rgba(64, 37, 23, .11);
+    --theme-focus: #8f621e;
+    --theme-success: #25653a;
+    --theme-success-soft: #e4f4e8;
+    --theme-warning: #805a12;
+    --theme-warning-soft: #fff2d2;
+    --theme-danger: #8a3428;
+    --theme-danger-soft: #fce6e1;
+    color-scheme: light;
+
+    /* Compatibility aliases used by older and future SmartBooking pages. */
+    --bg: var(--theme-page);
+    --page-bg: var(--theme-page);
+    --background: var(--theme-page);
+    --surface: var(--theme-surface);
+    --surface-soft: var(--theme-surface-soft);
+    --card-bg: var(--theme-surface);
+    --text: var(--theme-text);
+    --text-color: var(--theme-text);
+    --muted: var(--theme-muted);
+    --border: var(--theme-border);
+    --primary: var(--theme-accent);
+    --gold: var(--theme-accent);
 }
 
 html[data-theme="light"] {
@@ -28,6 +52,16 @@ html[data-theme="light"] {
     --theme-link: #72440d;
     --theme-accent: #9d6d1f;
     --theme-accent-text: #fff;
+    --theme-overlay: rgba(17, 24, 39, .48);
+    --theme-shadow: 0 10px 30px rgba(17, 24, 39, .10);
+    --theme-focus: #72440d;
+    --theme-success: #155f32;
+    --theme-success-soft: #e0f2e6;
+    --theme-warning: #74500b;
+    --theme-warning-soft: #fff1c7;
+    --theme-danger: #8b2f28;
+    --theme-danger-soft: #fde4e1;
+    color-scheme: light;
 }
 
 html[data-theme="dark"] {
@@ -40,6 +74,16 @@ html[data-theme="dark"] {
     --theme-link: #f1ca78;
     --theme-accent: #e2bd70;
     --theme-accent-text: #21150e;
+    --theme-overlay: rgba(0, 0, 0, .70);
+    --theme-shadow: 0 14px 38px rgba(0, 0, 0, .36);
+    --theme-focus: #f1ca78;
+    --theme-success: #aee8bf;
+    --theme-success-soft: #173c26;
+    --theme-warning: #f4d38b;
+    --theme-warning-soft: #443515;
+    --theme-danger: #ffc1ba;
+    --theme-danger-soft: #4b2420;
+    color-scheme: dark;
 
     /* Existing Customer UI variables now follow the global theme. */
     --cu-ink: var(--theme-text);
@@ -57,6 +101,16 @@ html[data-theme="light"] body,
 html[data-theme="dark"] body {
     color: var(--theme-text) !important;
     background-color: var(--theme-page) !important;
+}
+
+html[data-theme="light"],
+html[data-theme="dark"] {
+    accent-color: var(--theme-accent);
+}
+
+html[data-theme="light"] body a,
+html[data-theme="dark"] body a {
+    text-decoration-color: color-mix(in srgb, var(--theme-link) 48%, transparent);
 }
 
 /*
@@ -80,6 +134,38 @@ html[data-theme="dark"] body :where(
     color: var(--theme-text) !important;
     background-color: var(--theme-surface) !important;
     border-color: var(--theme-border) !important;
+}
+
+html[data-theme="light"] body :where(
+    .theme-surface,
+    .card,
+    [class$="-card"],
+    [class*="-card "],
+    [class$="-panel"],
+    [class*="-panel "],
+    [class$="-toolbar"],
+    [class*="-toolbar "],
+    [class$="-summary"],
+    [class*="-summary "],
+    [class$="-section"],
+    [class*="-section "],
+    .settings-section,
+    .table-wrap,
+    .modal-content,
+    .dialog
+) {
+    color: var(--theme-text) !important;
+    background-color: var(--theme-surface) !important;
+    border-color: var(--theme-border) !important;
+}
+
+html[data-theme="light"] body :where(
+    .modal-backdrop, .modal-overlay, .dialog-backdrop, [class*="overlay"]
+),
+html[data-theme="dark"] body :where(
+    .modal-backdrop, .modal-overlay, .dialog-backdrop, [class*="overlay"]
+) {
+    background-color: var(--theme-overlay);
 }
 
 /*
@@ -117,6 +203,14 @@ html[data-theme="dark"] body :where(
     color: var(--theme-text) !important;
 }
 
+html[data-theme="light"] body :where(
+    h1, h2, h3, h4, h5, h6,
+    label, legend, th, td,
+    .title, .heading, .card-title, .panel-title
+) {
+    color: var(--theme-text) !important;
+}
+
 html[data-theme="dark"] body :where(
     p, small, .muted, .text-muted, .field-note, .help-text,
     .customer-stat-grid span, .customer-brand small,
@@ -125,6 +219,13 @@ html[data-theme="dark"] body :where(
     color: var(--theme-muted) !important;
 }
 
+html[data-theme="light"] body :where(
+    p, small, .muted, .text-muted, .field-note, .help-text
+) {
+    color: var(--theme-muted) !important;
+}
+
+html[data-theme="light"] body :where(input, select, textarea),
 html[data-theme="dark"] body :where(input, select, textarea) {
     color: var(--theme-text) !important;
     background-color: var(--theme-surface-soft) !important;
@@ -132,14 +233,22 @@ html[data-theme="dark"] body :where(input, select, textarea) {
     caret-color: var(--theme-text);
 }
 
+html[data-theme="light"] body :where(input, textarea)::placeholder,
 html[data-theme="dark"] body :where(input, textarea)::placeholder {
-    color: #c8b9ae !important;
+    color: var(--theme-muted) !important;
     opacity: 1;
 }
 
+html[data-theme="light"] body select option,
 html[data-theme="dark"] body select option {
     color: var(--theme-text);
     background: var(--theme-surface);
+}
+
+html[data-theme="light"] body :where(input, select, textarea, button, a):focus-visible,
+html[data-theme="dark"] body :where(input, select, textarea, button, a):focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--theme-focus) 72%, transparent) !important;
+    outline-offset: 2px;
 }
 
 html[data-theme="dark"] body :where(
@@ -153,6 +262,84 @@ html[data-theme="dark"] body :where(
     color: var(--theme-accent-text) !important;
     background: var(--theme-accent) !important;
     border-color: var(--theme-accent) !important;
+}
+
+html[data-theme="light"] body :where(
+    .btn-secondary, .btn-light, .customer-btn-secondary,
+    .admin-btn-secondary, .staff-btn-secondary,
+    [class*="secondary-button"]
+),
+html[data-theme="dark"] body :where(
+    .btn-secondary, .btn-light, .customer-btn-secondary,
+    .admin-btn-secondary, .staff-btn-secondary,
+    [class*="secondary-button"]
+) {
+    color: var(--theme-text) !important;
+    background: var(--theme-surface-soft) !important;
+    border-color: var(--theme-border) !important;
+}
+
+html[data-theme="light"] body :where(table, thead, tbody, tr, th, td),
+html[data-theme="dark"] body :where(table, thead, tbody, tr, th, td) {
+    border-color: var(--theme-border) !important;
+}
+
+html[data-theme="light"] body :where(thead, th),
+html[data-theme="dark"] body :where(thead, th) {
+    color: var(--theme-text) !important;
+    background: var(--theme-surface-soft) !important;
+}
+
+html[data-theme="light"] body tbody tr,
+html[data-theme="dark"] body tbody tr {
+    color: var(--theme-text);
+    background: var(--theme-surface);
+}
+
+html[data-theme="light"] body tbody tr:hover,
+html[data-theme="dark"] body tbody tr:hover {
+    background: var(--theme-surface-soft);
+}
+
+html[data-theme="light"] body :where(
+    .modal, dialog, [role="dialog"], .modal-content, .dialog
+),
+html[data-theme="dark"] body :where(
+    .modal, dialog, [role="dialog"], .modal-content, .dialog
+) {
+    color: var(--theme-text);
+    border-color: var(--theme-border);
+}
+
+html[data-theme="light"] body :where(.alert-success, .status-success, .badge-success),
+html[data-theme="dark"] body :where(.alert-success, .status-success, .badge-success) {
+    color: var(--theme-success) !important;
+    background: var(--theme-success-soft) !important;
+}
+
+html[data-theme="light"] body :where(.alert-warning, .status-warning, .badge-pending),
+html[data-theme="dark"] body :where(.alert-warning, .status-warning, .badge-pending) {
+    color: var(--theme-warning) !important;
+    background: var(--theme-warning-soft) !important;
+}
+
+html[data-theme="light"] body :where(.alert-danger, .alert-error, .status-danger, .badge-danger),
+html[data-theme="dark"] body :where(.alert-danger, .alert-error, .status-danger, .badge-danger) {
+    color: var(--theme-danger) !important;
+    background: var(--theme-danger-soft) !important;
+}
+
+html[data-theme="light"] body :where(hr, .divider, [class$="-divider"]),
+html[data-theme="dark"] body :where(hr, .divider, [class$="-divider"]) {
+    border-color: var(--theme-border) !important;
+    background-color: var(--theme-border) !important;
+}
+
+html[data-theme="light"] body :where(code, pre),
+html[data-theme="dark"] body :where(code, pre) {
+    color: var(--theme-text);
+    background: var(--theme-surface-soft);
+    border-color: var(--theme-border);
 }
 
 html[data-theme="dark"] body :where(
@@ -210,6 +397,21 @@ html[data-theme="dark"] :where(.alert-danger, .alert-error, .status-danger, .off
     color: var(--theme-text);
     background: var(--theme-surface);
     border: 1px solid var(--theme-border);
+}
+
+.theme-page {
+    color: var(--theme-text);
+    background: var(--theme-page);
+}
+
+.theme-surface-soft {
+    color: var(--theme-text);
+    background: var(--theme-surface-soft);
+    border-color: var(--theme-border);
+}
+
+.theme-border {
+    border-color: var(--theme-border) !important;
 }
 
 .theme-muted {

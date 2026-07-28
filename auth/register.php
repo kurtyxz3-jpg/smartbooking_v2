@@ -279,7 +279,7 @@ $facebookEnabled = oauthProviderEnabled('facebook');
     <link rel="stylesheet" href="../assets/css/accessibility-preferences.css">
     <link rel="icon" type="image/png" href="../assets/images/branding/nbw-favicon.png">
     <link rel="stylesheet" href="../assets/css/official-logo.css">
-    <link rel="stylesheet" href="../assets/css/global-theme-system.css">
+    <link rel="stylesheet" href="../assets/css/global-theme-system.css?v=083">
 </head>
 
 <body class="customer-auth-body">

@@ -231,13 +231,36 @@ html[data-theme="dark"] .package-photo-card {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transform: scale(1.025);
-  transition: opacity .45s ease, transform .65s ease;
+  visibility: hidden;
+  transform: translateX(100%);
+  transition:
+    transform .56s cubic-bezier(.22,.61,.36,1),
+    opacity .38s ease,
+    visibility 0s linear .56s;
+  will-change: transform, opacity;
 }
 
 .promotion-slide.active {
   opacity: 1;
-  transform: scale(1);
+  visibility: visible;
+  transform: translateX(0);
+  transition-delay: 0s;
+}
+
+.promotion-slide.slide-out-left {
+  opacity: 0;
+  visibility: visible;
+  transform: translateX(-100%);
+}
+
+.promotion-slide.slide-out-right {
+  opacity: 0;
+  visibility: visible;
+  transform: translateX(100%);
+}
+
+.promotion-slide.prepare-left {
+  transform: translateX(-100%);
 }
 
 .promotion-slide img {
@@ -266,19 +289,31 @@ html[data-theme="dark"] .package-photo-card {
   color: #fff;
 }
 
-.promotion-brand span {
-  width: 42px;
-  height: 42px;
+.promotion-brand img {
+  width: 84px;
+  height: auto;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 12px;
+  object-fit: contain;
+  background: #050505;
+  box-shadow: 0 10px 24px rgba(0,0,0,.26);
+}
+
+.promotion-brand div {
   display: grid;
-  place-items: center;
-  border-radius: 13px;
-  color: #fff;
-  background: linear-gradient(145deg,#e4c57e,#9d641f);
-  font: 600 1.35rem Georgia,serif;
+  gap: 3px;
 }
 
 .promotion-brand strong {
   font-size: .75rem;
+}
+
+.promotion-brand small {
+  color: rgba(255,255,255,.7);
+  font-size: .58rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
 .promotion-content {
@@ -303,16 +338,39 @@ html[data-theme="dark"] .package-photo-card {
 }
 
 .promotion-copy {
-  display: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(44px);
+  transition:
+    transform .48s cubic-bezier(.22,.61,.36,1),
+    opacity .32s ease,
+    visibility 0s linear .48s;
 }
 
 .promotion-copy.active {
-  display: block;
-  animation: promotionCopyEnter .35s ease;
+  position: relative;
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+  transition-delay: .06s;
 }
 
-@keyframes promotionCopyEnter {
-  from { opacity: 0; transform: translateY(8px); }
+.promotion-copy.slide-out-left {
+  opacity: 0;
+  visibility: visible;
+  transform: translateX(-44px);
+}
+
+.promotion-copy.slide-out-right {
+  opacity: 0;
+  visibility: visible;
+  transform: translateX(44px);
+}
+
+.promotion-copy.prepare-left {
+  transform: translateX(-44px);
 }
 
 .promotion-copy > span {
@@ -415,11 +473,40 @@ html[data-theme="dark"] .package-photo-card {
 
 .promotion-hide {
   margin-top: 20px;
+  width: max-content;
+  max-width: 100%;
+  padding: 0;
   display: flex;
   align-items: center;
   gap: 8px;
+  border: 0 !important;
+  outline: 0;
   color: #766961;
+  background: transparent !important;
+  box-shadow: none !important;
   font-size: .65rem;
+  cursor: pointer;
+}
+
+.promotion-hide:focus-within {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.promotion-hide input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  flex: 0 0 17px;
+  accent-color: #a87524;
+  outline: 0;
+}
+
+.promotion-hide input[type="checkbox"]:focus-visible {
+  outline: 2px solid #a87524;
+  outline-offset: 3px;
+  border-radius: 3px;
 }
 
 /* Promotion popup remains readable in every theme. */

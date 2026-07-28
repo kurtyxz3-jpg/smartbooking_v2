@@ -18,7 +18,7 @@ startInterfaceTranslation();
 <link rel="stylesheet" href="/smartbooking_v2/assets/css/accessibility-preferences.css">
     <link rel="icon" type="image/png" href="/smartbooking_v2/assets/images/branding/nbw-favicon.png">
     <link rel="stylesheet" href="/smartbooking_v2/assets/css/official-logo.css">
-    <link rel="stylesheet" href="/smartbooking_v2/assets/css/global-theme-system.css">
+    <link rel="stylesheet" href="/smartbooking_v2/assets/css/global-theme-system.css?v=083">
 </head>
 <body class="nbw-public">
 <header class="nbw-header" id="siteHeader">

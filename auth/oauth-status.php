@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once '../config/oauth.php';
+require_once '../includes/language.php';
 
 $googleReady = oauthProviderEnabled('google');
 $facebookReady = oauthProviderEnabled('facebook');
@@ -20,22 +21,27 @@ function statusBadge(bool $ready): string
 }
 ?>
 <!doctype html>
-<html lang="en">
+<html
+    lang="<?= htmlspecialchars($languageCode, ENT_QUOTES, 'UTF-8') ?>"
+    data-theme="<?= htmlspecialchars($themeMode, ENT_QUOTES, 'UTF-8') ?>"
+>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Social Login Check | SmartBooking</title>
+    <script src="../assets/js/theme-bootstrap.js"></script>
+    <link rel="stylesheet" href="../assets/css/global-theme-system.css?v=083">
     <style>
         *{box-sizing:border-box}
-        body{margin:0;padding:40px 18px;background:#f7f1e9;color:#241713;font-family:Arial,sans-serif}
-        main{max-width:850px;margin:auto;padding:30px;border-radius:24px;background:#fff;box-shadow:0 20px 60px rgba(40,20,12,.12)}
+        body{margin:0;padding:40px 18px;background:var(--theme-page);color:var(--theme-text);font-family:Arial,sans-serif}
+        main{max-width:850px;margin:auto;padding:30px;border:1px solid var(--theme-border);border-radius:24px;background:var(--theme-surface);box-shadow:var(--theme-shadow)}
         h1{margin-top:0;font-family:Georgia,serif;font-size:2.7rem}
-        .row{padding:16px 0;display:flex;justify-content:space-between;gap:20px;border-bottom:1px solid #e5ddd7}
+        .row{padding:16px 0;display:flex;justify-content:space-between;gap:20px;border-bottom:1px solid var(--theme-border)}
         .ready,.missing{padding:6px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
-        .ready{color:#205833;background:#def2e5}
-        .missing{color:#7c331f;background:#f8dfd8}
-        code{display:block;margin-top:8px;padding:10px;border-radius:9px;background:#f4efe9;word-break:break-all}
-        a{color:#805619;font-weight:700}
+        .ready{color:var(--theme-success);background:var(--theme-success-soft)}
+        .missing{color:var(--theme-danger);background:var(--theme-danger-soft)}
+        code{display:block;margin-top:8px;padding:10px;border:1px solid var(--theme-border);border-radius:9px;background:var(--theme-surface-soft);word-break:break-all}
+        a{color:var(--theme-link);font-weight:700}
     </style>
 </head>
 <body>

@@ -1,0 +1,649 @@
+/*
+ * SmartBooking V2 — Admin dark-theme compatibility layer
+ *
+ * Loaded from the shared Admin footer so these rules come after page-specific
+ * styles. New Admin pages should still use the global --theme-* tokens.
+ */
+
+html[data-theme="dark"] .admin-portal {
+  --admin-ivory: var(--theme-page);
+  --admin-champagne: var(--theme-surface-soft);
+  --admin-beige: var(--theme-border);
+  --admin-white: var(--theme-surface);
+  --admin-dark: var(--theme-text);
+  --admin-brown: var(--theme-text);
+  --admin-muted: var(--theme-muted);
+  --admin-shadow: var(--theme-shadow);
+
+  --schedule-cream: var(--theme-page);
+  --schedule-border: var(--theme-border);
+  --schedule-brown: var(--theme-text);
+  --schedule-muted: var(--theme-muted);
+}
+
+/* Shared Admin text and surfaces */
+html[data-theme="dark"] .admin-portal :where(
+  .admin-card,
+  .premium-admin-card,
+  .premium-admin-table-card,
+  .admin-service-card,
+  .admin-service-filter-card,
+  .schedule-staff-panel,
+  .schedule-card,
+  .account-center-tabs,
+  .account-center-card,
+  .account-center-stat-grid article
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal :where(
+  h1, h2, h3, h4, strong, label, legend, dt, dd,
+  .admin-service-result-heading strong,
+  .admin-service-card h2,
+  .admin-service-toolbar-heading h2
+) {
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="dark"] .admin-portal :where(
+  p, small, time,
+  .admin-service-result-heading span,
+  .admin-service-card-topline small
+) {
+  color: var(--theme-muted) !important;
+}
+
+html[data-theme="dark"] .admin-portal :where(input, select, textarea) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  border-color: var(--theme-border) !important;
+}
+
+/* Admin dashboard */
+html[data-theme="dark"] .admin-portal :where(
+  .premium-dashboard-kpis article,
+  .premium-dashboard-kpis article.attention,
+  .premium-calendar-grid a,
+  .premium-booking-list > a,
+  .premium-quick-grid a
+) {
+  color: var(--theme-text) !important;
+  background-color: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal :where(
+  .premium-dashboard-kpis strong,
+  .premium-card-heading h2,
+  .premium-booking-copy h3,
+  .premium-booking-meta strong,
+  .premium-timeline strong,
+  .premium-stock-list strong,
+  .premium-quick-grid strong,
+  .premium-dashboard-empty h3,
+  .premium-calendar-grid a
+) {
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="dark"] .admin-portal .premium-chart {
+  border-color: var(--theme-border);
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 56px,
+      rgba(255, 255, 255, .055) 57px
+    );
+}
+
+html[data-theme="dark"] .admin-portal :where(
+  .premium-timeline a,
+  .premium-stock-list a
+) {
+  border-color: var(--theme-border);
+}
+
+html[data-theme="dark"] .admin-portal .premium-stock-meter {
+  background: var(--theme-surface-soft);
+}
+
+/* Services */
+html[data-theme="dark"] .admin-portal :where(
+  .admin-service-card,
+  .admin-service-filter-card,
+  .admin-service-live-empty,
+  .admin-service-modal-dialog,
+  .admin-service-modal-dialog > header,
+  .admin-service-modal-dialog form
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal :where(
+  .admin-service-toolbar-heading,
+  .admin-service-live-search-status
+) {
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal .admin-service-image {
+  background: var(--theme-surface-soft);
+}
+
+/* Staff schedule and availability */
+html[data-theme="dark"] .admin-portal :where(
+  .weekly-day,
+  .staff-day-column,
+  .week-navigation,
+  .exception-form,
+  .exception-row
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal :where(
+  .weekly-day.is-off,
+  .staff-day-column.is-off
+) {
+  background: var(--theme-surface-soft) !important;
+}
+
+html[data-theme="dark"] .admin-portal .schedule-staff-card {
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="dark"] .admin-portal .schedule-staff-card.active {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  border-color: var(--theme-accent) !important;
+}
+
+html[data-theme="dark"] .admin-portal :where(
+  .staff-schedule-booking,
+  .staff-exception-note,
+  .exception-date
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  border-color: var(--theme-border) !important;
+}
+
+/* Account Center */
+html[data-theme="dark"] .admin-portal :where(
+  .account-center-tabs,
+  .account-center-card,
+  .account-center-stat-grid article,
+  .account-center-details div,
+  .account-center-security-summary div,
+  .account-center-toggle,
+  .account-center-choice,
+  .account-center-activity-list article,
+  .account-center-connections article
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal :where(
+  .account-center-tabs a,
+  .account-center-details dd,
+  .account-center-security-summary strong,
+  .account-center-toggle strong,
+  .account-center-choice strong,
+  .account-center-activity-list strong,
+  .account-center-connections strong
+) {
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="dark"] .admin-portal .account-center-tabs a.active {
+  color: var(--theme-accent-text) !important;
+  background: var(--theme-accent) !important;
+}
+
+/*
+ * Requested initials appearance: solid dark brown, gold initials, and a gold
+ * border. This covers the sidebar account, profile, and schedule staff avatar.
+ */
+.admin-portal :where(
+  .role-sidebar-avatar,
+  .account-center-avatar,
+  .schedule-avatar
+) {
+  color: #ffd27d !important;
+  background: #3a2118 !important;
+  border-color: #b5904c !important;
+  border-style: solid;
+}
+
+.admin-portal :where(
+  .role-sidebar-avatar,
+  .account-center-avatar,
+  .schedule-avatar
+) :where(span, strong) {
+  color: #ffd27d !important;
+  -webkit-text-fill-color: #ffd27d !important;
+}
+
+/*
+ * Light secondary controls keep their light surface in Dark mode, so their
+ * labels must remain dark. Primary gold controls retain their existing colors.
+ */
+html[data-theme="dark"] .admin-portal :where(
+  .admin-btn-light,
+  .admin-service-action:not(.edit):not(.remove),
+  .admin-service-pagination a:not(.active)
+) {
+  color: #4b2e1a !important;
+  background: #fffaf4 !important;
+  border-color: #d9c4aa !important;
+  -webkit-text-fill-color: #4b2e1a !important;
+}
+
+html[data-theme="dark"] .admin-portal .admin-service-action.remove {
+  color: #963b32 !important;
+  background: #fff5f4 !important;
+  border-color: #edc1bc !important;
+  -webkit-text-fill-color: #963b32 !important;
+}
+
+html[data-theme="dark"] .admin-portal .admin-service-pagination a.active {
+  color: #fffaf4 !important;
+  background: #6e422c !important;
+  border-color: #9d7754 !important;
+  -webkit-text-fill-color: #fffaf4 !important;
+}
+
+/*
+ * Unified Admin button contract
+ *
+ * Compact dimensions match the Staff page header reference and replace the
+ * different font sizes and heights previously defined by each module.
+ */
+.admin-portal :where(
+  .admin-btn,
+  .inventory-btn,
+  .premium-admin-row-actions button,
+  .premium-admin-row-actions a,
+  .admin-service-action,
+  .inventory-row-actions button,
+  .booking-button,
+  .booking-manage-button,
+  .account-center-button,
+  .admin-action-btn
+) {
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 9px !important;
+  font-family: "Manrope", Arial, sans-serif !important;
+  font-size: .64rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  transform: none !important;
+  transition: none !important;
+  white-space: nowrap;
+}
+
+.admin-portal :where(
+  .admin-btn-primary,
+  .inventory-btn.primary,
+  .premium-admin-row-actions .primary,
+  .admin-service-action.edit,
+  .booking-button.primary,
+  .account-center-button.primary
+) {
+  color: #2a1a12 !important;
+  -webkit-text-fill-color: #2a1a12 !important;
+  border-color: #b98528 !important;
+  background: #d5a33e !important;
+}
+
+.admin-portal :where(
+  .admin-btn-light,
+  .inventory-btn.secondary,
+  .inventory-btn.ghost,
+  .premium-admin-row-actions button:not(.primary):not(.danger),
+  .premium-admin-row-actions a:not(.primary):not(.danger),
+  .admin-service-action:not(.edit):not(.remove)
+) {
+  color: #4b2e1a !important;
+  -webkit-text-fill-color: #4b2e1a !important;
+  border-color: #d9c4aa !important;
+  background: #fffaf4 !important;
+}
+
+.admin-portal :where(
+  .premium-admin-row-actions .danger,
+  .admin-service-action.remove,
+  .inventory-row-actions .danger
+) {
+  color: #963b32 !important;
+  -webkit-text-fill-color: #963b32 !important;
+  border-color: #edc1bc !important;
+  background: #fff5f4 !important;
+}
+
+/* Booking filter buttons sit centered against the 43px form controls. */
+.admin-portal .booking-filter-actions {
+  min-height: 43px;
+  align-self: end;
+  align-items: center;
+}
+
+.admin-portal .booking-filter-actions .booking-button {
+  min-height: 43px !important;
+  padding-inline: 14px !important;
+}
+
+/* Shared premium editor used by Staff, Promotions, Payments, and Feedback. */
+html[data-theme="dark"] .admin-portal :where(
+  .premium-admin-modal-dialog,
+  .premium-admin-modal-dialog > header,
+  .premium-admin-modal-dialog > form,
+  .premium-admin-modal-content,
+  .premium-admin-modal-actions
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal .premium-admin-modal-dialog :where(
+  h2, label, strong
+) {
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="dark"] .admin-portal .premium-admin-modal-dialog :where(
+  .premium-admin-kicker, p, small
+) {
+  color: var(--theme-muted) !important;
+}
+
+html[data-theme="dark"] .admin-portal .premium-admin-modal-dialog :where(
+  input, select, textarea
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal .premium-admin-modal-close {
+  color: var(--theme-text) !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  border-color: var(--theme-border) !important;
+}
+
+/* Inventory dialogs live outside .inventory-page and need their own tokens. */
+html[data-theme="dark"] .admin-portal :where(
+  .inventory-modal,
+  .inventory-modal header,
+  .inventory-modal footer
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal .inventory-modal :where(
+  h2, label, strong
+) {
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="dark"] .admin-portal .inventory-modal :where(
+  .inventory-eyebrow, p, small
+) {
+  color: var(--theme-muted) !important;
+}
+
+html[data-theme="dark"] .admin-portal .inventory-modal :where(
+  input, select, textarea
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  border-color: var(--theme-border) !important;
+}
+
+/* Profile overview and permission rows need direct text targets. */
+html[data-theme="dark"] .admin-portal :where(
+  .account-center-security-summary span,
+  .account-center-permission-list small
+) {
+  color: var(--theme-muted) !important;
+}
+
+html[data-theme="dark"] .admin-portal .account-center-permission-list > div {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal .account-center-permission-list strong {
+  color: var(--theme-text) !important;
+}
+
+/* Service image uploader */
+html[data-theme="dark"] .admin-portal :where(
+  .admin-service-image-upload,
+  .admin-service-image-drop
+) {
+  color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] .admin-portal .admin-service-image-upload.is-dragging {
+  border-color: var(--theme-accent) !important;
+  background: var(--theme-surface) !important;
+}
+
+html[data-theme="dark"] .admin-portal .admin-service-image-drop span {
+  color: var(--theme-muted) !important;
+}
+
+/*
+ * Primary Admin actions use the exact same gold in every theme. These explicit
+ * theme selectors prevent earlier global accent rules from recoloring them.
+ */
+html[data-theme="default"] body.admin-portal :where(
+  .admin-btn-primary,
+  .inventory-btn.primary,
+  .premium-admin-row-actions .primary,
+  .admin-service-action.edit,
+  .booking-button.primary,
+  .account-center-button.primary
+),
+html[data-theme="light"] body.admin-portal :where(
+  .admin-btn-primary,
+  .inventory-btn.primary,
+  .premium-admin-row-actions .primary,
+  .admin-service-action.edit,
+  .booking-button.primary,
+  .account-center-button.primary
+),
+html[data-theme="dark"] body.admin-portal :where(
+  .admin-btn-primary,
+  .inventory-btn.primary,
+  .premium-admin-row-actions .primary,
+  .admin-service-action.edit,
+  .booking-button.primary,
+  .account-center-button.primary
+) {
+  color: #2a1a12 !important;
+  -webkit-text-fill-color: #2a1a12 !important;
+  border-color: #b98528 !important;
+  background: #d5a33e !important;
+}
+
+/* The stock-summary strip intentionally stays light in the Dark theme. */
+html[data-theme="dark"] body.admin-portal .inventory-modal .modal-product-name {
+  color: #4b2e1a !important;
+  -webkit-text-fill-color: #4b2e1a !important;
+  background: #fff8ea !important;
+  border: 1px solid #ddc59e;
+}
+
+/*
+ * The Account Center hero is always a dark branded surface, so its identity
+ * text must not inherit Light-theme heading colors.
+ */
+.admin-portal .account-center-hero .account-center-kicker {
+  color: #d9ad59 !important;
+  -webkit-text-fill-color: #d9ad59 !important;
+}
+
+.admin-portal .account-center-hero .account-center-identity h1 {
+  color: #fffaf4 !important;
+  -webkit-text-fill-color: #fffaf4 !important;
+}
+
+.admin-portal .account-center-hero .account-center-identity > div > p:not(
+  .account-center-kicker
+) {
+  color: #d8c6b9 !important;
+  -webkit-text-fill-color: #d8c6b9 !important;
+}
+
+/*
+ * Unified Admin modal frame
+ *
+ * The outer rounded dialog never scrolls. Only its internal form/content area
+ * scrolls, keeping the scrollbar inside the modal and preserving its corners.
+ */
+.admin-portal :where(
+  .premium-admin-modal-dialog,
+  .admin-service-modal-dialog,
+  .booking-modal-dialog
+) {
+  max-height: calc(100vh - 36px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.admin-portal :where(
+  .premium-admin-modal-dialog > header,
+  .admin-service-modal-dialog > header,
+  .booking-modal-dialog > header
+) {
+  flex: 0 0 auto;
+}
+
+.admin-portal :where(
+  .premium-admin-modal-dialog > form,
+  .premium-admin-modal-content,
+  .admin-service-modal-dialog > form,
+  .booking-modal-content
+) {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.admin-portal :where(
+  .premium-admin-modal-actions,
+  .admin-service-modal-actions
+) {
+  position: sticky;
+  z-index: 3;
+  bottom: 0;
+  padding-block: 13px 4px;
+  background: var(--theme-surface);
+  border-top: 1px solid var(--theme-border);
+}
+
+/* Native Inventory dialogs use their form as the internal scroll container. */
+.admin-portal dialog.inventory-modal[open] {
+  max-height: calc(100vh - 36px) !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+}
+
+.admin-portal .inventory-modal > form {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.admin-portal .inventory-modal :where(header, footer) {
+  position: sticky;
+  z-index: 3;
+  flex: 0 0 auto;
+  background: var(--theme-surface);
+}
+
+.admin-portal .inventory-modal header {
+  top: 0;
+}
+
+.admin-portal .inventory-modal footer {
+  bottom: 0;
+}
+
+/*
+ * One close-button design for Staff, Promotions, Services, Inventory, Booking,
+ * Payments, and other Admin editors.
+ */
+.admin-portal :where(
+  .premium-admin-modal-close,
+  .admin-service-modal-close,
+  .booking-modal-close,
+  .inventory-modal header > button
+) {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  flex: 0 0 40px !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: 50% !important;
+  color: var(--theme-text) !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  box-shadow: none !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 1.15rem !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  text-indent: 0 !important;
+  transform: none !important;
+  transition: none !important;
+  cursor: pointer;
+}
+
+.admin-portal :where(
+  .premium-admin-modal-close,
+  .admin-service-modal-close,
+  .booking-modal-close,
+  .inventory-modal header > button
+):hover {
+  color: var(--theme-text) !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+  background: var(--theme-surface-soft) !important;
+  border-color: var(--theme-accent) !important;
+  transform: none !important;
+}
