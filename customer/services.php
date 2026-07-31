@@ -4,10 +4,68 @@ declare(strict_types=1);
 $pageTitle = 'Services';
 
 require_once '../includes/service-catalog.php';
+require_once '../includes/service-image-library.php';
+require_once '../config/database.php';
 
 $category = $_GET['category'] ?? 'all';
-$categories = catalogCategories();
-$services = catalogServices($category);
+
+function customerServiceCategorySlug(string $name): string
+{
+    $slug = strtolower(trim($name));
+    $slug = preg_replace('/[^a-z0-9]+/', '-', $slug) ?? '';
+    return trim($slug, '-');
+}
+
+$categoryRows = $pdo->query(
+    "SELECT id, name
+     FROM service_categories
+     WHERE status = 'active'
+     ORDER BY display_order ASC, name ASC"
+)->fetchAll(PDO::FETCH_ASSOC);
+
+$categories = [];
+$categoryIds = [];
+foreach ($categoryRows as $row) {
+    $slug = customerServiceCategorySlug((string) $row['name']);
+    $categories[] = ['id' => (int) $row['id'], 'name' => $row['name'], 'slug' => $slug];
+    $categoryIds[$slug] = (int) $row['id'];
+}
+
+$serviceSql = "SELECT s.*, c.name AS category_name
+               FROM services s
+               LEFT JOIN service_categories c ON c.id = s.category_id
+               WHERE s.status = 'active'";
+$serviceParams = [];
+if ($category !== 'all' && isset($categoryIds[$category])) {
+    $serviceSql .= ' AND s.category_id = ?';
+    $serviceParams[] = $categoryIds[$category];
+} elseif ($category !== 'all') {
+    $category = 'all';
+}
+$serviceSql .= ' ORDER BY s.featured DESC, s.display_order ASC, s.name ASC';
+$serviceStatement = $pdo->prepare($serviceSql);
+$serviceStatement->execute($serviceParams);
+$serviceRows = $serviceStatement->fetchAll(PDO::FETCH_ASSOC);
+
+$services = array_map(static function (array $row): array {
+    $categoryName = (string) ($row['category_name'] ?? 'Uncategorized');
+    return [
+        'id' => (int) $row['id'],
+        'name' => (string) $row['name'],
+        'description' => trim((string) ($row['description'] ?? '')) ?: 'Professional salon service from Nails & Body Worx.',
+        'price' => (float) ($row['price'] ?? 0),
+        'price_note' => (string) ($row['price_note'] ?? ''),
+        'duration' => (int) ($row['duration'] ?? 60),
+        'featured' => (bool) ($row['featured'] ?? false),
+        'category' => customerServiceCategorySlug($categoryName),
+        'category_name' => $categoryName,
+    ];
+}, $serviceRows);
+
+$allServiceCount = (int) $pdo->query("SELECT COUNT(*) FROM services WHERE status='active'")->fetchColumn();
+$categoryServiceCounts = [];
+$countRows = $pdo->query("SELECT category_id, COUNT(*) total FROM services WHERE status='active' GROUP BY category_id")->fetchAll(PDO::FETCH_ASSOC);
+foreach ($countRows as $countRow) $categoryServiceCounts[(int) $countRow['category_id']] = (int) $countRow['total'];
 
 include '../includes/header.php';
 
@@ -128,7 +186,7 @@ $categoryLabels = $categoryTranslations[$languageCode]
                     href="services.php"
                 >
                     <?= htmlspecialchars($categoryLabels['all'], ENT_QUOTES, 'UTF-8') ?>
-                    <span><?= count(catalogServices()) ?></span>
+                    <span><?= $allServiceCount ?></span>
                 </a>
 
                 <?php foreach ($categories as $item): ?>
@@ -141,7 +199,7 @@ $categoryLabels = $categoryTranslations[$languageCode]
                             ENT_QUOTES,
                             'UTF-8'
                         ) ?>
-                        <span><?= count(catalogServices($item['slug'])) ?></span>
+                        <span><?= $categoryServiceCounts[(int) $item['id']] ?? 0 ?></span>
                     </a>
                 <?php endforeach; ?>
             </nav>
@@ -177,6 +235,7 @@ $categoryLabels = $categoryTranslations[$languageCode]
 
             <div class="catalog-grid">
                 <?php foreach ($services as $service): ?>
+                    <?php $serviceImage = smartBookingServiceImage((string) $service['name'], (string) ($service['category'] ?? '')); ?>
                     <article
                         class="catalog-card"
                         data-search="<?= htmlspecialchars(
@@ -185,11 +244,11 @@ $categoryLabels = $categoryTranslations[$languageCode]
                             'UTF-8'
                         ) ?>"
                     >
-                        <a href="service-details.php?name=<?= urlencode($service['name']) ?>">
+                        <a href="service-details.php?id=<?= (int) $service['id'] ?>">
                             <div class="catalog-image">
                                 <img
                                     loading="lazy"
-                                    src="<?= htmlspecialchars($service['image'], ENT_QUOTES, 'UTF-8') ?>"
+                                    src="../assets/images/admin-service-library/<?= htmlspecialchars($serviceImage, ENT_QUOTES, 'UTF-8') ?>"
                                     alt="<?= htmlspecialchars($service['name'], ENT_QUOTES, 'UTF-8') ?>"
                                 >
 

@@ -40,11 +40,13 @@ $todayBookings = [];
 
 if (staffTableExists($pdo, 'bookings')) {
     $statement = $pdo->prepare(
-        "SELECT *
-         FROM bookings
-         WHERE staff_id = ?
-           AND booking_date = CURDATE()
-         ORDER BY booking_time ASC"
+        "SELECT b.*, c.fullname AS customer_name, s.name AS service_name
+         FROM bookings b
+         LEFT JOIN users c ON c.id = b.customer_id
+         LEFT JOIN services s ON s.id = b.service_id
+         WHERE b.staff_id = ?
+           AND b.booking_date = CURDATE()
+         ORDER BY b.booking_time ASC"
     );
     $statement->execute([$staffId]);
     $todayBookings = $statement->fetchAll();
@@ -145,7 +147,7 @@ include '../includes/staff-header.php';
 
                                     <td>
                                         <?= htmlspecialchars(
-                                            (string) ($booking['customer_id'] ?? '—'),
+                                            (string) ($booking['customer_name'] ?? '—'),
                                             ENT_QUOTES,
                                             'UTF-8'
                                         ) ?>
@@ -153,7 +155,7 @@ include '../includes/staff-header.php';
 
                                     <td>
                                         <?= htmlspecialchars(
-                                            (string) ($booking['service_id'] ?? '—'),
+                                            (string) ($booking['service_name'] ?? '—'),
                                             ENT_QUOTES,
                                             'UTF-8'
                                         ) ?>

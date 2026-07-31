@@ -37,22 +37,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $filterStatus = $_GET['status'] ?? '';
 $date = $_GET['date'] ?? '';
 
-$sql = "SELECT *
-        FROM bookings
-        WHERE staff_id = ? AND branch_id = ?";
+$sql = "SELECT b.*, c.fullname AS customer_name, s.name AS service_name
+        FROM bookings b
+        LEFT JOIN users c ON c.id = b.customer_id
+        LEFT JOIN services s ON s.id = b.service_id
+        WHERE b.staff_id = ? AND b.branch_id = ?";
 $params = [$staffId, $branchId];
 
 if (in_array($filterStatus, ['pending', 'confirmed', 'completed', 'cancelled', 'no_show'], true)) {
-    $sql .= " AND status = ?";
+    $sql .= " AND b.status = ?";
     $params[] = $filterStatus;
 }
 
 if ($date !== '') {
-    $sql .= " AND booking_date = ?";
+    $sql .= " AND b.booking_date = ?";
     $params[] = $date;
 }
 
-$sql .= " ORDER BY booking_date DESC, booking_time DESC";
+$sql .= " ORDER BY b.booking_date DESC, b.booking_time DESC";
 
 $statement = $pdo->prepare($sql);
 $statement->execute($params);
@@ -132,7 +134,6 @@ include '../includes/staff-header.php';
                 <table class="staff-table">
                     <thead>
                         <tr>
-                            <th>Booking ID</th>
                             <th>Customer</th>
                             <th>Service</th>
                             <th>Date</th>
@@ -146,18 +147,16 @@ include '../includes/staff-header.php';
                     <tbody>
                     <?php if (!$bookings): ?>
                         <tr>
-                                <td colspan="8" class="staff-empty">
+                                <td colspan="7" class="staff-empty">
                                 No assigned bookings found.
                             </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($bookings as $booking): ?>
                             <tr>
-                                <td>#<?= (int) $booking['id'] ?></td>
-
                                 <td>
                                     <?= htmlspecialchars(
-                                        (string) ($booking['customer_id'] ?? '—'),
+                                        (string) ($booking['customer_name'] ?? '—'),
                                         ENT_QUOTES,
                                         'UTF-8'
                                     ) ?>
@@ -165,7 +164,7 @@ include '../includes/staff-header.php';
 
                                 <td>
                                     <?= htmlspecialchars(
-                                        (string) ($booking['service_id'] ?? '—'),
+                                        (string) ($booking['service_name'] ?? '—'),
                                         ENT_QUOTES,
                                         'UTF-8'
                                     ) ?>

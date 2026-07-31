@@ -66,8 +66,9 @@
 .staff-name-cell span,.staff-contact-cell small{color:#74665D;font-size:.78rem}
 .staff-contact-cell span{overflow-wrap:anywhere}
 
-.staff-specialty-badge,.staff-employment-badge{
+.staff-specialty-badge,.staff-employment-badge,.staff-branch-badge{
   display:inline-flex;
+  align-items:center;
   justify-content:center;
   padding:7px 10px;
   border-radius:999px;
@@ -76,6 +77,38 @@
 }
 .staff-specialty-badge{color:#725012;background:#FFF7E1;border:1px solid #E6C780}
 .staff-employment-badge{color:#4B5F91;background:#EEF1FA;border:1px solid #CBD3EB}
+.staff-branch-badge{color:#725012;background:#FFF7E1;border:1px solid #E6C780}
+
+/* Keep account status visually distinct even when global theme rules load later. */
+.staff-table .badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-width:82px;
+  padding:7px 11px;
+  border-radius:999px;
+  font-size:.74rem;
+  font-weight:800;
+}
+.staff-table .badge-success{color:#21663D;background:#E6F5EB;border:1px solid #BFE3CA}
+.staff-table .badge-inactive{color:#8A2F2C;background:#FCEBEA;border:1px solid #EEC5C2}
+
+html[data-theme="dark"] .staff-branch-badge{
+  color:#F5D98F;
+  background:#382E1B;
+  border-color:#725B2E;
+}
+html[data-theme="dark"] .staff-table .badge-success{
+  color:#9BE5B5;
+  background:#173625;
+  border-color:#34734B;
+}
+html[data-theme="dark"] .staff-table .badge-inactive{
+  color:#FFB7B1;
+  background:#3B2221;
+  border-color:#7A403D;
+}
 
 .staff-action-group{display:grid;grid-template-columns:1fr;justify-items:center;gap:8px}
 .staff-action-group form{width:100%;margin:0;display:flex;justify-content:center}

@@ -102,7 +102,7 @@ include '../includes/superadmin-header.php';
 <td><div class="staff-name-cell"><strong><?= htmlspecialchars($staff['fullname']) ?></strong><span>@<?= htmlspecialchars($staff['username']) ?></span></div></td>
 <td><div class="staff-contact-cell"><span><?= htmlspecialchars($staff['email']??'—') ?></span><small><?= htmlspecialchars($staff['phone_number']??'No phone number') ?></small></div></td>
 <td><span class="staff-specialty-badge"><?= htmlspecialchars($staff['specialty']??'Unassigned') ?></span></td>
-<td><?= htmlspecialchars($staff['branch']??'Main Branch') ?></td>
+<td><span class="staff-branch-badge"><?= htmlspecialchars($staff['branch']??'Main Branch') ?></span></td>
 <td><span class="staff-employment-badge"><?= htmlspecialchars(ucfirst(str_replace('_',' ',$staff['employment_status']??'full_time'))) ?></span></td>
 <td><span class="badge badge-<?= $staff['status']==='active'?'success':'inactive' ?>"><?= ucfirst($staff['status']) ?></span></td>
 <td>
