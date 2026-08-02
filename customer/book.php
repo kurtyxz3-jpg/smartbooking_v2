@@ -10,6 +10,7 @@ require_once '../includes/service-catalog.php';
 require_once '../includes/branch-context.php';
 require_once '../includes/staff-schedule-helper.php';
 require_once '../includes/ai-history-helper.php';
+require_once '../includes/registration-security.php';
 
 $pageTitle = 'Book Appointment';
 $errors = [];
@@ -253,6 +254,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         header('Location: ../auth/login.php');
         exit;
+    }
+
+    if (
+        !$errors
+        && bookingCustomerLoggedIn()
+        && !registrationSecurityManualEmailVerified(
+            $pdo,
+            (int) $_SESSION['user_id']
+        )
+    ) {
+        $_SESSION['booking_draft'] = $_POST;
+        $_SESSION['pending_verification_user_id'] = (int) $_SESSION['user_id'];
+        $_SESSION['pending_verification_email'] = (string) ($_SESSION['email'] ?? '');
+        $_SESSION['pending_verification_name'] = (string) ($_SESSION['fullname'] ?? 'Customer');
+        header('Location: ../auth/verification-pending.php');
+        exit;
+    }
+
+    if (!$errors && $service) {
+        $securityConfig = registrationSecurityConfig();
+        $accountWindow = max(1, (int) ($securityConfig['new_account_window_hours'] ?? 24));
+        $maxActive = max(1, (int) ($securityConfig['new_account_max_active_bookings'] ?? 1));
+        if (bookingTableHasColumn($pdo, 'users', 'created_at')) {
+            $accountStatement = $pdo->prepare(
+                "SELECT TIMESTAMPDIFF(HOUR, created_at, NOW()) FROM users WHERE id = ? LIMIT 1"
+            );
+            $accountStatement->execute([(int) $_SESSION['user_id']]);
+            $accountAgeHours = $accountStatement->fetchColumn();
+            if ($accountAgeHours !== false && (int) $accountAgeHours < $accountWindow) {
+                $activeStatement = $pdo->prepare(
+                    "SELECT COUNT(*) FROM bookings WHERE customer_id = ? AND status IN ('pending', 'confirmed', 'in_progress')"
+                );
+                $activeStatement->execute([(int) $_SESSION['user_id']]);
+                if ((int) $activeStatement->fetchColumn() >= $maxActive) {
+                    $errors[] = 'New accounts may keep only one active appointment at a time. Complete or cancel the current appointment first.';
+                }
+            }
+        }
     }
 
     if (!$errors && $service) {

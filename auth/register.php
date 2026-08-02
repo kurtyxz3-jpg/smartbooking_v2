@@ -8,11 +8,18 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once '../config/database.php';
 require_once '../config/oauth.php';
 require_once '../includes/language.php';
+require_once '../includes/registration-security.php';
+require_once '../includes/turnstile.php';
 
 if (!empty($_SESSION['user_id'])) {
     $role = $_SESSION['role'] ?? '';
 
     if ($role === 'customer') {
+        if (!registrationSecurityManualEmailVerified($pdo, (int) $_SESSION['user_id'])) {
+            registrationSecurityRequirePendingVerification($pdo, (int) $_SESSION['user_id']);
+            header('Location: verification-pending.php');
+            exit;
+        }
         header('Location: ../customer/dashboard.php');
         exit;
     }
@@ -30,7 +37,30 @@ $birthday = '';
 $gender = '';
 $preferredLanguage = 'english';
 
+if (empty($_SESSION['registration_csrf'])) {
+    $_SESSION['registration_csrf'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $csrfToken = (string) ($_POST['csrf_token'] ?? '');
+    $honeypot = trim((string) ($_POST['website'] ?? ''));
+
+    if (!hash_equals((string) $_SESSION['registration_csrf'], $csrfToken)) {
+        $errors[] = 'Your registration session expired. Please refresh and try again.';
+    }
+
+    if ($honeypot !== '') {
+        $errors[] = 'Registration could not be completed.';
+    }
+
+    registrationSecurityRecord($pdo, 'registration_attempt');
+    $registrationLimit = (int) (
+        registrationSecurityConfig()['registration_limit_per_hour'] ?? 5
+    );
+    if (registrationSecurityCount($pdo, 'registration_attempt') > $registrationLimit) {
+        $errors[] = 'Too many registration attempts. Please try again later.';
+    }
+
     $firstName = trim($_POST['first_name'] ?? '');
     $middleName = trim($_POST['middle_name'] ?? '');
     $lastName = trim($_POST['last_name'] ?? '');
@@ -77,8 +107,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $preferredLanguage = 'english';
     }
 
-    if (strlen($password) < 8) {
-        $errors[] = 'Password must contain at least 8 characters.';
+    if (strlen($password) < 12) {
+        $errors[] = 'Password must contain at least 12 characters.';
+    }
+
+    if (strlen($password) > 128) {
+        $errors[] = 'Password must not exceed 128 characters.';
     }
 
     if (
@@ -110,6 +144,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'You must agree to the Terms and Privacy Notice.';
     }
 
+    if (!turnstileValidate((string) ($_POST['cf-turnstile-response'] ?? ''), 'manual_registration')) {
+        registrationSecurityRecord($pdo, 'turnstile_failed', $email);
+        $errors[] = 'Please complete the security check and try again.';
+    }
+
+    if (!$errors) {
+        $phoneCheck = $pdo->prepare("SELECT id FROM users WHERE phone_number = ? LIMIT 1");
+        $phoneCheck->execute([$phoneNumber]);
+        if ($phoneCheck->fetch()) {
+            $errors[] = 'That mobile number is already connected to an account.';
+        }
+    }
+
     if (!$errors) {
         $check = $pdo->prepare(
             "SELECT id
@@ -120,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $check->execute([$email]);
 
         if ($check->fetch()) {
-            $errors[] = 'An account with this email address already exists.';
+            $errors[] = 'Registration could not be completed with those details.';
         }
     }
 
@@ -161,8 +208,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $usernameBase . $suffix;
             $suffix++;
         }
-
-        $verificationToken = bin2hex(random_bytes(32));
 
         $pdo->beginTransaction();
 
@@ -229,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'birthday' => $birthday !== '' ? $birthday : null,
                 'gender' => $gender !== '' ? $gender : null,
                 'preferred_language' => $preferredLanguage,
-                'email_verification_token' => $verificationToken,
+                'email_verification_token' => null,
             ]);
 
             $languageStatement = $pdo->prepare(
@@ -242,15 +287,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
             $languageStatement->execute([$userId, $preferredLanguage]);
 
+            $verificationChallenge = registrationSecurityIssueEmailChallenge(
+                $pdo,
+                $userId
+            );
+
             $pdo->commit();
 
-            $_SESSION['user_id'] = $userId;
-            $_SESSION['fullname'] = $fullname;
-            $_SESSION['username'] = $username;
-            $_SESSION['email'] = $email;
-            $_SESSION['role'] = 'customer';
+            registrationSecurityRecord(
+                $pdo,
+                'verification_sent',
+                $email,
+                $userId
+            );
 
-            header('Location: ../customer/dashboard.php');
+            $verificationUrl = registrationSecurityVerificationUrl(
+                $verificationChallenge['token']
+            );
+            $verificationSent = registrationSecuritySendVerification(
+                $email,
+                $fullname,
+                $verificationUrl,
+                $verificationChallenge['code']
+            );
+
+            $_SESSION['verification_delivery_error'] = !$verificationSent;
+
+            $_SESSION['pending_verification_user_id'] = $userId;
+            $_SESSION['pending_verification_email'] = $email;
+            $_SESSION['pending_verification_name'] = $fullname;
+            unset($_SESSION['registration_csrf']);
+
+            header('Location: verification-pending.php');
             exit;
         } catch (Throwable $exception) {
             if ($pdo->inTransaction()) {
@@ -279,7 +347,7 @@ $facebookEnabled = oauthProviderEnabled('facebook');
     <link rel="stylesheet" href="../assets/css/accessibility-preferences.css">
     <link rel="icon" type="image/png" href="../assets/images/branding/nbw-favicon.png">
     <link rel="stylesheet" href="../assets/css/official-logo.css">
-    <link rel="stylesheet" href="../assets/css/global-theme-system.css?v=083">
+    <link rel="stylesheet" href="../assets/css/global-theme-system.css?v=084">
 </head>
 
 <body class="customer-auth-body">
@@ -356,7 +424,7 @@ $facebookEnabled = oauthProviderEnabled('facebook');
             <div class="customer-social-grid">
                 <a
                     class="customer-social-button <?= !$googleEnabled ? 'is-disabled' : '' ?>"
-                    href="<?= $googleEnabled ? 'google-login.php' : '#' ?>"
+                    href="<?= $googleEnabled ? 'google-login.php?intent=register' : '#' ?>"
                     <?= !$googleEnabled ? 'aria-disabled="true" data-social-disabled="Google"' : '' ?>
                 >
                     <span class="social-google">G</span>
@@ -365,7 +433,7 @@ $facebookEnabled = oauthProviderEnabled('facebook');
 
                 <a
                     class="customer-social-button <?= !$facebookEnabled ? 'is-disabled' : '' ?>"
-                    href="<?= $facebookEnabled ? 'facebook-login.php' : '#' ?>"
+                    href="<?= $facebookEnabled ? 'facebook-login.php?intent=register' : '#' ?>"
                     <?= !$facebookEnabled ? 'aria-disabled="true" data-social-disabled="Facebook"' : '' ?>
                 >
                     <span class="social-facebook">f</span>
@@ -378,6 +446,11 @@ $facebookEnabled = oauthProviderEnabled('facebook');
             </div>
 
             <form method="POST" autocomplete="on">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string) $_SESSION['registration_csrf'], ENT_QUOTES, 'UTF-8') ?>">
+                <div style="position:absolute;left:-9999px" aria-hidden="true">
+                    <label for="website">Website</label>
+                    <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+                </div>
                 <div class="customer-auth-grid">
                     <div class="customer-auth-field">
                         <label for="first_name">First Name</label>
@@ -479,6 +552,8 @@ $facebookEnabled = oauthProviderEnabled('facebook');
                                 name="password"
                                 type="password"
                                 autocomplete="new-password"
+                                minlength="12"
+                                maxlength="128"
                                 required
                             >
 
@@ -502,6 +577,8 @@ $facebookEnabled = oauthProviderEnabled('facebook');
                                 name="confirm_password"
                                 type="password"
                                 autocomplete="new-password"
+                                minlength="12"
+                                maxlength="128"
                                 required
                             >
 
@@ -518,7 +595,7 @@ $facebookEnabled = oauthProviderEnabled('facebook');
                 </div>
 
                 <div class="customer-password-requirements">
-                    <span>Use at least 8 characters</span>
+                    <span>Use at least 12 characters</span>
                     <span>Include uppercase and lowercase letters</span>
                     <span>Include at least one number</span>
                 </div>
@@ -533,6 +610,8 @@ $facebookEnabled = oauthProviderEnabled('facebook');
                         <a href="#" data-modal-open="privacyModal">Privacy Notice</a>.
                     </span>
                 </label>
+
+                <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars(turnstileSiteKey(), ENT_QUOTES, 'UTF-8') ?>" data-action="manual_registration"></div>
 
                 <button class="customer-auth-submit" type="submit">
                     Create my account
@@ -574,6 +653,7 @@ $facebookEnabled = oauthProviderEnabled('facebook');
 </div>
 
 <?php include __DIR__ . '/../includes/display-preferences-widget.php'; ?>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script src="../assets/js/customer-auth-v2.js"></script>
 <script src="../assets/js/accessibility-preferences.js"></script>
 </body>

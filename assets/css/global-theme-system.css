@@ -422,6 +422,247 @@ html[data-theme="dark"] :where(.alert-danger, .alert-error, .status-danger, .off
     color: var(--theme-link);
 }
 
+/* Login V3: explicit theme rules loaded after all generic theme selectors. */
+html[data-theme="light"] body.auth-v3 .auth-showcase,
+html[data-theme="dark"] body.auth-v3 .auth-showcase {
+    color: #fffaf2 !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-showcase .auth-copy h1,
+html[data-theme="dark"] body.auth-v3 .auth-showcase .auth-copy h1,
+html[data-theme="light"] body.auth-v3 .auth-showcase .auth-brand strong,
+html[data-theme="dark"] body.auth-v3 .auth-showcase .auth-brand strong {
+    color: #fffaf2 !important;
+    -webkit-text-fill-color: #fffaf2 !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-showcase .auth-kicker,
+html[data-theme="dark"] body.auth-v3 .auth-showcase .auth-kicker,
+html[data-theme="light"] body.auth-v3 .auth-showcase .auth-benefits strong,
+html[data-theme="dark"] body.auth-v3 .auth-showcase .auth-benefits strong {
+    color: #f2d68e !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-showcase .auth-copy > p:last-child,
+html[data-theme="dark"] body.auth-v3 .auth-showcase .auth-copy > p:last-child,
+html[data-theme="light"] body.auth-v3 .auth-showcase .auth-benefits span,
+html[data-theme="dark"] body.auth-v3 .auth-showcase .auth-benefits span,
+html[data-theme="light"] body.auth-v3 .auth-showcase .auth-brand small,
+html[data-theme="dark"] body.auth-v3 .auth-showcase .auth-brand small {
+    color: rgba(255, 250, 242, .78) !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-form-side,
+html[data-theme="dark"] body.auth-v3 .auth-form-side {
+    color: var(--theme-text) !important;
+    background: var(--theme-page) !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-card,
+html[data-theme="dark"] body.auth-v3 .auth-card {
+    color: var(--theme-text) !important;
+    background: var(--theme-surface) !important;
+    border-color: var(--theme-border) !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-card h2,
+html[data-theme="dark"] body.auth-v3 .auth-card h2,
+html[data-theme="light"] body.auth-v3 .auth-field label,
+html[data-theme="dark"] body.auth-v3 .auth-field label {
+    color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-card > p,
+html[data-theme="dark"] body.auth-v3 .auth-card > p,
+html[data-theme="light"] body.auth-v3 .auth-row label,
+html[data-theme="dark"] body.auth-v3 .auth-row label,
+html[data-theme="light"] body.auth-v3 .auth-switch,
+html[data-theme="dark"] body.auth-v3 .auth-switch {
+    color: var(--theme-muted) !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-social,
+html[data-theme="dark"] body.auth-v3 .auth-social,
+html[data-theme="light"] body.auth-v3 .auth-field input,
+html[data-theme="dark"] body.auth-v3 .auth-field input {
+    color: var(--theme-text) !important;
+    background: var(--theme-surface-soft) !important;
+    border-color: var(--theme-border) !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-password button,
+html[data-theme="dark"] body.auth-v3 .auth-password button {
+    color: var(--theme-link) !important;
+    background: transparent !important;
+    opacity: 1 !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-row a,
+html[data-theme="dark"] body.auth-v3 .auth-row a,
+html[data-theme="light"] body.auth-v3 .auth-switch a,
+html[data-theme="dark"] body.auth-v3 .auth-switch a,
+html[data-theme="light"] body.auth-v3 .auth-back,
+html[data-theme="dark"] body.auth-v3 .auth-back {
+    color: var(--theme-link) !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-submit,
+html[data-theme="dark"] body.auth-v3 .auth-submit {
+    color: var(--theme-accent-text) !important;
+    background: var(--theme-accent) !important;
+}
+
+/* Keep the divider itself transparent; only its two thin lines are visible. */
+html[data-theme="light"] body.auth-v3 .auth-divider,
+html[data-theme="dark"] body.auth-v3 .auth-divider {
+    color: var(--theme-muted) !important;
+    background: none !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="light"] body.auth-v3 .auth-divider::before,
+html[data-theme="light"] body.auth-v3 .auth-divider::after,
+html[data-theme="dark"] body.auth-v3 .auth-divider::before,
+html[data-theme="dark"] body.auth-v3 .auth-divider::after {
+    background: var(--theme-border) !important;
+}
+
+/*
+ * Customer authentication theme contract.
+ *
+ * The global suffix selectors intentionally cover new cards and dividers, but
+ * authentication has a permanent dark showcase and a text-only divider. These
+ * scoped rules preserve that design while keeping the form fully readable in
+ * Light and Dark themes.
+ */
+html[data-theme="light"] .customer-auth-body,
+html[data-theme="dark"] .customer-auth-body {
+    color: var(--theme-text) !important;
+    background: var(--theme-page) !important;
+}
+
+html[data-theme="light"] .customer-auth-form-section,
+html[data-theme="dark"] .customer-auth-form-section {
+    color: var(--theme-text) !important;
+    background: var(--theme-page) !important;
+}
+
+html[data-theme="light"] .customer-auth-form-shell,
+html[data-theme="dark"] .customer-auth-form-shell {
+    color: var(--theme-text) !important;
+    background: var(--theme-surface) !important;
+    border-color: var(--theme-border) !important;
+    box-shadow: var(--theme-shadow) !important;
+}
+
+html[data-theme="light"] .customer-auth-form-heading h2,
+html[data-theme="dark"] .customer-auth-form-heading h2,
+html[data-theme="light"] .customer-auth-field label,
+html[data-theme="dark"] .customer-auth-field label {
+    color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] .customer-auth-form-heading > p:last-child,
+html[data-theme="dark"] .customer-auth-form-heading > p:last-child,
+html[data-theme="light"] .customer-auth-field label span,
+html[data-theme="dark"] .customer-auth-field label span,
+html[data-theme="light"] .customer-auth-checkbox,
+html[data-theme="dark"] .customer-auth-checkbox,
+html[data-theme="light"] .customer-auth-switch,
+html[data-theme="dark"] .customer-auth-switch {
+    color: var(--theme-muted) !important;
+}
+
+html[data-theme="light"] .customer-social-button,
+html[data-theme="dark"] .customer-social-button {
+    color: var(--theme-text) !important;
+    background: var(--theme-surface-soft) !important;
+    border-color: var(--theme-border) !important;
+}
+
+html[data-theme="light"] .customer-social-button.is-disabled,
+html[data-theme="dark"] .customer-social-button.is-disabled {
+    color: var(--theme-muted) !important;
+}
+
+html[data-theme="light"] .customer-auth-field input,
+html[data-theme="light"] .customer-auth-field select,
+html[data-theme="dark"] .customer-auth-field input,
+html[data-theme="dark"] .customer-auth-field select {
+    color: var(--theme-text) !important;
+    background: var(--theme-surface-soft) !important;
+    border-color: var(--theme-border) !important;
+}
+
+html[data-theme="light"] .customer-auth-field input[readonly],
+html[data-theme="dark"] .customer-auth-field input[readonly] {
+    color: var(--theme-muted) !important;
+    opacity: 1;
+}
+
+html[data-theme="light"] .customer-password-toggle,
+html[data-theme="dark"] .customer-password-toggle,
+html[data-theme="light"] .customer-auth-checkbox a,
+html[data-theme="dark"] .customer-auth-checkbox a,
+html[data-theme="light"] .customer-auth-switch a,
+html[data-theme="dark"] .customer-auth-switch a {
+    color: var(--theme-link) !important;
+}
+
+html[data-theme="light"] .customer-auth-submit,
+html[data-theme="dark"] .customer-auth-submit {
+    color: var(--theme-accent-text) !important;
+    background: var(--theme-accent) !important;
+}
+
+/* Remove the unwanted rectangular divider fill. */
+html[data-theme="light"] .customer-auth-divider,
+html[data-theme="dark"] .customer-auth-divider {
+    color: var(--theme-muted) !important;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+html[data-theme="light"] .customer-auth-divider::before,
+html[data-theme="light"] .customer-auth-divider::after,
+html[data-theme="dark"] .customer-auth-divider::before,
+html[data-theme="dark"] .customer-auth-divider::after {
+    background: var(--theme-border) !important;
+}
+
+/* The showcase always uses a dark branded background in every theme. */
+html[data-theme="light"] .customer-auth-showcase,
+html[data-theme="dark"] .customer-auth-showcase {
+    color: #fffaf2 !important;
+}
+
+html[data-theme="light"] .customer-auth-showcase :where(h1, h2, h3, strong),
+html[data-theme="dark"] .customer-auth-showcase :where(h1, h2, h3, strong),
+html[data-theme="light"] .customer-auth-brand,
+html[data-theme="dark"] .customer-auth-brand {
+    color: #fffaf2 !important;
+}
+
+html[data-theme="light"] .customer-auth-showcase .customer-auth-kicker,
+html[data-theme="dark"] .customer-auth-showcase .customer-auth-kicker,
+html[data-theme="light"] .customer-auth-preview-card small,
+html[data-theme="dark"] .customer-auth-preview-card small,
+html[data-theme="light"] .customer-auth-feature-list span,
+html[data-theme="dark"] .customer-auth-feature-list span {
+    color: #f2d68e !important;
+}
+
+html[data-theme="light"] .customer-auth-showcase-copy > p:last-child,
+html[data-theme="dark"] .customer-auth-showcase-copy > p:last-child,
+html[data-theme="light"] .customer-auth-feature-list p,
+html[data-theme="dark"] .customer-auth-feature-list p,
+html[data-theme="light"] .customer-auth-brand small,
+html[data-theme="dark"] .customer-auth-brand small {
+    color: rgba(255, 250, 242, .76) !important;
+}
+
 @media (max-width: 620px) {
     .customer-quick-links a {
         grid-template-columns: 1fr;

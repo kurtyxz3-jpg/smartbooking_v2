@@ -2,33 +2,25 @@
 declare(strict_types=1);
 
 /*
-|--------------------------------------------------------------------------
-| SMARTBOOKING SOCIAL LOGIN CREDENTIALS
-|--------------------------------------------------------------------------
-|
-| Google and Facebook issue these values to the owner of the application.
-| They cannot be generated inside PHP or supplied by another website.
-|
-| GOOGLE CALLBACK:
-| http://localhost/smartbooking_v2/auth/google-callback.php
-|
-| FACEBOOK CALLBACK:
-| http://localhost/smartbooking_v2/auth/facebook-callback.php
-|
-| Do not upload this file to a public GitHub repository after adding secrets.
-*/
+ * Local OAuth credentials for SmartBooking V2.
+ *
+ * IMPORTANT:
+ * - Paste the NEW Google OAuth client values below.
+ * - Do not commit this file to GitHub.
+ * - Keep the redirect URI exactly as written for local XAMPP testing.
+ */
 
 return [
     'google' => [
-        'client_id' => 'PASTE_GOOGLE_CLIENT_ID_HERE',
-        'client_secret' => 'PASTE_GOOGLE_CLIENT_SECRET_HERE',
+        'client_id' => '110502104428-cpiov7h1il34v8hbtqq73d4u898rpa1q.apps.googleusercontent.com',
+        'client_secret' => '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',
         'redirect_uri' =>
             'http://localhost/smartbooking_v2/auth/google-callback.php',
     ],
 
     'facebook' => [
-        'app_id' => 'PASTE_FACEBOOK_APP_ID_HERE',
-        'app_secret' => 'PASTE_FACEBOOK_APP_SECRET_HERE',
+        'app_id' => '1077977044932044',
+        'app_secret' => 'd22f72169b17b602bc50f564a9a276df',
         'redirect_uri' =>
             'http://localhost/smartbooking_v2/auth/facebook-callback.php',
         'graph_version' => 'v25.0',
