@@ -76,7 +76,10 @@ try {
 }
 
 $activeProvider = strtolower(trim((string) ($health['provider'] ?? 'unknown')));
-$enforceDailyLimit = $activeProvider !== 'demo';
+// Cached recommendations do not spend Leonardo API credit. Apply the daily
+// generation limit only while the live provider is actually configured.
+$enforceDailyLimit = !empty($health['live_enabled'])
+    && in_array($activeProvider, ['leonardo', 'leonardo-hybrid'], true);
 
 $resetAt = null;
 try {
