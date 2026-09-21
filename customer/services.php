@@ -13,7 +13,7 @@ include '../includes/header.php';
 
 $pageText = [
     'english' => [
-        'kicker' => 'Complete service menu',
+        'kicker' => '',
         'title' => 'Choose the care, treatment, or transformation you need.',
         'subtitle' => 'Actual prices from the supplied pricelists. Displayed durations are scheduling estimates.',
         'categories' => 'Service categories',
@@ -27,7 +27,7 @@ $pageText = [
         'no_results' => 'No service matches your search.',
     ],
     'filipino' => [
-        'kicker' => 'Kumpletong menu ng serbisyo',
+        'kicker' => '',
         'title' => 'Piliin ang pangangalaga, treatment, o pagbabagong kailangan mo.',
         'subtitle' => 'Aktuwal na presyo mula sa ibinigay na pricelist. Ang ipinakitang tagal ay pagtataya para sa iskedyul.',
         'categories' => 'Mga kategorya ng serbisyo',
@@ -41,7 +41,7 @@ $pageText = [
         'no_results' => 'Walang serbisyong tumutugma sa iyong hinahanap.',
     ],
     'taglish' => [
-        'kicker' => 'Complete service menu',
+        'kicker' => '',
         'title' => 'Piliin ang care, treatment, o transformation na kailangan mo.',
         'subtitle' => 'Actual prices mula sa provided pricelists. Estimates lang ang displayed duration.',
         'categories' => 'Service categories',

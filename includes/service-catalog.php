@@ -66,7 +66,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 120,
       "duration": 30,
       "description": "Classic nail shaping, cuticle care, and regular polish.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/01_Classic_Manicure.png",
       "featured": true,
       "price_note": ""
     },
@@ -76,7 +76,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 130,
       "duration": 40,
       "description": "Classic foot and nail care with regular polish.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-01.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/02_Classic_Pedicure.png",
       "featured": true,
       "price_note": ""
     },
@@ -86,7 +86,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 350,
       "duration": 60,
       "description": "Long-wearing gel color for the hands.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-14.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/19_Gel_Manicure.png",
       "featured": true,
       "price_note": ""
     },
@@ -96,7 +96,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 400,
       "duration": 60,
       "description": "Long-wearing gel color for the feet.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-24.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/20_Spa_Pedicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -106,7 +106,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 800,
       "duration": 120,
       "description": "Softgel extensions finished with your selected gel color.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-10.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/19_Gel_Manicure.png",
       "featured": true,
       "price_note": ""
     },
@@ -116,7 +116,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 100,
       "duration": 20,
       "description": "Single-nail softgel extension or repair.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-11.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/19_Gel_Manicure.png",
       "featured": false,
       "price_note": "per nail"
     },
@@ -126,7 +126,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 200,
       "duration": 45,
       "description": "Careful removal of a full softgel set.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-08.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/19_Gel_Manicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -136,7 +136,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 250,
       "duration": 50,
       "description": "Removal of polygel or acrylic extensions.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-09.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/19_Gel_Manicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -146,7 +146,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 600,
       "duration": 100,
       "description": "Polygel maintenance with fresh gel polish.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-13.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/19_Gel_Manicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -156,7 +156,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 150,
       "duration": 30,
       "description": "Custom nail-art details based on complexity.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-01.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/19_Gel_Manicure.png",
       "featured": true,
       "price_note": "₱150-₱200"
     },
@@ -166,7 +166,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 20,
       "duration": 10,
       "description": "Decorative stones or embellishments.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-02.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/19_Gel_Manicure.png",
       "featured": false,
       "price_note": "₱20-₱50 each"
     },
@@ -176,7 +176,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 50,
       "duration": 20,
       "description": "Classic French-tip add-on using regular polish.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-05.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/01_Classic_Manicure.png",
       "featured": false,
       "price_note": "add-on"
     },
@@ -186,7 +186,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 250,
       "duration": 45,
       "description": "Refresh your current set with a new gel color.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-16.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/19_Gel_Manicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -196,7 +196,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 50,
       "duration": 20,
       "description": "Gentle gel-polish removal.",
-      "image": "/smartbooking_v2/assets/images/services/nails/nails-17.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/19_Gel_Manicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -206,7 +206,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 300,
       "duration": 50,
       "description": "Soak, exfoliation, callus care, and relaxing foot treatment.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/foot-spa.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/20_Spa_Pedicure.png",
       "featured": true,
       "price_note": ""
     },
@@ -216,7 +216,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 350,
       "duration": 50,
       "description": "Foot spa care tailored for gentlemen.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/foot-spa.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/20_Spa_Pedicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -226,7 +226,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 250,
       "duration": 30,
       "description": "Exfoliating hand treatment for smoother skin.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hand-scrub.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/01_Classic_Manicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -236,7 +236,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 100,
       "duration": 25,
       "description": "Brightening mask add-on for hands or feet.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-12.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/09_Classic_Facial.png",
       "featured": false,
       "price_note": ""
     },
@@ -246,7 +246,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 800,
       "duration": 75,
       "description": "Full-body exfoliating and brightening treatment.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-05.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/09_Classic_Facial.png",
       "featured": true,
       "price_note": ""
     },
@@ -256,7 +256,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 500,
       "duration": 60,
       "description": "Relaxing full-body massage.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/03_Relaxation_Massage.png",
       "featured": true,
       "price_note": ""
     },
@@ -266,7 +266,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 600,
       "duration": 60,
       "description": "Massage paired with guided stretching.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/21_Aromatherapy_Massage.png",
       "featured": false,
       "price_note": ""
     },
@@ -276,7 +276,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 650,
       "duration": 60,
       "description": "Massage with traditional ventosa treatment.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/03_Relaxation_Massage.png",
       "featured": false,
       "price_note": ""
     },
@@ -286,7 +286,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 680,
       "duration": 60,
       "description": "Full massage combined with ear candling.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/21_Aromatherapy_Massage.png",
       "featured": false,
       "price_note": ""
     },
@@ -296,7 +296,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 800,
       "duration": 90,
       "description": "Heated-stone massage for deep relaxation.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/04_Hot_Stone_Massage.png",
       "featured": true,
       "price_note": ""
     },
@@ -306,7 +306,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1200,
       "duration": 60,
       "description": "Scalp cleansing, massage, and hair-care ritual.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-24.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/03_Relaxation_Massage.png",
       "featured": true,
       "price_note": ""
     },
@@ -316,7 +316,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 350,
       "duration": 30,
       "description": "Focused back massage.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hot-stone-massage.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/03_Relaxation_Massage.png",
       "featured": false,
       "price_note": ""
     },
@@ -326,7 +326,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 250,
       "duration": 30,
       "description": "Focused hand and arm massage.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/hand-massage.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/03_Relaxation_Massage.png",
       "featured": false,
       "price_note": ""
     },
@@ -336,7 +336,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 300,
       "duration": 30,
       "description": "Focused foot and lower-leg massage.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-stock/spa/foot-massage.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/22_Foot_Reflexology.png",
       "featured": false,
       "price_note": ""
     },
@@ -346,7 +346,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 100,
       "duration": 25,
       "description": "Precision facial threading.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-16.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/06_Eyebrow_Shaping_and_Tinting.png",
       "featured": false,
       "price_note": ""
     },
@@ -356,7 +356,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 500,
       "duration": 60,
       "description": "Natural lash-lifting treatment.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-25.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/23_Lash_Lift.png",
       "featured": true,
       "price_note": ""
     },
@@ -366,7 +366,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 600,
       "duration": 75,
       "description": "Lash lift enhanced with tint.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-27.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/23_Lash_Lift.png",
       "featured": true,
       "price_note": ""
     },
@@ -376,7 +376,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 100,
       "duration": 30,
       "description": "Gentle eyelash-extension removal.",
-      "image": "/smartbooking_v2/assets/images/services/salon/salon-17.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/05_Eyelash_Extensions.png",
       "featured": false,
       "price_note": "₱100-₱150"
     },
@@ -386,7 +386,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 500,
       "duration": 60,
       "description": "Brow shaping and lamination.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-09.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/24_Brow_Lamination.png",
       "featured": true,
       "price_note": ""
     },
@@ -396,7 +396,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 50,
       "duration": 25,
       "description": "Gentle manicure for children.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-23.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/17_Kiddie_Manicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -406,7 +406,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 50,
       "duration": 25,
       "description": "Gentle pedicure for children.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-23.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/18_Kiddie_Pedicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -416,7 +416,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 30,
       "duration": 15,
       "description": "Quick polish application for children.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-23.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/35_Kiddie_Manicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -426,7 +426,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 120,
       "duration": 35,
       "description": "Gentle foot spa for children.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-23.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/18_Kiddie_Pedicure.png",
       "featured": false,
       "price_note": ""
     },
@@ -436,7 +436,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 250,
       "duration": 70,
       "description": "Manicure, pedicure, foot spa, and mask.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-23.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/18_Kiddie_Pedicure.png",
       "featured": true,
       "price_note": ""
     },
@@ -446,7 +446,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 150,
       "duration": 35,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/25_Haircut_and_Styling.png",
       "featured": true,
       "price_note": ""
     },
@@ -456,7 +456,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 100,
       "duration": 30,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/07_Hair_Cut_and_Blowout.png",
       "featured": false,
       "price_note": ""
     },
@@ -466,7 +466,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 100,
       "duration": 20,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/07_Hair_Cut_and_Blowout.png",
       "featured": false,
       "price_note": ""
     },
@@ -476,7 +476,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 200,
       "duration": 40,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/25_Haircut_and_Styling.png",
       "featured": false,
       "price_note": ""
     },
@@ -486,7 +486,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 350,
       "duration": 70,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/26_Hair_Treatment_and_Color.png",
       "featured": true,
       "price_note": ""
     },
@@ -496,7 +496,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 600,
       "duration": 100,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/08_Hair_Coloring.png",
       "featured": false,
       "price_note": ""
     },
@@ -506,7 +506,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 900,
       "duration": 120,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/08_Hair_Coloring.png",
       "featured": false,
       "price_note": ""
     },
@@ -516,7 +516,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1100,
       "duration": 150,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/08_Hair_Coloring.png",
       "featured": false,
       "price_note": ""
     },
@@ -526,7 +526,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 600,
       "duration": 100,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/26_Hair_Treatment_and_Color.png",
       "featured": false,
       "price_note": ""
     },
@@ -536,7 +536,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 600,
       "duration": 120,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/26_Hair_Treatment_and_Color.png",
       "featured": false,
       "price_note": ""
     },
@@ -546,7 +546,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 600,
       "duration": 120,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/26_Hair_Treatment_and_Color.png",
       "featured": false,
       "price_note": ""
     },
@@ -556,7 +556,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1200,
       "duration": 180,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/26_Hair_Treatment_and_Color.png",
       "featured": true,
       "price_note": ""
     },
@@ -566,7 +566,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1700,
       "duration": 210,
       "description": "Professional salon hair service based on the supplied pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-04.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/26_Hair_Treatment_and_Color.png",
       "featured": false,
       "price_note": ""
     },
@@ -576,7 +576,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 500,
       "duration": 60,
       "description": "Facial cleansing and mask treatment.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-07.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/09_Classic_Facial.png",
       "featured": true,
       "price_note": ""
     },
@@ -586,7 +586,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 650,
       "duration": 60,
       "description": "Facial with a 24K gold mask.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-31.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/28_Brightening_Facial.png",
       "featured": false,
       "price_note": ""
     },
@@ -596,7 +596,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 700,
       "duration": 60,
       "description": "Exfoliating diamond-peel facial.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-26.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/31_Diamond_Peel.png",
       "featured": true,
       "price_note": ""
     },
@@ -606,7 +606,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 800,
       "duration": 75,
       "description": "Regular facial combined with RF face treatment.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-08.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/32_RF_Facial_Ultrasound.png",
       "featured": false,
       "price_note": ""
     },
@@ -616,7 +616,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 850,
       "duration": 75,
       "description": "Enhanced diamond-peel treatment.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-26.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/31_Diamond_Peel.png",
       "featured": false,
       "price_note": ""
     },
@@ -626,7 +626,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1000,
       "duration": 60,
       "description": "Laser treatment for melasma concerns; consultation required.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-13.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/31_Diamond_Peel.png",
       "featured": false,
       "price_note": ""
     },
@@ -636,7 +636,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1200,
       "duration": 90,
       "description": "BB Glow facial treatment.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-07.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/28_Brightening_Facial.png",
       "featured": false,
       "price_note": ""
     },
@@ -646,7 +646,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1200,
       "duration": 75,
       "description": "Carbon laser facial treatment.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-13.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/31_Diamond_Peel.png",
       "featured": true,
       "price_note": ""
     },
@@ -656,7 +656,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1500,
       "duration": 90,
       "description": "Multi-step hydrating facial treatment.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-26.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/10_Hydra_Facial.png",
       "featured": true,
       "price_note": ""
     },
@@ -666,7 +666,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 2000,
       "duration": 120,
       "description": "Comprehensive multi-step hydrating facial.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-26.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/10_Hydra_Facial.png",
       "featured": true,
       "price_note": ""
     },
@@ -676,7 +676,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1500,
       "duration": 60,
       "description": "Glutathione drip service; consultation required.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-03.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/28_Brightening_Facial.png",
       "featured": false,
       "price_note": ""
     },
@@ -686,7 +686,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 250,
       "duration": 30,
       "description": "Hair-removal service based on the supplied salon pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-15.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/12_Underarm_Waxing.png",
       "featured": true,
       "price_note": ""
     },
@@ -696,7 +696,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 400,
       "duration": 45,
       "description": "Hair-removal service based on the supplied salon pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-15.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/30_Bikini_and_Arm_Waxing.png",
       "featured": false,
       "price_note": ""
     },
@@ -706,7 +706,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 450,
       "duration": 45,
       "description": "Hair-removal service based on the supplied salon pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-15.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/29_Leg_Waxing.png",
       "featured": false,
       "price_note": ""
     },
@@ -716,7 +716,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 650,
       "duration": 60,
       "description": "Hair-removal service based on the supplied salon pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-15.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/29_Leg_Waxing.png",
       "featured": false,
       "price_note": ""
     },
@@ -726,7 +726,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 700,
       "duration": 45,
       "description": "Hair-removal service based on the supplied salon pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-15.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/30_Bikini_and_Arm_Waxing.png",
       "featured": false,
       "price_note": ""
     },
@@ -736,7 +736,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 700,
       "duration": 45,
       "description": "Hair-removal service based on the supplied salon pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-06.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/12_Underarm_Waxing.png",
       "featured": true,
       "price_note": ""
     },
@@ -746,7 +746,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 800,
       "duration": 45,
       "description": "Hair-removal service based on the supplied salon pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-06.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/30_Bikini_and_Arm_Waxing.png",
       "featured": false,
       "price_note": ""
     },
@@ -756,7 +756,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1100,
       "duration": 60,
       "description": "Hair-removal service based on the supplied salon pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-14.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/29_Leg_Waxing.png",
       "featured": false,
       "price_note": ""
     },
@@ -766,7 +766,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1500,
       "duration": 75,
       "description": "Hair-removal service based on the supplied salon pricelist.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-14.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/29_Leg_Waxing.png",
       "featured": true,
       "price_note": ""
     },
@@ -776,7 +776,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 4500,
       "duration": 90,
       "description": "Face contouring and lifting treatment; consultation required.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-11.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/32_RF_Facial_Ultrasound.png",
       "featured": true,
       "price_note": ""
     },
@@ -786,7 +786,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1000,
       "duration": 30,
       "description": "Non-invasive body contouring session.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-10.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/32_RF_Facial_Ultrasound.png",
       "featured": true,
       "price_note": ""
     },
@@ -796,7 +796,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 350,
       "duration": 30,
       "description": "Radio-frequency face treatment.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-08.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/32_RF_Facial_Ultrasound.png",
       "featured": false,
       "price_note": ""
     },
@@ -806,7 +806,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1500,
       "duration": 60,
       "description": "Mesolipo treatment for the double-chin area; consultation required.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-17.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/32_RF_Facial_Ultrasound.png",
       "featured": false,
       "price_note": ""
     },
@@ -816,7 +816,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 8000,
       "duration": 60,
       "description": "Hyaluronic-acid lip filler; consultation required.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-16.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/34_Lip_Tint_and_Blush.png",
       "featured": true,
       "price_note": ""
     },
@@ -826,7 +826,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 8000,
       "duration": 60,
       "description": "Hyaluronic-acid chin filler; consultation required.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-16.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/34_Lip_Tint_and_Blush.png",
       "featured": false,
       "price_note": ""
     },
@@ -836,7 +836,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 15000,
       "duration": 75,
       "description": "Jaw filler treatment; consultation required.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-16.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/34_Lip_Tint_and_Blush.png",
       "featured": false,
       "price_note": ""
     },
@@ -846,7 +846,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 5500,
       "duration": 75,
       "description": "Basic or retouch Hiko nose-lift package; consultation required.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-22.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/32_RF_Facial_Ultrasound.png",
       "featured": true,
       "price_note": ""
     },
@@ -856,7 +856,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 800,
       "duration": 45,
       "description": "Warts or skin-tag removal; consultation required.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-20.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/31_Diamond_Peel.png",
       "featured": false,
       "price_note": "₱800-₱2,500"
     },
@@ -866,7 +866,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 1000,
       "duration": 60,
       "description": "Body tattoo-removal session; consultation required.",
-      "image": "/smartbooking_v2/assets/images/services/campaigns/campaigns-20.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/31_Diamond_Peel.png",
       "featured": false,
       "price_note": "₱1,000-₱2,500"
     },
@@ -876,7 +876,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 5500,
       "duration": 150,
       "description": "Semi-permanent ombre-brow procedure.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/ombre-brows.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/15_Ombre_Brows.png",
       "featured": true,
       "price_note": ""
     },
@@ -886,7 +886,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 4500,
       "duration": 150,
       "description": "Nano combo-brow procedure.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/nano-combo-brows.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/33_Microblading_and_Ombre_Brows.png",
       "featured": false,
       "price_note": ""
     },
@@ -896,7 +896,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 7900,
       "duration": 180,
       "description": "Nano machine-stroke brow procedure.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/nano-machine-strokes.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/33_Microblading_and_Ombre_Brows.png",
       "featured": false,
       "price_note": ""
     },
@@ -906,7 +906,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 7900,
       "duration": 180,
       "description": "Semi-permanent brow procedure designed for men.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/menstrokes.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/33_Microblading_and_Ombre_Brows.png",
       "featured": false,
       "price_note": ""
     },
@@ -916,7 +916,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 4500,
       "duration": 180,
       "description": "Semi-permanent lip-color procedure.",
-      "image": "/smartbooking_v2/assets/images/services/semi-permanent/lip-micropigmentation.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/16_Lip_Blush.png",
       "featured": true,
       "price_note": ""
     },
@@ -926,7 +926,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 3500,
       "duration": 150,
       "description": "Semi-permanent eyeliner procedure.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/eyeliner-tattoo.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/16_Lip_Blush.png",
       "featured": false,
       "price_note": "₱3,500-₱4,000"
     },
@@ -936,7 +936,7 @@ $catalog = json_decode(<<<'JSON'
       "price": 500,
       "duration": 45,
       "description": "Cover-up and correction consultation starts at the listed charge.",
-      "image": "/smartbooking_v2/assets/images/services/temporary-placeholders/brow-reconstruction.webp",
+      "image": "/smartbooking_v2/assets/images/services/catalog-new/33_Microblading_and_Ombre_Brows.png",
       "featured": false,
       "price_note": "charges vary"
     }
@@ -1072,23 +1072,18 @@ function catalogMoney(float|int $amount): string
     return '₱' . number_format((float)$amount, 0);
 }
 
-/**
- * Original pricelist pages shown on the public homepage.
- *
- * pricelist-03.webp is intentionally excluded because it is the
- * Nails & Body Worx cover page rather than an actual price-list page.
- */
+/** Price-list posters shown on the public homepage. */
 function catalogPricelists(): array
 {
     return [
-        '/smartbooking_v2/assets/images/services/pricelists/pricelist-01.webp',
-        '/smartbooking_v2/assets/images/services/pricelists/pricelist-02.webp',
-        '/smartbooking_v2/assets/images/services/pricelists/pricelist-04.webp',
-        '/smartbooking_v2/assets/images/services/pricelists/pricelist-05.webp',
-        '/smartbooking_v2/assets/images/services/pricelists/pricelist-06.webp',
-        '/smartbooking_v2/assets/images/services/pricelists/pricelist-07.webp',
-        '/smartbooking_v2/assets/images/services/pricelists/pricelist-08.webp',
-        '/smartbooking_v2/assets/images/services/pricelists/pricelist-09.webp',
+        '/smartbooking_v2/assets/images/services/homepage-posters/01_Semi_Permanent_Makeup.png',
+        '/smartbooking_v2/assets/images/services/homepage-posters/02_Yearly_Maintenance.png',
+        '/smartbooking_v2/assets/images/services/homepage-posters/03_Brow_Reconstruction.png',
+        '/smartbooking_v2/assets/images/services/homepage-posters/04_Packages.png',
+        '/smartbooking_v2/assets/images/services/homepage-posters/05_Nail_Care_Spa.png',
+        '/smartbooking_v2/assets/images/services/homepage-posters/06_Hair_Services.png',
+        '/smartbooking_v2/assets/images/services/homepage-posters/07_Facial_Laser_Services.png',
+        '/smartbooking_v2/assets/images/services/homepage-posters/08_Face_Contour_Lifting.png',
     ];
 }
 
