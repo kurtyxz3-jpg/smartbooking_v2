@@ -2,6 +2,15 @@
  'use strict';
  const data=window.SB_REPORT_DATA||{daily:[],statuses:[]};
  const colors=['#b8892e','#5b3421','#7c5ac7','#2f8f68','#c85a54','#d98728'];
+ const statusColors={
+  pending:'#E3B341',
+  completed:'#35A56A',
+  cancelled:'#D9534F',
+  confirmed:'#3B82C4',
+  in_progress:'#8A62C7',
+  no_show:'#D9822B'
+ };
+ const statusColor=(status,index)=>statusColors[String(status||'').toLowerCase().replaceAll(' ','_')]||colors[index%colors.length];
  document.querySelectorAll('[data-report-tab]').forEach(btn=>btn.addEventListener('click',()=>{
   document.querySelectorAll('[data-report-tab]').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('[data-report-panel]').forEach(x=>x.classList.remove('active'));
@@ -14,8 +23,8 @@
  const donut=document.getElementById('sbStatusDonut'),legend=document.getElementById('sbStatusLegend');
  if(donut&&data.statuses.length){
   const total=data.statuses.reduce((n,x)=>n+Number(x.value||0),0)||1;let start=0,stops=[];
-  data.statuses.forEach((x,i)=>{const end=start+Number(x.value||0)/total*100;stops.push(`${colors[i%colors.length]} ${start}% ${end}%`);start=end;
-   const row=document.createElement('p');row.innerHTML=`<i style="background:${colors[i%colors.length]}"></i><span>${String(x.label).replaceAll('_',' ')}</span><strong>${x.value}</strong>`;legend?.appendChild(row);});
+  data.statuses.forEach((x,i)=>{const color=statusColor(x.label,i),end=start+Number(x.value||0)/total*100;stops.push(`${color} ${start}% ${end}%`);start=end;
+   const row=document.createElement('p');row.innerHTML=`<i style="background:${color}"></i><span>${String(x.label).replaceAll('_',' ')}</span><strong>${x.value}</strong>`;legend?.appendChild(row);});
   donut.style.background=`conic-gradient(${stops.join(',')})`;
  }
  const canvas=document.getElementById('sbRevenueChart');if(!canvas)return;

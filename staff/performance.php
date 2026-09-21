@@ -77,7 +77,7 @@ include '../includes/staff-header.php';
 
             <article class="staff-kpi">
                 <small>Service Revenue</small>
-                <h2>₱<?= number_format($revenue, 2) ?></h2>
+                <h2>&#8369;<?= number_format($revenue, 2) ?></h2>
                 <p>Value of completed assigned services</p>
             </article>
         </section>

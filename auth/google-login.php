@@ -16,9 +16,14 @@ if (!oauthProviderEnabled('google')) {
 
 $state = bin2hex(random_bytes(32));
 $nonce = bin2hex(random_bytes(32));
+$intent = (string) ($_GET['intent'] ?? 'login');
+if (!in_array($intent, ['login', 'register'], true)) {
+    $intent = 'login';
+}
 
 $_SESSION['google_oauth_state'] = $state;
 $_SESSION['google_oauth_nonce'] = $nonce;
+$_SESSION['google_oauth_intent'] = $intent;
 
 $params = [
     'client_id' => oauthConfig('google', 'client_id'),

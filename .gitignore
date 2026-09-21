@@ -1,5 +1,6 @@
-/.git/
+/\.git/
 /config/oauth.local.php
+/config/email-credentials.php
 /uploads/backups/*.sql
 /uploads/profiles/*
 !uploads/profiles/.gitkeep

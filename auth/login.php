@@ -9,6 +9,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/oauth.php';
 require_once __DIR__ . '/../includes/language.php';
 require_once __DIR__ . '/../includes/branch-context.php';
+require_once __DIR__ . '/../includes/registration-security.php';
 
 $redirects = [
     'super_admin' => '../superadmin/dashboard.php',
@@ -21,6 +22,14 @@ if (
     isset($_SESSION['user_id'], $_SESSION['role'])
     && isset($redirects[$_SESSION['role']])
 ) {
+    if (
+        $_SESSION['role'] === 'customer'
+        && !registrationSecurityManualEmailVerified($pdo, (int) $_SESSION['user_id'])
+    ) {
+        registrationSecurityRequirePendingVerification($pdo, (int) $_SESSION['user_id']);
+        header('Location: verification-pending.php');
+        exit;
+    }
     header('Location: ' . $redirects[$_SESSION['role']]);
     exit;
 }
@@ -110,7 +119,8 @@ $ui = [
 ];
 
 $labels = $ui[$languageCode] ?? $ui['english'];
-$error = '';
+$error = trim((string) ($_SESSION['social_login_error'] ?? ''));
+unset($_SESSION['social_login_error']);
 $loginValue = '';
 $notice = $_SESSION['login_notice'] ?? '';
 unset($_SESSION['login_notice']);
@@ -121,6 +131,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($loginValue === '' || $password === '') {
         $error = $labels['required'];
+    } elseif (registrationSecurityCount($pdo, 'login_failure', $loginValue) >= (int) (registrationSecurityConfig()['login_failure_limit_per_hour'] ?? 10)) {
+        $error = 'Too many sign-in attempts. Please wait before trying again.';
     } else {
         $branchSelect = branchColumnExists($pdo, 'users', 'branch_id')
             ? ', branch_id'
@@ -138,12 +150,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $statement->fetch();
 
         if (!$user || !password_verify($password, $user['password'])) {
+            registrationSecurityRecord($pdo, 'login_failure', $loginValue);
             $error = $labels['invalid'];
         } elseif ($user['status'] !== 'active') {
             $error = $labels['inactive'];
+        } elseif (
+            $user['role'] === 'customer'
+            && !registrationSecurityManualEmailVerified($pdo, (int) $user['id'])
+        ) {
+            $_SESSION['pending_verification_user_id'] = (int) $user['id'];
+            $_SESSION['pending_verification_email'] = (string) $user['email'];
+            $_SESSION['pending_verification_name'] = (string) $user['fullname'];
+            header('Location: verification-pending.php');
+            exit;
         } elseif (!isset($redirects[$user['role']])) {
             $error = $labels['unsupported'];
         } else {
+            registrationSecurityRecord($pdo, 'login_success', $loginValue, (int) $user['id']);
             session_regenerate_id(true);
 
             $_SESSION['user_id'] = (int) $user['id'];
@@ -191,11 +214,11 @@ $facebook = oauthProviderEnabled('facebook');
     <title><?= htmlspecialchars($labels['title'], ENT_QUOTES, 'UTF-8') ?> | NBW</title>
 
     <script src="../assets/js/theme-bootstrap.js"></script>
-    <link rel="stylesheet" href="../assets/css/customer-auth-v3.css">
+    <link rel="stylesheet" href="../assets/css/customer-auth-v3.css?v=085">
     <link rel="stylesheet" href="../assets/css/accessibility-preferences.css">
     <link rel="icon" type="image/png" href="../assets/images/branding/nbw-favicon.png">
     <link rel="stylesheet" href="../assets/css/official-logo.css">
-    <link rel="stylesheet" href="../assets/css/global-theme-system.css?v=083">
+    <link rel="stylesheet" href="../assets/css/global-theme-system.css?v=085">
 </head>
 
 <body class="auth-v3">
@@ -253,7 +276,7 @@ $facebook = oauthProviderEnabled('facebook');
             <div class="auth-socials">
                 <a
                     class="auth-social <?= $google ? '' : 'disabled' ?>"
-                    href="<?= $google ? 'google-login.php' : '#' ?>"
+                    href="<?= $google ? 'google-login.php?intent=login' : '#' ?>"
                     <?= $google ? '' : 'data-disabled-provider="Google"' ?>
                 >
                     G &nbsp; <?= htmlspecialchars($labels['google'], ENT_QUOTES, 'UTF-8') ?>
@@ -261,7 +284,7 @@ $facebook = oauthProviderEnabled('facebook');
 
                 <a
                     class="auth-social <?= $facebook ? '' : 'disabled' ?>"
-                    href="<?= $facebook ? 'facebook-login.php' : '#' ?>"
+                    href="<?= $facebook ? 'facebook-login.php?intent=login' : '#' ?>"
                     <?= $facebook ? '' : 'data-disabled-provider="Facebook"' ?>
                 >
                     f &nbsp; <?= htmlspecialchars($labels['facebook'], ENT_QUOTES, 'UTF-8') ?>

@@ -133,6 +133,42 @@ function adminServiceFlash(string $type, string $message): never
     exit;
 }
 
+function adminServicePhoto(string $serviceName, string $categoryName = ''): string
+{
+    $text = strtolower($serviceName . ' ' . $categoryName);
+    $photos = [
+        'eyeliner-tattoo.jpg' => ['eyeliner tattoo','winged eyeliner'],
+        'tattoo-removal.jpg' => ['tattoo removal','laser brow removal'],
+        'diode-laser.jpg' => ['diode','carbon laser','blackdoll','melasma laser'],
+        'botox.jpg' => ['botox','jawtox','alartox','traptox','sweatox'],
+        'injectables.jpg' => ['filler','hiko nose','glutathione drip'],
+        'hifu.jpg' => ['hifu'],
+        'body-contouring.jpg' => ['emsculpt','mesolipo','rf face','rf arms','rf legs','rf tummy','rf thigh'],
+        'service-package.jpg' => ['package'],
+        'ear-candling.jpg' => ['ear candl','ear candle'],
+        'head-spa.jpg' => ['head spa'],
+        'hand-scrub.jpg' => ['hand scrub'],
+        'body-scrub.jpg' => ['body scrub','whitening full body'],
+        'kids-haircut.jpg' => ['kid','child','junior'],
+        'lip-blush.jpg' => ['lip','blush'],
+        'waxing.jpg' => ['wax','thread'],
+        'massage.jpg' => ['massage','spa','body'],
+        'eyebrows.jpg' => ['brow','eyebrow'],
+        'eyelashes.jpg' => ['lash','eyelash'],
+        'facial.jpg' => ['facial','skin','rejuven','glow'],
+        'hair-color.jpg' => ['color','dye','highlight','balayage'],
+        'haircut.jpg' => ['hair','cut','style','blow'],
+        'nail-art.jpg' => ['nail art','gel','polish','acrylic','extension'],
+        'pedicure.jpg' => ['pedicure','foot','feet'],
+        'manicure.jpg' => ['manicure','nail','hand'],
+    ];
+    foreach ($photos as $photo => $keywords) {
+        foreach ($keywords as $keyword) if (str_contains($text, $keyword)) return $photo;
+    }
+    $names = array_keys($photos);
+    return $names[abs(crc32($serviceName)) % count($names)];
+}
+
 /**
  * @return array<string, true>
  */
@@ -815,15 +851,10 @@ include '../includes/admin-header.php';
             <section class="admin-service-grid" id="adminServiceGrid">
                 <?php foreach ($services as $service): ?>
                     <?php
-                    $serviceImage = trim((string) ($service['image'] ?? ''));
-                    $serviceImageUrl =
-                        $serviceImage !== ''
-                            ? (
-                                str_starts_with($serviceImage, '/')
-                                    ? $serviceImage
-                                    : '../' . ltrim($serviceImage, '/')
-                            )
-                            : '../assets/images/services/temporary-placeholders/brow-reconstruction.webp';
+                    $servicePhoto = adminServicePhoto(
+                        (string) ($service['name'] ?? ''),
+                        (string) ($service['category_name'] ?? '')
+                    );
 
                     $servicePayload = htmlspecialchars(
                         json_encode([
@@ -864,11 +895,7 @@ include '../includes/admin-header.php';
                         ) ?>"
                     >
                         <div class="admin-service-image">
-                            <img
-                                src="<?= htmlspecialchars($serviceImageUrl, ENT_QUOTES, 'UTF-8') ?>"
-                                alt="<?= htmlspecialchars($service['name'], ENT_QUOTES, 'UTF-8') ?>"
-                                loading="lazy"
-                            >
+                            <img src="../assets/images/admin-service-library/<?= htmlspecialchars($servicePhoto, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($service['name'], ENT_QUOTES, 'UTF-8') ?>" loading="lazy">
 
                             <div class="admin-service-image-badges">
                                 <span class="admin-service-status <?= htmlspecialchars($service['status'], ENT_QUOTES, 'UTF-8') ?>">

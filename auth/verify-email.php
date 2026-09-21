@@ -1,8 +1,13 @@
 <?php
 declare(strict_types=1);
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once '../config/database.php';
 require_once '../includes/language.php';
+require_once '../includes/registration-security.php';
 
 $token = trim((string) ($_GET['token'] ?? ''));
 $message = 'Invalid or expired verification link.';
@@ -24,7 +29,9 @@ if ($token !== '') {
         $pdo->beginTransaction();
         try {
             $pdo->prepare(
-                'UPDATE customer_profiles SET email_verified_at = NOW() WHERE user_id = ?'
+                'UPDATE customer_profiles
+                 SET email_verified_at = NOW(), email_verification_token = NULL
+                 WHERE user_id = ?'
             )->execute([$userId]);
             $pdo->prepare(
                 'UPDATE email_verification_tokens
@@ -32,6 +39,19 @@ if ($token !== '') {
                  WHERE user_id = ? AND used_at IS NULL'
             )->execute([$userId]);
             $pdo->commit();
+            registrationSecurityRecord(
+                $pdo,
+                'verification_completed',
+                '',
+                $userId
+            );
+            unset(
+                $_SESSION['pending_verification_user_id'],
+                $_SESSION['pending_verification_email'],
+                $_SESSION['pending_verification_name'],
+                $_SESSION['development_verification_url'],
+                $_SESSION['verification_resend_csrf']
+            );
             $verified = true;
             $message = 'Your email address has been verified.';
         } catch (Throwable $exception) {

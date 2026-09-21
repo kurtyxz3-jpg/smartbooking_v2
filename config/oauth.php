@@ -171,6 +171,30 @@ function oauthCreateUniqueUsername(
     }
 }
 
+function oauthFindExistingCustomer(
+    PDO $pdo,
+    string $provider,
+    string $providerUserId,
+    string $email
+): ?array {
+    $statement = $pdo->prepare(
+        "SELECT DISTINCT u.id, u.fullname, u.username, u.email, u.role, u.status
+         FROM users u
+         LEFT JOIN social_accounts sa
+           ON sa.user_id = u.id AND sa.provider = :provider
+         WHERE u.role = 'customer'
+           AND (sa.provider_user_id = :provider_id OR u.email = :email)
+         LIMIT 1"
+    );
+    $statement->execute([
+        'provider' => strtolower(trim($provider)),
+        'provider_id' => trim($providerUserId),
+        'email' => strtolower(trim($email)),
+    ]);
+    $user = $statement->fetch(PDO::FETCH_ASSOC);
+    return $user ?: null;
+}
+
 function oauthCreateOrLoginCustomer(
     PDO $pdo,
     string $provider,

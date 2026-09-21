@@ -7,9 +7,11 @@ require_once '../includes/reporting-helper.php';
 
 $pageTitle = 'Reports';
 [$from, $to] = reportDateRange();
+$bookingStatus = strtolower(trim((string) ($_GET['booking_status'] ?? 'all')));
+if (!in_array($bookingStatus, ['all','pending','completed','cancelled'], true)) $bookingStatus = 'all';
 $branchId = requireAssignedBranch($pdo);
 $branchLabel = branchName($pdo, $branchId);
-$report = buildSmartBookingReport($pdo, $from, $to, $branchId);
+$report = buildSmartBookingReport($pdo, $from, $to, $branchId, $bookingStatus);
 if (isset($_GET['export'])) {
     reportCsv((string) $_GET['export'], $report, $from, $to);
 }

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 $isSuperAdmin = ($reportContext ?? 'admin') === 'superadmin';
-$baseQuery = http_build_query(['from'=>$from,'to'=>$to,'branch_id'=>$isSuperAdmin ? ($branchId ?? '') : null]);
+$baseQuery = http_build_query(['from'=>$from,'to'=>$to,'branch_id'=>$isSuperAdmin ? ($branchId ?? '') : null,'booking_status'=>$bookingStatus??'all']);
 $s = $report['summary'];
 $tables = [
  'bookings'=>['Booking','Date & Time','Customer','Service','Staff','Branch','Status','Revenue'],
@@ -21,6 +21,7 @@ $tables = [
  <form class="sb-report-filter no-print" method="get">
   <div><label for="from">From</label><input id="from" type="date" name="from" value="<?=htmlspecialchars($from)?>"></div>
   <div><label for="to">To</label><input id="to" type="date" name="to" value="<?=htmlspecialchars($to)?>"></div>
+  <?php if(!$isSuperAdmin):?><div><label for="booking_status">Booking status</label><select id="booking_status" name="booking_status"><option value="all">All statuses</option><option value="pending" <?=($bookingStatus??'all')==='pending'?'selected':''?>>Pending</option><option value="completed" <?=($bookingStatus??'all')==='completed'?'selected':''?>>Completed</option><option value="cancelled" <?=($bookingStatus??'all')==='cancelled'?'selected':''?>>Cancelled</option></select></div><?php endif;?>
   <?php if($isSuperAdmin):?><div class="wide"><label for="branch_id">Branch</label><select id="branch_id" name="branch_id"><option value="">All Branches</option><?php foreach($branches as $b):?><option value="<?=(int)$b['id']?>" <?=$branchId===(int)$b['id']?'selected':''?>><?=htmlspecialchars($b['branch_name'])?></option><?php endforeach;?></select></div>
   <?php else:?><div class="sb-filter-branch"><span>Branch</span><strong><?=htmlspecialchars($branchLabel)?></strong></div><?php endif;?>
   <button class="sb-report-btn primary" type="submit">Apply Filters</button><a class="sb-report-btn secondary" href="reports.php">Reset</a>

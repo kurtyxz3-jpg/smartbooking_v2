@@ -75,10 +75,16 @@ function reportBranchClause(?int $branchId, string $alias = 'b'): array
         : ['', []];
 }
 
-function buildSmartBookingReport(PDO $pdo, string $from, string $to, ?int $branchId): array
+function buildSmartBookingReport(PDO $pdo, string $from, string $to, ?int $branchId, string $bookingStatus = 'all'): array
 {
     [$branchSql, $branchParams] = reportBranchClause($branchId);
     $params = ['from' => $from, 'to' => $to] + $branchParams;
+    $baseParams = $params;
+    $statusSql = '';
+    if (in_array($bookingStatus, ['pending','completed','cancelled'], true)) {
+        $statusSql = ' AND b.status=:booking_status';
+        $params['booking_status'] = $bookingStatus;
+    }
     $pay = reportTableExists($pdo, 'payments')
         ? "(SELECT booking_id,
              SUM(CASE WHEN status='verified' THEN amount ELSE 0 END) verified_amount,
@@ -92,18 +98,18 @@ function buildSmartBookingReport(PDO $pdo, string $from, string $to, ?int $branc
           COALESCE(SUM(pay.verified_amount),0) revenue,
           COALESCE(SUM(pay.pending_amount),0) pending_payments
          FROM bookings b LEFT JOIN {$pay} ON pay.booking_id=b.id
-         WHERE b.booking_date BETWEEN :from AND :to{$branchSql}", $params);
+         WHERE b.booking_date BETWEEN :from AND :to{$branchSql}{$statusSql}", $params);
 
     $daily = reportFetchAll($pdo,
         "SELECT b.booking_date label,COUNT(*) bookings,SUM(b.status='completed') completed,
           COALESCE(SUM(pay.verified_amount),0) revenue
          FROM bookings b LEFT JOIN {$pay} ON pay.booking_id=b.id
-         WHERE b.booking_date BETWEEN :from AND :to{$branchSql}
+         WHERE b.booking_date BETWEEN :from AND :to{$branchSql}{$statusSql}
          GROUP BY b.booking_date ORDER BY b.booking_date", $params);
 
     $statuses = reportFetchAll($pdo,
         "SELECT b.status label,COUNT(*) value FROM bookings b
-         WHERE b.booking_date BETWEEN :from AND :to{$branchSql}
+         WHERE b.booking_date BETWEEN :from AND :to{$branchSql}{$statusSql}
          GROUP BY b.status ORDER BY value DESC", $params);
 
     $services = reportFetchAll($pdo,
@@ -111,12 +117,14 @@ function buildSmartBookingReport(PDO $pdo, string $from, string $to, ?int $branc
           SUM(b.status='completed') completed,COALESCE(SUM(pay.verified_amount),0) revenue
          FROM bookings b LEFT JOIN services s ON s.id=b.service_id
          LEFT JOIN {$pay} ON pay.booking_id=b.id
-         WHERE b.booking_date BETWEEN :from AND :to{$branchSql}
+         WHERE b.booking_date BETWEEN :from AND :to{$branchSql}{$statusSql}
          GROUP BY b.service_id,s.name ORDER BY bookings DESC,label LIMIT 20", $params);
 
     $staffBranch = $branchId && reportColumnExists($pdo, 'users', 'branch_id')
         ? " AND u.branch_id=:staff_branch_id" : '';
     $staffParams = ['from' => $from, 'to' => $to];
+    $staffStatusSql = '';
+    if (in_array($bookingStatus, ['pending','completed','cancelled'], true)) {$staffStatusSql=' AND b.status=:staff_booking_status';$staffParams['staff_booking_status']=$bookingStatus;}
     if ($branchId) {
         $staffParams['booking_branch_id'] = $branchId;
         if ($staffBranch) $staffParams['staff_branch_id'] = $branchId;
@@ -125,7 +133,7 @@ function buildSmartBookingReport(PDO $pdo, string $from, string $to, ?int $branc
         "SELECT u.id,u.fullname label,COUNT(b.id) assigned,SUM(b.status='completed') completed,
           COALESCE(SUM(pay.verified_amount),0) revenue
          FROM users u LEFT JOIN bookings b ON b.staff_id=u.id
-           AND b.booking_date BETWEEN :from AND :to" . ($branchId ? " AND b.branch_id=:booking_branch_id" : '') . "
+           AND b.booking_date BETWEEN :from AND :to" . ($branchId ? " AND b.branch_id=:booking_branch_id" : '') . $staffStatusSql . "
          LEFT JOIN {$pay} ON pay.booking_id=b.id
          WHERE u.role='staff'{$staffBranch}
          GROUP BY u.id,u.fullname ORDER BY completed DESC,revenue DESC LIMIT 20", $staffParams);
@@ -138,7 +146,7 @@ function buildSmartBookingReport(PDO $pdo, string $from, string $to, ?int $branc
          FROM bookings b LEFT JOIN users c ON c.id=b.customer_id
          LEFT JOIN users st ON st.id=b.staff_id LEFT JOIN services s ON s.id=b.service_id
          LEFT JOIN branches br ON br.id=b.branch_id LEFT JOIN {$pay} ON pay.booking_id=b.id
-         WHERE b.booking_date BETWEEN :from AND :to{$branchSql}
+         WHERE b.booking_date BETWEEN :from AND :to{$branchSql}{$statusSql}
          ORDER BY b.booking_date DESC,b.booking_time DESC LIMIT 250", $params);
 
     $payments = reportTableExists($pdo, 'payments') ? reportFetchAll($pdo,
@@ -147,7 +155,7 @@ function buildSmartBookingReport(PDO $pdo, string $from, string $to, ?int $branc
          FROM payments p LEFT JOIN bookings b ON b.id=p.booking_id
          LEFT JOIN users c ON c.id=b.customer_id LEFT JOIN branches br ON br.id=b.branch_id
          WHERE DATE(p.created_at) BETWEEN :from AND :to{$branchSql}
-         ORDER BY p.created_at DESC LIMIT 250", $params) : [];
+         ORDER BY p.created_at DESC LIMIT 250", $baseParams) : [];
 
     $feedback = reportTableExists($pdo, 'feedback') ? reportFetchAll($pdo,
         "SELECT f.id,f.rating,f.comment,f.status,f.created_at,
@@ -157,7 +165,7 @@ function buildSmartBookingReport(PDO $pdo, string $from, string $to, ?int $branc
          LEFT JOIN users c ON c.id=f.customer_id LEFT JOIN services s ON s.id=b.service_id
          LEFT JOIN branches br ON br.id=b.branch_id
          WHERE DATE(f.created_at) BETWEEN :from AND :to{$branchSql}
-         ORDER BY f.created_at DESC LIMIT 250", $params) : [];
+         ORDER BY f.created_at DESC LIMIT 250", $baseParams) : [];
 
     $inventoryWhere = $branchId && reportColumnExists($pdo, 'inventory', 'branch_id')
         ? ' WHERE i.branch_id=:branch_id' : '';

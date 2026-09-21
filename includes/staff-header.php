@@ -21,6 +21,7 @@ startInterfaceTranslation();
     <link rel="stylesheet" href="../assets/css/management-themes.css?v=084">
     <link rel="stylesheet" href="../assets/css/global-theme-system.css?v=083">
     <link rel="stylesheet" href="../assets/css/staff-button-contract.css?v=098">
+    <link rel="stylesheet" href="../assets/css/staff-theme-fixes.css?v=1">
     <link rel="icon" type="image/png"
           href="../assets/images/branding/nbw-favicon.png">
     <script defer src="../assets/js/accessibility-preferences.js"></script>

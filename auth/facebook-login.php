@@ -15,7 +15,12 @@ if (!oauthProviderEnabled('facebook')) {
 }
 
 $state = bin2hex(random_bytes(32));
+$intent = (string) ($_GET['intent'] ?? 'login');
+if (!in_array($intent, ['login', 'register'], true)) {
+    $intent = 'login';
+}
 $_SESSION['facebook_oauth_state'] = $state;
+$_SESSION['facebook_oauth_intent'] = $intent;
 
 $version =
     (string) (oauthConfig('facebook', 'graph_version') ?: 'v25.0');
@@ -25,6 +30,8 @@ $params = [
     'redirect_uri' => oauthConfig('facebook', 'redirect_uri'),
     'state' => $state,
     'scope' => 'email,public_profile',
+    'auth_type' => 'rerequest',
+    'return_scopes' => 'true',
     'response_type' => 'code',
 ];
 
