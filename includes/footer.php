@@ -9,7 +9,7 @@
 <div><strong>Account</strong><a href="/smartbooking_v2/auth/register.php">Create account</a><a href="/smartbooking_v2/auth/login.php">Sign in</a><a href="/smartbooking_v2/customer/book.php">Book now</a></div>
 <div><strong>Important</strong><span>Prices may change without prior notice.</span><span>Advanced treatments require consultation.</span><span>Displayed durations are estimates.</span></div>
 </div>
-<div class="nbw-footer-bottom"><p>&copy; <?= date('Y') ?> Nails &amp; Body Worx.</p><a href="#siteHeader">Back to top ↑</a></div>
+<div class="nbw-footer-bottom"><p>&copy; <?= date('Y') ?> Nails &amp; Body Worx.</p><a href="#pageTop">Back to top ↑</a></div>
 </footer>
 <div class="nbw-lightbox" id="lightbox" aria-hidden="true"><button id="lightboxClose">×</button><img id="lightboxImage" alt=""></div>
 <?php include __DIR__ . '/display-preferences-widget.php'; ?>

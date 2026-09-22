@@ -21,6 +21,7 @@ startInterfaceTranslation();
     <link rel="stylesheet" href="/smartbooking_v2/assets/css/global-theme-system.css?v=083">
 </head>
 <body class="nbw-public">
+<div id="pageTop" aria-hidden="true"></div>
 <header class="nbw-header" id="siteHeader">
 <a class="nbw-logo" href="/smartbooking_v2/index.php"><img
     class="nbw-official-logo nbw-logo-image"

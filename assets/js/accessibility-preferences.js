@@ -27,6 +27,71 @@
     : 'default';
   let saving = false;
   let languageReloadTimer = null;
+  const positionKey = 'nbw_preferences_position';
+  let suppressTriggerClick = false;
+
+  function placeWidget(left, top) {
+    const margin = 8;
+    const x = Math.max(margin, Math.min(left, window.innerWidth - widget.offsetWidth - margin));
+    const y = Math.max(margin, Math.min(top, window.innerHeight - widget.offsetHeight - margin));
+    widget.style.left = `${x}px`;
+    widget.style.top = `${y}px`;
+    widget.style.right = 'auto';
+    widget.style.bottom = 'auto';
+    widget.classList.toggle('panel-below', y < Math.min(420, window.innerHeight / 2));
+    widget.classList.toggle('panel-align-left', x + widget.offsetWidth < Math.min(370, window.innerWidth - 28) + 24);
+    return { x, y };
+  }
+
+  try {
+    const savedPosition = JSON.parse(localStorage.getItem(positionKey) || 'null');
+    if (Number.isFinite(savedPosition?.x) && Number.isFinite(savedPosition?.y)) {
+      placeWidget(savedPosition.x, savedPosition.y);
+    }
+  } catch (_) {
+    // The default corner remains available if browser storage is unavailable.
+  }
+
+  let drag = null;
+  trigger.addEventListener('pointerdown', (event) => {
+    if (event.button !== 0) return;
+    const rect = widget.getBoundingClientRect();
+    drag = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY,
+      left: rect.left, top: rect.top, moved: false };
+    trigger.setPointerCapture(event.pointerId);
+  });
+
+  trigger.addEventListener('pointermove', (event) => {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+    if (!drag.moved && Math.hypot(dx, dy) < 6) return;
+    drag.moved = true;
+    trigger.classList.add('is-dragging');
+    closePanel();
+    placeWidget(drag.left + dx, drag.top + dy);
+  });
+
+  function finishDrag(event) {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    if (drag.moved) {
+      suppressTriggerClick = true;
+      const rect = widget.getBoundingClientRect();
+      try { localStorage.setItem(positionKey, JSON.stringify({ x: rect.left, y: rect.top })); } catch (_) {}
+      window.setTimeout(() => { suppressTriggerClick = false; }, 0);
+    }
+    trigger.classList.remove('is-dragging');
+    drag = null;
+  }
+
+  trigger.addEventListener('pointerup', finishDrag);
+  trigger.addEventListener('pointercancel', finishDrag);
+  window.addEventListener('resize', () => {
+    if (widget.style.left) {
+      const rect = widget.getBoundingClientRect();
+      placeWidget(rect.left, rect.top);
+    }
+  });
 
   const labels = {
     english: {
@@ -206,6 +271,7 @@
   }
 
   trigger.addEventListener('click', () => {
+    if (suppressTriggerClick) return;
     panel.classList.contains('open') ? closePanel() : openPanel();
   });
 

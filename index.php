@@ -11,6 +11,13 @@ require_once __DIR__ . '/includes/service-catalog.php';
 require_once __DIR__ . '/config/database.php';
 
 $catalog = serviceCatalog();
+$galleryImages = [
+    'nails' => array_map(static fn(int $i): string => sprintf('/smartbooking_v2/assets/images/home-gallery/nails/nails-%02d.jpg', $i), range(1, 19)),
+    'salon' => array_map(static fn(int $i): string => sprintf('/smartbooking_v2/assets/images/home-gallery/salon/salon-%02d.jpg', $i), range(1, 24)),
+    'lips' => array_map(static fn(int $i): string => sprintf('/smartbooking_v2/assets/images/home-gallery/lips/lips-%02d.jpg', $i), range(1, 17)),
+    'campaigns' => array_map(static fn(int $i): string => sprintf('/smartbooking_v2/assets/images/home-gallery/campaigns/campaigns-%02d.jpg', $i), range(1, 31)),
+];
+
 $categories = catalogCategories();
 $featured = array_slice(
 array_values(
@@ -210,7 +217,7 @@ Switch between nails, the salon, lip pigmentation, and service campaigns.
 </div>
 
 <div class="masonry" id="galleryGrid">
-<?php foreach (array_slice($catalog['galleries']['nails'], 0, 14) as $image): ?>
+<?php foreach (array_slice($galleryImages['nails'], 0, 14) as $image): ?>
 <button class="gallery-item">
 <img
 loading="lazy"
@@ -226,7 +233,7 @@ alt="Salon gallery"
 <section class="packages packages-enhanced" id="packages">
 <div class="package-main">
 <img
-src="/smartbooking_v2/assets/images/services/campaigns/campaigns-29.webp"
+src="/smartbooking_v2/assets/images/home-gallery/campaigns/campaigns-29.jpg"
 alt="Gel polish and foot spa package"
 >
 
@@ -243,7 +250,7 @@ Browse nail care →
 <div class="package-list package-list-with-images">
 <article
 class="package-photo-card"
-style="--package-image:url('/smartbooking_v2/assets/images/home-packages/package-foot-spa.webp')"
+style="--package-image:url('/smartbooking_v2/assets/images/home-gallery/salon/salon-05.jpg')"
 >
 <div class="package-photo-overlay"></div>
 <div class="package-photo-content">
@@ -256,7 +263,7 @@ style="--package-image:url('/smartbooking_v2/assets/images/home-packages/package
 
 <article
 class="package-photo-card"
-style="--package-image:url('/smartbooking_v2/assets/images/home-packages/package-massage.webp')"
+style="--package-image:url('/smartbooking_v2/assets/images/home-gallery/campaigns/campaigns-30.jpg')"
 >
 <div class="package-photo-overlay"></div>
 <div class="package-photo-content">
@@ -271,7 +278,7 @@ Book package ↗
 
 <article
 class="package-photo-card"
-style="--package-image:url('/smartbooking_v2/assets/images/home-packages/package-softgel.webp')"
+style="--package-image:url('/smartbooking_v2/assets/images/home-gallery/nails/nails-10.jpg')"
 >
 <div class="package-photo-overlay"></div>
 <div class="package-photo-content">
@@ -311,7 +318,7 @@ alt="Original Nails and Body Worx pricelist"
 </section>
 
 <section class="visit" id="visit">
-<img src="<?= $catalog['galleries']['salon'][20] ?>" alt="Salon interior">
+<img src="/smartbooking_v2/assets/images/home-gallery/salon/salon-21.jpg" alt="Salon interior">
 
 <div>
 <p class="eyebrow">Visit the lounge</p>
@@ -427,7 +434,7 @@ Do not show again today
 
 <script>
 window.NBW_GALLERIES =
-<?= json_encode($catalog['galleries'], JSON_UNESCAPED_SLASHES) ?>;
+<?= json_encode($galleryImages, JSON_UNESCAPED_SLASHES) ?>;
 </script>
 
 <script src="/smartbooking_v2/assets/js/homepage-enhancements.js"></script>
