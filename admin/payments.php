@@ -5,18 +5,25 @@ require_once '../config/database.php';
 require_once '../includes/admin-helper.php';
 require_once '../includes/premium-admin-helper.php';
 require_once '../includes/branch-context.php';
+require_once '../includes/booking-reliability.php';
 $pageTitle='Payments';$flash=premiumAdminGetFlash();$branchId=requireAssignedBranch($pdo);
 if($_SERVER['REQUEST_METHOD']==='POST'){
  if(!premiumAdminVerifyCsrf($_POST['csrf_token']??null))premiumAdminFlash('error','Session token expired.','payments.php');
  $id=filter_input(INPUT_POST,'id',FILTER_VALIDATE_INT);$status=(string)($_POST['status']??'pending');$reviewNote=trim((string)($_POST['review_note']??''));
  if(!$id||!in_array($status,['pending','verified','rejected'],true))premiumAdminFlash('error','Invalid payment update.','payments.php');
  if($status==='rejected'&&$reviewNote==='')premiumAdminFlash('error','Add a reason when rejecting a payment.','payments.php');
- try{$pdo->beginTransaction();$lookup=$pdo->prepare("SELECT p.booking_id FROM payments p JOIN bookings b ON b.id=p.booking_id WHERE p.id=? AND b.branch_id=? FOR UPDATE");$lookup->execute([$id,$branchId]);$bookingId=(int)$lookup->fetchColumn();if($bookingId<=0)throw new RuntimeException('Payment not found.');
+ try{bookingWriteBegin($pdo);$lookup=$pdo->prepare("SELECT p.booking_id FROM payments p JOIN bookings b ON b.id=p.booking_id WHERE p.id=? AND b.branch_id=? FOR UPDATE");$lookup->execute([$id,$branchId]);$bookingId=(int)$lookup->fetchColumn();if($bookingId<=0)throw new RuntimeException('Payment not found.');
+ $bq=$pdo->prepare('SELECT * FROM bookings WHERE id=?');$bq->execute([$bookingId]);$currentBooking=$bq->fetch();
+ if(in_array($status,['verified','rejected'],true) && !in_array($currentBooking['status'],['pending','confirmed'],true)) throw new DomainException('This appointment is no longer awaiting payment review.');
+ if(in_array($status,['verified','rejected'],true)) {
+  $assigned=bookingChooseStaff($pdo,(int)$currentBooking['staff_id'],$branchId,$currentBooking['booking_date'],$currentBooking['booking_time'],bookingSavedDuration($pdo,$currentBooking),$bookingId);
+  $pdo->prepare('UPDATE bookings SET staff_id=? WHERE id=?')->execute([$assigned,$bookingId]);
+ }
  $pdo->prepare("UPDATE payments SET status=?,review_note=?,verified_at=IF(?='verified',CURRENT_TIMESTAMP,NULL),verified_by=IF(?='verified',?,NULL),updated_at=CURRENT_TIMESTAMP WHERE id=?")->execute([$status,$reviewNote?:null,$status,$status,(int)$_SESSION['user_id'],$id]);
  if($status==='verified')$pdo->prepare("UPDATE bookings SET status='confirmed',updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='pending'")->execute([$bookingId]);
  elseif($status==='rejected')$pdo->prepare("UPDATE bookings SET status='pending',payment_due_at=DATE_ADD(NOW(),INTERVAL 30 MINUTE),updated_at=CURRENT_TIMESTAMP WHERE id=? AND status<>'cancelled'")->execute([$bookingId]);
  $pdo->commit();premiumAdminFlash('success',$status==='verified'?'Payment verified and booking confirmed.':'Payment status updated.','payments.php');
- }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();premiumAdminFlash('error','The payment update could not be saved.','payments.php');}
+ }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();premiumAdminFlash('error',$e instanceof DomainException?$e->getMessage():'The payment update could not be saved.','payments.php');}
 }
 $search=trim((string)($_GET['search']??''));$status=trim((string)($_GET['status']??'all'));$where=['b.branch_id=:branch_scope'];$params=['branch_scope'=>$branchId];
 if($search!==''){$where[]="(p.reference_number LIKE :reference_search OR c.fullname LIKE :customer_search OR s.name LIKE :service_search)";$v='%'.$search.'%';$params['reference_search']=$v;$params['customer_search']=$v;$params['service_search']=$v;}

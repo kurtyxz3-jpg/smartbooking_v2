@@ -151,6 +151,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             session_regenerate_id(true);
             $_SESSION['user_id'] = $userId;
+    require_once __DIR__ . '/../includes/session-security.php';
+    sessionSecurityCapture($pdo);
             $_SESSION['fullname'] = $fullname;
             $_SESSION['username'] = $username;
             $_SESSION['email'] = $email;

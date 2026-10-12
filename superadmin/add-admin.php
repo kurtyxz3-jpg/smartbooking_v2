@@ -1,4 +1,4 @@
- <?php
+<?php
 declare(strict_types=1);
 
 require_once '../includes/superadmin-auth.php';
@@ -122,18 +122,6 @@ include '../includes/superadmin-header.php';
                     <div class="form-group">
                         <label for="confirm_password">Confirm Password</label>
                         <input id="confirm_password" name="confirm_password" type="password" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="branch_id">Assigned Branch</label>
-                        <select id="branch_id" name="branch_id" required>
-                            <option value="">Select branch</option>
-                            <?php foreach ($branches as $branch): ?>
-                                <option value="<?= (int)$branch['id'] ?>" <?= $branchId === (int)$branch['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($branch['branch_name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
                     </div>
 
                     <div class="form-group">

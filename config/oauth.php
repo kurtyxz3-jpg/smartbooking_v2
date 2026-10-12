@@ -399,6 +399,8 @@ function oauthCreateOrLoginCustomer(
     session_regenerate_id(true);
 
     $_SESSION['user_id'] = (int) $user['id'];
+    require_once __DIR__ . '/../includes/session-security.php';
+    sessionSecurityCapture($pdo);
     $_SESSION['fullname'] = $user['fullname'];
     $_SESSION['username'] = $user['username'];
     $_SESSION['email'] = $user['email'];

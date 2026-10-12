@@ -5,12 +5,16 @@ require_once '../../includes/admin-auth.php';
 require_once '../../config/database.php';
 require_once '../../includes/premium-admin-helper.php';
 require_once '../../includes/branch-context.php';
-require_once '../../includes/staff-schedule-helper.php';
+require_once '../../includes/booking-reliability.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 function scheduleApiResponse(array $payload, int $status = 200): never
 {
+    global $pdo;
+    if(isset($pdo) && $pdo->inTransaction()) {
+        if(!empty($payload['success'])) $pdo->commit(); else $pdo->rollBack();
+    }
     http_response_code($status);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
@@ -37,6 +41,7 @@ if (!$staffCheck->fetchColumn()) {
 
 $action = (string) ($input['action'] ?? '');
 try {
+    bookingWriteBegin($pdo);
     if ($action === 'save_weekly') {
         $days = $input['days'] ?? [];
         if (!is_array($days)) {
@@ -46,13 +51,13 @@ try {
         foreach (staffScheduleDayNames() as $day => $dayName) {
             $row = is_array($days[$day] ?? null) ? $days[$day] : [];
             $working = !empty($row['is_working']) ? 1 : 0;
-            $start = preg_match('/^\d{2}:\d{2}$/', (string)($row['start_time'] ?? ''))
+            $start = preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/', (string)($row['start_time'] ?? ''))
                 ? $row['start_time'] : null;
-            $end = preg_match('/^\d{2}:\d{2}$/', (string)($row['end_time'] ?? ''))
+            $end = preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/', (string)($row['end_time'] ?? ''))
                 ? $row['end_time'] : null;
-            $breakStart = preg_match('/^\d{2}:\d{2}$/', (string)($row['break_start'] ?? ''))
+            $breakStart = preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/', (string)($row['break_start'] ?? ''))
                 ? $row['break_start'] : null;
-            $breakEnd = preg_match('/^\d{2}:\d{2}$/', (string)($row['break_end'] ?? ''))
+            $breakEnd = preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/', (string)($row['break_end'] ?? ''))
                 ? $row['break_end'] : null;
             if ($working && (!$start || !$end || $start >= $end)) {
                 throw new RuntimeException("{$dayName} needs valid start and end times.");
@@ -68,7 +73,7 @@ try {
         $futureBookings = $pdo->prepare(
             "SELECT b.booking_date,
                     TIME_FORMAT(b.booking_time, '%H:%i') AS booking_time,
-                    COALESCE(s.duration, 60) AS duration_minutes
+                    COALESCE(NULLIF(b.estimated_duration,0), s.duration, 60) AS duration_minutes
              FROM bookings b
              LEFT JOIN services s ON s.id = b.service_id
              WHERE b.staff_id = ? AND b.branch_id = ?
@@ -103,7 +108,7 @@ try {
             }
         }
 
-        $pdo->beginTransaction();
+
         $statement = $pdo->prepare(
             "INSERT INTO staff_weekly_availability
                 (staff_id, branch_id, day_of_week, is_working,
@@ -134,7 +139,8 @@ try {
         $end = (string) ($input['end_time'] ?? '');
         $reason = trim((string) ($input['reason'] ?? ''));
         $validTypes = ['day_off', 'unavailable', 'custom_hours'];
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || $date < date('Y-m-d')) {
+        $parsedDate = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+        if (!$parsedDate || $parsedDate->format('Y-m-d') !== $date || $date < date('Y-m-d')) {
             scheduleApiResponse(['success' => false, 'message' => 'Choose a valid current or future date.'], 422);
         }
         if (!in_array($type, $validTypes, true)) {
@@ -144,40 +150,24 @@ try {
             $start = null;
             $end = null;
         } elseif (
-            !preg_match('/^\d{2}:\d{2}$/', $start)
-            || !preg_match('/^\d{2}:\d{2}$/', $end)
+            !preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/', $start)
+            || !preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/', $end)
             || $start >= $end
         ) {
             scheduleApiResponse(['success' => false, 'message' => 'Enter a valid start and end time.'], 422);
         }
 
-        if ($type !== 'day_off') {
-            $bookingCheck = $pdo->prepare(
-                "SELECT COUNT(*) FROM bookings
-                 WHERE staff_id = ? AND branch_id = ? AND booking_date = ?
-                   AND status IN ('pending','confirmed','in_progress')
-                   AND booking_time >= ? AND booking_time < ?"
-            );
-            $bookingCheck->execute([$staffId, $branchId, $date, $start, $end]);
-            if ((int) $bookingCheck->fetchColumn() > 0) {
-                scheduleApiResponse([
-                    'success' => false,
-                    'message' => 'This exception conflicts with an existing booking. Reschedule the booking first.',
-                ], 409);
-            }
-        } else {
-            $bookingCheck = $pdo->prepare(
-                "SELECT COUNT(*) FROM bookings
-                 WHERE staff_id = ? AND branch_id = ? AND booking_date = ?
-                   AND status IN ('pending','confirmed','in_progress')"
-            );
-            $bookingCheck->execute([$staffId, $branchId, $date]);
-            if ((int) $bookingCheck->fetchColumn() > 0) {
-                scheduleApiResponse([
-                    'success' => false,
-                    'message' => 'This day has existing bookings. Reschedule them before marking the full day off.',
-                ], 409);
-            }
+        $check=$pdo->prepare("SELECT b.id,b.booking_time,COALESCE(NULLIF(b.estimated_duration,0),s.duration,60) AS duration FROM bookings b LEFT JOIN services s ON s.id=b.service_id WHERE b.staff_id=? AND b.branch_id=? AND b.booking_date=? AND b.status IN ('pending','confirmed','in_progress')");
+        $check->execute([$staffId,$branchId,$date]);
+        foreach($check->fetchAll() as $b) {
+            $bs=staffScheduleMinutes($b['booking_time']);$be=$bs+max(15,(int)$b['duration']);
+            $conflict=$type==='day_off' || ($type==='unavailable' && staffScheduleOverlaps($bs,$be,staffScheduleMinutes($start),staffScheduleMinutes($end)))
+                || ($type==='custom_hours' && ($bs<staffScheduleMinutes($start)||$be>staffScheduleMinutes($end)));
+            if($conflict) throw new DomainException('This exception conflicts with an existing appointment. Reschedule it first.');
+        }
+        if($type==='custom_hours') {
+            $q=$pdo->prepare("SELECT COUNT(*) FROM staff_schedule_exceptions WHERE staff_id=? AND branch_id=? AND exception_date=? AND exception_type='custom_hours'");$q->execute([$staffId,$branchId,$date]);
+            if($q->fetchColumn()) throw new DomainException('Remove the existing custom-hours rule before adding another.');
         }
 
         $statement = $pdo->prepare(
@@ -200,6 +190,11 @@ try {
              WHERE id = ? AND staff_id = ? AND branch_id = ?"
         );
         $statement->execute([$exceptionId, $staffId, $branchId]);
+        $q=$pdo->prepare("SELECT * FROM bookings WHERE staff_id=? AND branch_id=? AND booking_date>=CURDATE() AND status IN ('pending','confirmed','in_progress')");$q->execute([$staffId,$branchId]);
+        foreach($q->fetchAll() as $b) {
+            $availability=staffScheduleAvailability($pdo,$staffId,$branchId,$b['booking_date'],$b['booking_time'],bookingSavedDuration($pdo,$b),(int)$b['id']);
+            if(!$availability['available']) throw new DomainException('Removing this exception would conflict with a booked appointment. Reschedule it first.');
+        }
         scheduleApiResponse(['success' => true, 'message' => 'Schedule exception removed.']);
     }
 
@@ -210,8 +205,8 @@ try {
     }
     scheduleApiResponse([
         'success' => false,
-        'message' => $exception instanceof RuntimeException
+        'message' => ($exception instanceof RuntimeException || $exception instanceof DomainException)
             ? $exception->getMessage()
             : 'The schedule could not be saved.',
-    ], 500);
+    ], $exception instanceof DomainException ? 409 : 500);
 }

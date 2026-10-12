@@ -126,6 +126,12 @@ function staffScheduleAvailability(
     int $durationMinutes = 60,
     int $excludeBookingId = 0
 ): array {
+    if (!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9](?::00)?$/', $time)) {
+        return ['available' => false, 'reason' => 'Invalid time.'];
+    }
+    $staffCheck = $pdo->prepare("SELECT COUNT(*) FROM users WHERE id=? AND role='staff' AND status='active' AND branch_id=?");
+    $staffCheck->execute([$staffId, $branchId]);
+    if (!$staffCheck->fetchColumn()) return ['available'=>false, 'reason'=>'Staff is not available at the salon.'];
     $dateObject = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
     if (!$dateObject || $dateObject->format('Y-m-d') !== $date) {
         return ['available' => false, 'reason' => 'Invalid date.'];
@@ -134,14 +140,13 @@ function staffScheduleAvailability(
     $weekly = staffScheduleWeekly($pdo, $staffId, $branchId);
     $day = (int) $dateObject->format('N');
     $rule = $weekly[$day] ?? null;
-    if (!$rule || !(int) $rule['is_working']) {
-        return ['available' => false, 'reason' => 'Staff is off on this day.'];
-    }
+    if (!$rule) return ['available'=>false,'reason'=>'No schedule configured.'];
+    $working = (bool)$rule['is_working'];
 
     $requestStart = staffScheduleMinutes($time);
     $requestEnd = $requestStart + max(15, $durationMinutes);
-    $workStart = staffScheduleMinutes((string) $rule['start_time']);
-    $workEnd = staffScheduleMinutes((string) $rule['end_time']);
+    $workStart = staffScheduleMinutes((string) ($rule['start_time'] ?? '00:00'));
+    $workEnd = staffScheduleMinutes((string) ($rule['end_time'] ?? '00:00'));
 
     $exceptions = staffScheduleExceptions(
         $pdo,
@@ -158,6 +163,7 @@ function staffScheduleAvailability(
             ];
         }
         if ($exception['exception_type'] === 'custom_hours') {
+            $working = true;
             $workStart = staffScheduleMinutes((string) $exception['start_time']);
             $workEnd = staffScheduleMinutes((string) $exception['end_time']);
         }
@@ -176,6 +182,8 @@ function staffScheduleAvailability(
             ];
         }
     }
+
+    if (!$working) return ['available'=>false,'reason'=>'Staff is off on this day.'];
 
     if ($requestStart < $workStart || $requestEnd > $workEnd) {
         return ['available' => false, 'reason' => 'Outside working hours.'];
@@ -197,10 +205,10 @@ function staffScheduleAvailability(
     $sql =
         "SELECT b.id,
                 TIME_FORMAT(b.booking_time, '%H:%i') AS booking_time,
-                COALESCE(s.duration, 60) AS duration_minutes
+                COALESCE(NULLIF(b.estimated_duration, 0), s.duration, 60) AS duration_minutes
          FROM bookings b
          LEFT JOIN services s ON s.id = b.service_id
-         WHERE b.staff_id = ?
+         WHERE (b.staff_id = ? OR b.staff_id IS NULL)
            AND b.branch_id = ?
            AND b.booking_date = ?
            AND b.status IN ('pending', 'confirmed', 'in_progress')";

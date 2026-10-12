@@ -6,15 +6,18 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once '../config/database.php';
+require_once '../includes/session-security.php';
+sessionSecurityCheck($pdo);
 require_once '../includes/service-catalog.php';
 require_once '../includes/branch-context.php';
-require_once '../includes/staff-schedule-helper.php';
+require_once '../includes/booking-reliability.php';
 require_once '../includes/ai-history-helper.php';
 require_once '../includes/registration-security.php';
 
 $pageTitle = 'Book Appointment';
 $errors = [];
 $success = false;
+$_SESSION['booking_csrf'] ??= bin2hex(random_bytes(32));
 
 function bookingTableHasColumn(PDO $pdo, string $table, string $column): bool
 {
@@ -146,6 +149,23 @@ function bookingFetchBlockedSlots(
 }
 
 $catalogServices = catalogServices();
+$liveCatalog = $pdo->query('SELECT name,price,duration,status FROM services')->fetchAll(PDO::FETCH_ASSOC);
+foreach($catalogServices as &$catalogService) {
+    foreach($liveCatalog as $live) {
+        if(strcasecmp(trim($live['name']),trim($catalogService['name']))===0) {
+            $catalogService['price']=(float)$live['price'];
+            $catalogService['duration']=max(15,(int)$live['duration']);
+            $catalogService['active']=$live['status']==='active';
+            break;
+        }
+    }
+}
+unset($catalogService);
+$catalogServices=array_values(array_filter($catalogServices,static fn($item)=>$item['active']??true));
+$lookupBookingService=static function(string $name) use ($catalogServices): ?array {
+    foreach($catalogServices as $item) if($item['name']===$name) return $item;
+    return null;
+};
 $selectedBranchId = salonBranchId($pdo);
 $bookingDraft = $_SESSION['booking_draft'] ?? [];
 unset($bookingDraft['branch_id']);
@@ -153,7 +173,7 @@ $staffMembers = $selectedBranchId > 0 ? bookingFetchStaff($pdo, $selectedBranchI
 
 $selectedServiceName = trim($_GET['service'] ?? $_POST['service_name'] ?? $bookingDraft['service_name'] ?? '');
 $selectedService = $selectedServiceName !== ''
-    ? catalogServiceByName($selectedServiceName)
+    ? $lookupBookingService($selectedServiceName)
     : null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['availability'])) {
@@ -203,6 +223,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['availability'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['booking_csrf'], (string)($_POST['csrf_token'] ?? ''))) {
+        $errors[] = 'Your session expired. Refresh this page and try again.';
+    }
     $serviceName = trim($_POST['service_name'] ?? '');
     $staffId = (int) ($_POST['staff_id'] ?? 0);
     $branchId = salonBranchId($pdo);
@@ -211,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $notes = trim($_POST['notes'] ?? '');
     $designReference = trim($_POST['design_reference'] ?? '');
 
-    $service = catalogServiceByName($serviceName);
+    $service = $lookupBookingService($serviceName);
 
     if ($staffId > 0) {
         $staffCheck = $pdo->prepare("SELECT COUNT(*) FROM users WHERE id=? AND role='staff' AND status='active' AND branch_id=?");
@@ -237,7 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if (!preg_match('/^\d{2}:\d{2}$/', $bookingTime)) {
+    if (!preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/', $bookingTime)) {
         $errors[] = 'Please select an available appointment time.';
     }
 
@@ -265,6 +288,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: ../auth/verification-pending.php');
         exit;
     }
+
+    try {
+    if (!$errors) bookingWriteBegin($pdo);
+    if (!$errors && strtotime($bookingDate . ' ' . $bookingTime) <= time()) $errors[] = 'Choose a future appointment time.';
 
     if (!$errors && $service) {
         $securityConfig = registrationSecurityConfig();
@@ -302,63 +329,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$errors && $service) {
-        $duration = max(15, (int) ($service['duration'] ?? 60));
-        if ($staffId > 0) {
-            $staffAvailability = staffScheduleAvailability(
-                $pdo,
-                $staffId,
-                $branchId,
-                $bookingDate,
-                $bookingTime,
-                $duration
-            );
-            if (!$staffAvailability['available']) {
-                $errors[] = 'The selected staff member is unavailable: '
-                    . $staffAvailability['reason'];
-            }
-        } else {
-            $availableStaff = staffScheduleAvailableStaff(
-                $pdo,
-                $branchId,
-                $bookingDate,
-                $bookingTime,
-                $duration
-            );
-            if (!$availableStaff) {
-                $errors[] = 'No staff member is available for this date and time.';
-            }
-        }
-    }
-
-    if (!$errors && $service) {
-        $conflictSql =
-            "SELECT COUNT(*)
-             FROM bookings
-             WHERE booking_date = ?
-               AND booking_time = ?
-               AND branch_id = ?
-               AND (
-                    status = 'confirmed'
-                    OR (
-                        status = 'pending'
-                        AND (payment_due_at IS NULL OR payment_due_at > NOW())
-                    )
-               )";
-
-        $conflictParams = [$bookingDate, $bookingTime, $branchId];
-
-        if ($staffId > 0) {
-            $conflictSql .= " AND staff_id = ?";
-            $conflictParams[] = $staffId;
-        }
-
-        $conflict = $pdo->prepare($conflictSql);
-        $conflict->execute($conflictParams);
-
-        if ((int) $conflict->fetchColumn() > 0) {
-            $errors[] =
-                'That appointment time has just been reserved. Please choose another time.';
-        }
+        $liveService = $pdo->prepare("SELECT price,duration FROM services WHERE id=? AND status='active'");
+        $liveService->execute([$serviceId]);$liveValues=$liveService->fetch();
+        if(!$liveValues) throw new DomainException('This service is no longer available.');
+        $service['price']=(float)$liveValues['price'];$service['duration']=max(15,(int)$liveValues['duration']);
+        $staffId = bookingChooseStaff($pdo, $staffId, $branchId, $bookingDate, $bookingTime, max(15, (int)$service['duration']));
     }
 
     if (!$errors && $service) {
@@ -442,10 +417,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newBookingId,
             (int) $_SESSION['user_id']
         );
+        $pdo->commit();
         $_SESSION['booking_success_id'] = $newBookingId;
 
         header('Location: pay-booking.php?id=' . $newBookingId);
         exit;
+    }
+    if ($pdo->inTransaction()) $pdo->rollBack();
+    } catch (Throwable $exception) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        $errors[] = $exception instanceof DomainException ? $exception->getMessage() : 'Your booking could not be saved. Please try again.';
     }
 }
 
@@ -529,6 +510,7 @@ include '../includes/header.php';
             </div>
 
             <form method="POST" id="bookingForm">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['booking_csrf'], ENT_QUOTES, 'UTF-8') ?>">
                 <input
                     type="hidden"
                     name="service_name"

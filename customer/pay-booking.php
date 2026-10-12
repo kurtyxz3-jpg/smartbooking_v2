@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once '../includes/booking-reliability.php';
 $pageTitle = 'GCash Down Payment';
 $customerPage = 'payments';
 
@@ -59,17 +60,11 @@ $isExpired = $booking['status'] === 'pending'
     && strtotime((string) $booking['payment_due_at']) <= time();
 
 if ($isExpired) {
-    $pdo->prepare(
-        "UPDATE bookings
-         SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
-         WHERE id = ? AND customer_id = ? AND status = 'pending'"
-    )->execute([$bookingId, $customerId]);
-
-    customerRedirectWithMessage(
-        'appointments.php',
-        'error',
-        'The 30-minute payment reservation expired. Please create a new booking.'
-    );
+    bookingWriteBegin($pdo);
+    $expire=$pdo->prepare("UPDATE bookings SET status='cancelled',updated_at=NOW() WHERE id=? AND customer_id=? AND status='pending' AND payment_due_at IS NOT NULL AND payment_due_at<NOW() AND NOT EXISTS(SELECT 1 FROM payments WHERE booking_id=bookings.id AND status IN ('pending','verified'))");
+    $expire->execute([$bookingId,$customerId]);$didExpire=$expire->rowCount()>0;$pdo->commit();
+    if ($didExpire) customerRedirectWithMessage('appointments.php','error','The payment reservation expired. Please create a new booking.');
+    header('Location: appointment-details.php?id='.$bookingId);exit;
 }
 
 $downPayment = round((float) $booking['service_price'] * 0.50, 2);
@@ -138,9 +133,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$errors) {
-        $pdo->beginTransaction();
-
         try {
+            bookingWriteBegin($pdo);
+            $fresh=$pdo->prepare("SELECT status,payment_due_at FROM bookings WHERE id=? AND customer_id=?");$fresh->execute([$bookingId,$customerId]);$currentBooking=$fresh->fetch();
+            if (!$currentBooking || $currentBooking['status']!=='pending' || ($currentBooking['payment_due_at'] && strtotime($currentBooking['payment_due_at'])<time())) throw new RuntimeException('This booking no longer accepts a payment submission.');
             $existing = $pdo->prepare(
                 "SELECT id, status FROM payments
                  WHERE booking_id = ? ORDER BY id DESC LIMIT 1 FOR UPDATE"

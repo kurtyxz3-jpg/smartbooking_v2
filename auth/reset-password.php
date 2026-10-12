@@ -8,6 +8,11 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once '../config/database.php';
 require_once '../includes/language.php';
 
+require_once '../includes/password-recovery.php';
+header('Cache-Control: no-store');
+header('Referrer-Policy: no-referrer');
+recoveryCsrf();
+recoveryClock($pdo);
 $token = trim((string) ($_GET['token'] ?? $_POST['token'] ?? ''));
 $error = '';
 $success = '';
@@ -27,14 +32,16 @@ if ($token !== '') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!$resetRecord) {
+    if (!recoveryVerifyCsrf()) {
+        $error = 'Your session expired. Refresh the page and try again.';
+    } elseif (!$resetRecord) {
         $error = 'This reset link is invalid or expired.';
     } else {
         $password = (string) ($_POST['password'] ?? '');
         $confirmation = (string) ($_POST['confirm_password'] ?? '');
 
         if (
-            strlen($password) < 8
+            strlen($password) < 8 || strlen($password) > 72
             || !preg_match('/[A-Z]/', $password)
             || !preg_match('/[a-z]/', $password)
             || !preg_match('/[0-9]/', $password)
@@ -43,23 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($password !== $confirmation) {
             $error = 'Passwords do not match.';
         } else {
-            $pdo->beginTransaction();
             try {
-                $pdo->prepare('UPDATE users SET password = ? WHERE id = ?')->execute([
-                    password_hash($password, PASSWORD_DEFAULT),
-                    (int) $resetRecord['user_id'],
-                ]);
-                $pdo->prepare(
-                    'UPDATE password_reset_tokens SET used_at = NOW() WHERE id = ?'
-                )->execute([(int) $resetRecord['id']]);
-                $pdo->commit();
-                $success = 'Password changed successfully. You may now sign in.';
-            } catch (Throwable $exception) {
-                if ($pdo->inTransaction()) {
-                    $pdo->rollBack();
-                }
-                $error = 'The password could not be updated.';
-            }
+                if (recoveryConsume($pdo, $token, $password)) {
+                    session_regenerate_id(true);
+                    $_SESSION = [];
+                    $success = 'Password changed successfully. You may now sign in.';
+                } else { $error = 'This reset link is invalid or expired.'; }
+            } catch (Throwable $exception) { $error = 'The password could not be updated. Please try again.'; }
+
         }
     }
 }
@@ -109,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p class="auth-switch"><a href="forgot-password.php">Request another link</a></p>
             <?php else: ?>
                 <form method="post">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars(recoveryCsrf(), ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
                     <div class="auth-field">
                         <label for="password">New Password</label>

@@ -8,6 +8,13 @@ require_once '../includes/audit-helper.php';
 $pageTitle = 'Notification Settings';
 $message = '';
 $error = '';
+$_SESSION['notification_settings_csrf'] ??= bin2hex(random_bytes(32));
+$deliverySummary = [];
+$deliveryProblems = [];
+try {
+ $deliverySummary = $pdo->query('SELECT state,COUNT(*) AS total FROM notification_deliveries GROUP BY state')->fetchAll();
+ $deliveryProblems = $pdo->query("SELECT id,channel,state,last_error FROM notification_deliveries WHERE state IN ('failed','uncertain','retry') ORDER BY id DESC LIMIT 10")->fetchAll();
+} catch(Throwable $e) {}
 
 $defaults = [
     'sms_enabled' => 1,
@@ -24,7 +31,9 @@ $defaults = [
 $statement = $pdo->query("SELECT * FROM notification_settings WHERE id = 1 LIMIT 1");
 $settings = $statement->fetch() ?: $defaults;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !hash_equals($_SESSION['notification_settings_csrf'], (string)($_POST['csrf_token'] ?? ''))) {
+    $error = 'Your session expired. Refresh and try again.';
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $smsEnabled = isset($_POST['sms_enabled']) ? 1 : 0;
     $emailEnabled = isset($_POST['email_enabled']) ? 1 : 0;
     $pushEnabled = isset($_POST['push_enabled']) ? 1 : 0;
@@ -130,6 +139,12 @@ include '../includes/superadmin-header.php';
 
         <section class="card settings-card">
             <form method="POST">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['notification_settings_csrf'], ENT_QUOTES, 'UTF-8') ?>">
+<div class="settings-section"><h2>Appointment message delivery</h2>
+<p>Email and SMS are processed by the scheduled notification worker. SMS also needs an enabled provider. Push notifications are not connected.</p>
+<p><?php foreach($deliverySummary as $item): ?><?= htmlspecialchars(($item['state']==='sent'?'Accepted by provider':ucfirst($item['state'])), ENT_QUOTES, 'UTF-8') ?>: <?= (int)$item['total'] ?> &nbsp; <?php endforeach; ?></p>
+<?php foreach($deliveryProblems as $item): ?><p>#<?= (int)$item['id'] ?> <?= htmlspecialchars($item['channel'].' — '.$item['state'].': '.$item['last_error'], ENT_QUOTES, 'UTF-8') ?></p><?php endforeach; ?>
+</div>
                 <div class="settings-section">
                     <h3>Notification Channels</h3>
 

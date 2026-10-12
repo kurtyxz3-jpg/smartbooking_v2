@@ -6,6 +6,7 @@ require_once '../../config/database.php';
 require_once '../../includes/premium-admin-helper.php';
 require_once '../../includes/branch-context.php';
 require_once '../../includes/booking-management-helper.php';
+require_once '../../includes/booking-reliability.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     bookingManagementJson(['success' => false, 'message' => 'Method not allowed.'], 405);
@@ -36,6 +37,8 @@ if (!$bookingId) {
     bookingManagementJson(['success' => false, 'message' => 'Invalid booking.'], 422);
 }
 
+try {
+bookingWriteBegin($pdo);
 $booking = bookingManagementFetch($pdo, $bookingId, $branchId);
 if (!$booking) {
     bookingManagementJson(['success' => false, 'message' => 'Booking not found.'], 404);
@@ -65,38 +68,9 @@ if (
     );
 }
 
-if ($staffId) {
-    $staff = $pdo->prepare(
-        "SELECT COUNT(*) FROM users
-         WHERE id = ? AND role = 'staff' AND status = 'active' AND branch_id = ?"
-    );
-    $staff->execute([$staffId, $branchId]);
-    if (!(bool) $staff->fetchColumn()) {
-        bookingManagementJson(
-            ['success' => false, 'message' => 'Choose an active staff member from the salon.'],
-            422
-        );
-    }
-
-    if (
-        bookingManagementHasConflict(
-            $pdo,
-            $bookingId,
-            $branchId,
-            $staffId,
-            (string) $booking['booking_date'],
-            (string) $booking['booking_time']
-        )
-    ) {
-        bookingManagementJson(
-            ['success' => false, 'message' => 'That staff member is already booked at this time.'],
-            409
-        );
-    }
+if (in_array($newStatus, ['pending','confirmed','in_progress'], true)) {
+    $staffId = bookingChooseStaff($pdo, (int)$staffId, $branchId, $booking['booking_date'], $booking['booking_time'], bookingSavedDuration($pdo, $booking), $bookingId);
 }
-
-try {
-    $pdo->beginTransaction();
 
     $sets = ['staff_id = ?', 'status = ?'];
     $values = [$staffId ?: null, $newStatus];
@@ -129,8 +103,8 @@ try {
         $pdo->rollBack();
     }
     bookingManagementJson(
-        ['success' => false, 'message' => 'The booking could not be updated.'],
-        500
+        ['success' => false, 'message' => $exception instanceof DomainException ? $exception->getMessage() : 'The booking could not be updated.'],
+        $exception instanceof DomainException ? 409 : 500
     );
 }
 

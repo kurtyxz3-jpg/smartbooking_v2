@@ -8,34 +8,17 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once '../config/database.php';
 require_once '../includes/language.php';
 
+require_once '../includes/password-recovery.php';
+header('Cache-Control: no-store');
 $message = '';
-$resetUrl = '';
-
+recoveryCsrf();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = strtolower(trim((string) ($_POST['email'] ?? '')));
-    $message = 'If that email belongs to an account, a password-reset link has been prepared.';
-
-    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $statement = $pdo->prepare(
-            "SELECT id FROM users WHERE email = ? AND status = 'active' LIMIT 1"
-        );
-        $statement->execute([$email]);
-        $userId = (int) $statement->fetchColumn();
-
-        if ($userId > 0) {
-            $token = bin2hex(random_bytes(32));
-            $tokenHash = hash('sha256', $token);
-            $pdo->prepare(
-                'DELETE FROM password_reset_tokens WHERE user_id = ?'
-            )->execute([$userId]);
-            $pdo->prepare(
-                'INSERT INTO password_reset_tokens
-                    (user_id, token_hash, expires_at)
-                 VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))'
-            )->execute([$userId, $tokenHash]);
-            $resetUrl = 'http://localhost/smartbooking_v2/auth/reset-password.php?token='
-                . urlencode($token);
-        }
+    if (!recoveryVerifyCsrf()) {
+        $message = 'Your session expired. Refresh the page and try again.';
+    } else {
+        $message = 'If an active account matches that email, a password-reset link will be emailed shortly. Check your inbox and spam folder.';
+        try { recoveryRequest($pdo, (string)($_POST['email'] ?? '')); }
+        catch (Throwable $exception) { error_log('SmartBooking password recovery could not be queued. Check migration and database configuration.'); }
     }
 }
 ?>
@@ -77,19 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="auth-alert success"><?= htmlspecialchars($message) ?></div>
             <?php endif; ?>
             <form method="post">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars(recoveryCsrf(), ENT_QUOTES, 'UTF-8') ?>">
                 <div class="auth-field">
                     <label for="email">Email Address</label>
                     <input id="email" name="email" type="email" autocomplete="email" required>
                 </div>
-                <button class="auth-submit">Prepare reset link ↗</button>
+                <button class="auth-submit">Email reset link ↗</button>
             </form>
-            <?php if ($resetUrl !== ''): ?>
-                <div class="dev-reset">
-                    <strong>Local-development reset link:</strong><br>
-                    <a href="<?= htmlspecialchars($resetUrl) ?>"><?= htmlspecialchars($resetUrl) ?></a><br>
-                    <small>Replace this display with SMTP email delivery before public deployment.</small>
-                </div>
-            <?php endif; ?>
             <p class="auth-switch"><a href="login.php">Return to sign in</a></p>
         </div>
     </section>

@@ -6,6 +6,9 @@ require_once '../config/database.php';
 require_once '../includes/staff-helper.php';
 require_once '../includes/branch-context.php';
 
+require_once '../includes/booking-reliability.php';
+require_once '../includes/booking-management-helper.php';
+$_SESSION['staff_booking_csrf'] ??= bin2hex(random_bytes(32));
 $pageTitle = 'My Bookings';
 $staffId = (int) $_SESSION['user_id'];
 $branchId = requireAssignedBranch($pdo);
@@ -13,24 +16,21 @@ $message = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
-    $status = $_POST['status'] ?? '';
-
-    $allowedStatuses = ['confirmed', 'completed'];
-
-    if (!$bookingId || !in_array($status, $allowedStatuses, true)) {
-        $error = 'Invalid booking update.';
-    } else {
-        $statement = $pdo->prepare(
-            "UPDATE bookings
-             SET status = ?
-             WHERE id = ?
-               AND staff_id = ?
-               AND branch_id = ?"
-        );
-        $statement->execute([$status, $bookingId, $staffId, $branchId]);
-
-        $message = 'Booking status updated successfully.';
+    try {
+        if (!hash_equals($_SESSION['staff_booking_csrf'],(string)($_POST['csrf_token']??''))) throw new DomainException('Your session expired. Refresh and try again.');
+        $bookingId=(int)($_POST['booking_id']??0);$status=(string)($_POST['status']??'');
+        bookingWriteBegin($pdo);
+        $q=$pdo->prepare('SELECT * FROM bookings WHERE id=? AND staff_id=? AND branch_id=?');$q->execute([$bookingId,$staffId,$branchId]);$booking=$q->fetch();
+        if (!$booking || !in_array($status,['confirmed','completed'],true)) throw new DomainException('Invalid booking update.');
+        $allowed=$status==='confirmed' ? $booking['status']==='pending' : in_array($booking['status'],['confirmed','in_progress'],true);
+        if (!$allowed) throw new DomainException('This appointment can no longer receive that status. Refresh the page.');
+        if ($status==='confirmed') bookingChooseStaff($pdo,$staffId,$branchId,$booking['booking_date'],$booking['booking_time'],bookingSavedDuration($pdo,$booking),$bookingId);
+        $pdo->prepare('UPDATE bookings SET status=?,updated_at=NOW() WHERE id=?')->execute([$status,$bookingId]);
+        bookingManagementRecordHistory($pdo,$bookingId,$booking['status'],$status,$staffId,'Updated by assigned staff');
+        $pdo->commit();$message='Booking status updated successfully.';
+    } catch(Throwable $e) {
+        if($pdo->inTransaction())$pdo->rollBack();
+        $error=$e instanceof DomainException?$e->getMessage():'The booking could not be updated.';
     }
 }
 
@@ -207,6 +207,7 @@ include '../includes/staff-header.php';
                                     <div class="staff-booking-actions">
                                         <?php if ($booking['status'] === 'pending'): ?>
                                             <form method="POST">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['staff_booking_csrf'], ENT_QUOTES, 'UTF-8') ?>">
                                                 <input type="hidden" name="booking_id" value="<?= (int) $booking['id'] ?>">
                                                 <input type="hidden" name="status" value="confirmed">
                                                 <button class="staff-action-btn staff-action-confirm" type="submit">
@@ -217,6 +218,7 @@ include '../includes/staff-header.php';
 
                                         <?php if (in_array($booking['status'], ['pending', 'confirmed'], true)): ?>
                                             <form method="POST">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['staff_booking_csrf'], ENT_QUOTES, 'UTF-8') ?>">
                                                 <input type="hidden" name="booking_id" value="<?= (int) $booking['id'] ?>">
                                                 <input type="hidden" name="status" value="completed">
                                                 <button class="staff-action-btn staff-action-complete" type="submit">

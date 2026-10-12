@@ -11,17 +11,14 @@ require_once __DIR__ . '/includes/service-catalog.php';
 require_once __DIR__ . '/config/database.php';
 
 $catalog = serviceCatalog();
-<<<<<<< HEAD
 $homepageGalleries = require __DIR__ . '/includes/homepage-media.php';
-=======
-$galleryImages = [
-    'nails' => array_map(static fn(int $i): string => sprintf('/smartbooking_v2/assets/images/home-gallery/nails/nails-%02d.jpg', $i), range(1, 19)),
-    'salon' => array_map(static fn(int $i): string => sprintf('/smartbooking_v2/assets/images/home-gallery/salon/salon-%02d.jpg', $i), range(1, 24)),
-    'lips' => array_map(static fn(int $i): string => sprintf('/smartbooking_v2/assets/images/home-gallery/lips/lips-%02d.jpg', $i), range(1, 17)),
-    'campaigns' => array_map(static fn(int $i): string => sprintf('/smartbooking_v2/assets/images/home-gallery/campaigns/campaigns-%02d.jpg', $i), range(1, 31)),
-];
-
->>>>>>> 5680cc42aa286808c4cece445ac686d0539fa0fb
+// Show current salon details; never publish archived branch contact information.
+$salonDetails = [];
+try {
+    $salonDetails = $pdo->query('SELECT b.address,b.contact_number,b.email,b.opening_time,b.closing_time FROM branches b JOIN single_salon_config c ON c.branch_id=b.id WHERE c.id=1')->fetch(PDO::FETCH_ASSOC) ?: [];
+} catch (Throwable $exception) { error_log('SmartBooking homepage salon details are not configured.'); }
+$homepageGalleries['campaigns'] = array_merge(array_slice($homepageGalleries['nails'],0,6),array_slice($homepageGalleries['salon'],0,6),array_slice($homepageGalleries['lips'],0,3),array_slice($homepageGalleries['brows'],0,3));
+$homepageServices = $pdo->query("SELECT id,name,price FROM services WHERE status='active' ORDER BY name LIMIT 12")->fetchAll(PDO::FETCH_ASSOC);
 $categories = catalogCategories();
 $featured = array_slice(
 array_values(
@@ -195,7 +192,7 @@ ENT_QUOTES,
 <div class="lookbook-copy">
 <h2>The salon’s visual story.</h2>
 <p>
-Switch between nails, the salon, lip pigmentation, brows, and service campaigns.
+Switch between nails, the salon, lip pigmentation, brows, and service results.
 </p>
 
 <div class="gallery-tabs">
@@ -208,11 +205,7 @@ Switch between nails, the salon, lip pigmentation, brows, and service campaigns.
 </div>
 
 <div class="masonry" id="galleryGrid">
-<<<<<<< HEAD
 <?php foreach (array_slice($homepageGalleries['nails'], 0, 14) as $image): ?>
-=======
-<?php foreach (array_slice($galleryImages['nails'], 0, 14) as $image): ?>
->>>>>>> 5680cc42aa286808c4cece445ac686d0539fa0fb
 <button class="gallery-item">
 <img
 loading="lazy"
@@ -228,11 +221,7 @@ alt="Salon gallery"
 <section class="packages packages-enhanced" id="packages">
 <div class="package-main">
 <img
-<<<<<<< HEAD
-src="/smartbooking_v2/assets/images/homepage-clean/campaigns-29.webp"
-=======
-src="/smartbooking_v2/assets/images/home-gallery/campaigns/campaigns-29.jpg"
->>>>>>> 5680cc42aa286808c4cece445ac686d0539fa0fb
+src="/smartbooking_v2/assets/images/homepage-clean/nails-10.webp"
 alt="Gel polish and foot spa package"
 >
 
@@ -249,11 +238,7 @@ Browse nail care →
 <div class="package-list package-list-with-images">
 <article
 class="package-photo-card"
-<<<<<<< HEAD
 style="--package-image:url('/smartbooking_v2/assets/images/homepage-clean/salon-09.webp')"
-=======
-style="--package-image:url('/smartbooking_v2/assets/images/home-gallery/salon/salon-05.jpg')"
->>>>>>> 5680cc42aa286808c4cece445ac686d0539fa0fb
 >
 <div class="package-photo-overlay"></div>
 <div class="package-photo-content">
@@ -266,11 +251,7 @@ style="--package-image:url('/smartbooking_v2/assets/images/home-gallery/salon/sa
 
 <article
 class="package-photo-card"
-<<<<<<< HEAD
 style="--package-image:url('/smartbooking_v2/assets/images/homepage-clean/salon-12.webp')"
-=======
-style="--package-image:url('/smartbooking_v2/assets/images/home-gallery/campaigns/campaigns-30.jpg')"
->>>>>>> 5680cc42aa286808c4cece445ac686d0539fa0fb
 >
 <div class="package-photo-overlay"></div>
 <div class="package-photo-content">
@@ -285,11 +266,7 @@ Book package ↗
 
 <article
 class="package-photo-card"
-<<<<<<< HEAD
 style="--package-image:url('/smartbooking_v2/assets/images/homepage-clean/nails-10.webp')"
-=======
-style="--package-image:url('/smartbooking_v2/assets/images/home-gallery/nails/nails-10.jpg')"
->>>>>>> 5680cc42aa286808c4cece445ac686d0539fa0fb
 >
 <div class="package-photo-overlay"></div>
 <div class="package-photo-content">
@@ -307,41 +284,43 @@ Book package ↗
 <section class="pricelists">
 <div class="section-heading">
 <div>
-<h2>Original salon pricelists.</h2>
+<h2>Explore our services.</h2>
 </div>
 <p>
-Click any card to enlarge the original material supplied by the business.
+View current service details and prices before choosing your appointment.
 </p>
 </div>
 
 <div class="price-scroll">
-<?php foreach (catalogPricelists() as $pricelistImage): ?>
-<button
-data-lightbox-src="<?= htmlspecialchars($pricelistImage, ENT_QUOTES, 'UTF-8') ?>"
->
-<img
-src="<?= htmlspecialchars($pricelistImage, ENT_QUOTES, 'UTF-8') ?>"
-alt="Original Nails and Body Worx pricelist"
->
-</button>
+<?php foreach ($homepageServices as $priceService): ?>
+<a class="nbw-secondary-button" href="customer/service-details.php?id=<?= (int)$priceService['id'] ?>" style="min-width:220px;white-space:normal;display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:24px">
+<strong><?= htmlspecialchars($priceService['name'], ENT_QUOTES, 'UTF-8') ?></strong>
+<span>₱<?= number_format((float)$priceService['price'], 2) ?></span>
+<span>View service →</span>
+</a>
 <?php endforeach; ?>
 </div>
 </section>
 
 <section class="visit" id="visit">
-<<<<<<< HEAD
 <img src="<?= htmlspecialchars($homepageGalleries['salon'][20], ENT_QUOTES, 'UTF-8') ?>" alt="Salon interior">
-=======
-<img src="/smartbooking_v2/assets/images/home-gallery/salon/salon-21.jpg" alt="Salon interior">
->>>>>>> 5680cc42aa286808c4cece445ac686d0539fa0fb
 
 <div>
 <p class="eyebrow">Visit the lounge</p>
 <h2>A warm, active beauty space.</h2>
 <p>
-The supplied images now become the website’s visual identity
-rather than generic stock photos.
+Relax and enjoy nail care, beauty treatments, and a little time for yourself at Nails &amp; Body Worx.
 </p>
+<?php if (!empty($salonDetails['address'])): ?>
+<p><?= htmlspecialchars($salonDetails['address'], ENT_QUOTES, 'UTF-8') ?><br>
+<a href="https://www.google.com/maps/search/?api=1&amp;query=<?= rawurlencode($salonDetails['address']) ?>" target="_blank" rel="noopener">Get directions →</a></p>
+<?php endif; ?>
+<?php if (!empty($salonDetails['contact_number'])): ?>
+<p>Contact: <?= htmlspecialchars($salonDetails['contact_number'], ENT_QUOTES, 'UTF-8') ?></p>
+<?php endif; ?>
+<?php if (!empty($salonDetails['opening_time']) && !empty($salonDetails['closing_time'])): ?>
+<p>Salon hours: <?= date('g:i A', strtotime($salonDetails['opening_time'])) ?> – <?= date('g:i A', strtotime($salonDetails['closing_time'])) ?>. Contact us to confirm holiday hours.</p>
+<?php endif; ?>
 <a class="nbw-primary-button" href="customer/book.php">
 Reserve an appointment ↗
 </a>
@@ -449,11 +428,7 @@ Do not show again today
 
 <script>
 window.NBW_GALLERIES =
-<<<<<<< HEAD
 <?= json_encode($homepageGalleries, JSON_UNESCAPED_SLASHES) ?>;
-=======
-<?= json_encode($galleryImages, JSON_UNESCAPED_SLASHES) ?>;
->>>>>>> 5680cc42aa286808c4cece445ac686d0539fa0fb
 </script>
 
 <script src="/smartbooking_v2/assets/js/homepage-enhancements.js"></script>

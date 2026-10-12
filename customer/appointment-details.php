@@ -4,7 +4,12 @@ declare(strict_types=1);
 $pageTitle = 'Appointment Details';
 $customerPage = 'appointment-details';
 
-require_once '../includes/customer-header.php';
+require_once '../includes/customer-auth.php';
+require_once '../config/database.php';
+require_once '../includes/customer-ui-helper.php';
+require_once '../includes/booking-reliability.php';
+require_once '../includes/booking-management-helper.php';
+$customerId = (int)$_SESSION['user_id'];
 require_once '../includes/customer-booking-timeline.php';
 
 $bookingId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT)
@@ -66,115 +71,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
     }
 
-    $action = $_POST['action'] ?? '';
-
-    if (!customerCanChangeBooking($booking)) {
-        customerRedirectWithMessage(
-            'appointment-details.php?id=' . $bookingId,
-            'error',
-            'This appointment can no longer be changed online.'
-        );
-    }
-
-    if ($action === 'cancel') {
-        $statement = $pdo->prepare(
-            "UPDATE bookings
-             SET status = 'cancelled',
-                 updated_at = CURRENT_TIMESTAMP
-             WHERE id = ?
-               AND customer_id = ?"
-        );
-        $statement->execute([$bookingId, $customerId]);
-        bookingManagementRecordHistory(
-            $pdo,
-            $bookingId,
-            (string) $booking['status'],
-            'cancelled',
-            $customerId,
-            'Cancelled by customer'
-        );
-
-        customerRedirectWithMessage(
-            'appointments.php?filter=cancelled',
-            'success',
-            'Your appointment was cancelled.'
-        );
-    }
-
-    if ($action === 'reschedule') {
-        $newDate = trim($_POST['booking_date'] ?? '');
-        $newTime = trim($_POST['booking_time'] ?? '');
-
-        $dateObject = DateTime::createFromFormat('Y-m-d', $newDate);
-        $validDate = $dateObject
-            && $dateObject->format('Y-m-d') === $newDate
-            && $dateObject >= new DateTime('tomorrow');
-
-        if (!$validDate || !preg_match('/^\d{2}:\d{2}$/', $newTime)) {
-            customerRedirectWithMessage(
-                'appointment-details.php?id=' . $bookingId,
-                'error',
-                'Choose a valid future date and time.'
-            );
+    try {
+        bookingWriteBegin($pdo);
+        $booking = $fetchBooking();
+        if (!$booking || !customerCanChangeBooking($booking)) {
+            throw new DomainException('This appointment can no longer be changed online.');
         }
-
-        $conflictSql =
-            "SELECT COUNT(*)
-             FROM bookings
-             WHERE id <> ?
-               AND booking_date = ?
-               AND booking_time = ?
-               AND status IN ('pending', 'confirmed')";
-
-        $conflictParams = [$bookingId, $newDate, $newTime . ':00'];
-
-        if (!empty($booking['staff_id'])) {
-            $conflictSql .= " AND staff_id = ?";
-            $conflictParams[] = (int) $booking['staff_id'];
+        $action = (string)($_POST['action'] ?? '');
+        if ($action === 'cancel') {
+            $pdo->prepare("UPDATE bookings SET status='cancelled',updated_at=NOW() WHERE id=? AND customer_id=?")
+                ->execute([$bookingId, $customerId]);
+            bookingManagementRecordHistory($pdo, $bookingId, $booking['status'], 'cancelled', $customerId, 'Cancelled by customer');
+            $pdo->commit();
+            customerRedirectWithMessage('appointments.php?filter=cancelled', 'success', 'Your appointment was cancelled.');
         }
-
-        $conflict = $pdo->prepare($conflictSql);
-        $conflict->execute($conflictParams);
-
-        if ((int) $conflict->fetchColumn() > 0) {
-            customerRedirectWithMessage(
-                'appointment-details.php?id=' . $bookingId,
-                'error',
-                'That schedule is already reserved. Choose another time.'
-            );
+        if ($action !== 'reschedule') throw new DomainException('Invalid appointment action.');
+        $newDate = trim((string)($_POST['booking_date'] ?? ''));
+        $newTime = trim((string)($_POST['booking_time'] ?? ''));
+        $dateObject = DateTimeImmutable::createFromFormat('!Y-m-d', $newDate);
+        if (!$dateObject || $dateObject->format('Y-m-d') !== $newDate || $dateObject < new DateTimeImmutable('tomorrow')
+            || !preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/', $newTime)) {
+            throw new DomainException('Choose a valid future date and time.');
         }
-
-        $statement = $pdo->prepare(
-            "UPDATE bookings
-             SET booking_date = ?,
-                 booking_time = ?,
-                 status = 'pending',
-                 updated_at = CURRENT_TIMESTAMP
-             WHERE id = ?
-               AND customer_id = ?"
-        );
-        $statement->execute([
-            $newDate,
-            $newTime . ':00',
-            $bookingId,
-            $customerId,
-        ]);
-        bookingManagementRecordHistory(
-            $pdo,
-            $bookingId,
-            (string) $booking['status'],
-            'pending',
-            $customerId,
-            'Customer requested a new schedule'
-        );
-
-        customerRedirectWithMessage(
-            'appointment-details.php?id=' . $bookingId,
-            'success',
-            'Your new schedule was submitted for confirmation.'
-        );
+        $assigned = bookingChooseStaff($pdo, (int)$booking['staff_id'], (int)$booking['branch_id'], $newDate, $newTime, bookingSavedDuration($pdo, $booking), $bookingId);
+        $pdo->prepare("UPDATE bookings SET booking_date=?,booking_time=?,staff_id=?,status='pending',updated_at=NOW() WHERE id=? AND customer_id=?")
+            ->execute([$newDate, $newTime . ':00', $assigned, $bookingId, $customerId]);
+        bookingManagementRecordHistory($pdo, $bookingId, $booking['status'], 'pending', $customerId, 'Customer requested a new schedule');
+        $pdo->commit();
+        customerRedirectWithMessage('appointment-details.php?id=' . $bookingId, 'success', 'Your new schedule was submitted for confirmation.');
+    } catch (Throwable $exception) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        customerRedirectWithMessage('appointment-details.php?id=' . $bookingId, 'error', $exception instanceof DomainException ? $exception->getMessage() : 'The appointment could not be updated. Please try again.');
     }
 }
+require_once '../includes/customer-header.php';
+
 ?>
 <link rel="stylesheet" href="../assets/css/booking-management.css">
 
