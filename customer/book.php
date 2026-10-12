@@ -146,12 +146,9 @@ function bookingFetchBlockedSlots(
 }
 
 $catalogServices = catalogServices();
-$branches = activeBranches($pdo);
+$selectedBranchId = salonBranchId($pdo);
 $bookingDraft = $_SESSION['booking_draft'] ?? [];
-$selectedBranchId = (int) ($_GET['branch_id'] ?? $_POST['branch_id'] ?? $bookingDraft['branch_id'] ?? 0);
-if ($selectedBranchId <= 0 && $branches) {
-    $selectedBranchId = (int) $branches[0]['id'];
-}
+unset($bookingDraft['branch_id']);
 $staffMembers = $selectedBranchId > 0 ? bookingFetchStaff($pdo, $selectedBranchId) : [];
 
 $selectedServiceName = trim($_GET['service'] ?? $_POST['service_name'] ?? $bookingDraft['service_name'] ?? '');
@@ -164,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['availability'])) {
 
     $date = trim($_GET['date'] ?? '');
     $staffId = (int) ($_GET['staff_id'] ?? 0);
-    $branchId = (int) ($_GET['branch_id'] ?? 0);
+    $branchId = salonBranchId($pdo);
     $duration = max(15, (int) ($_GET['duration'] ?? 60));
     $blocked = [];
     if ($date !== '' && $branchId > 0) {
@@ -208,22 +205,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['availability'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $serviceName = trim($_POST['service_name'] ?? '');
     $staffId = (int) ($_POST['staff_id'] ?? 0);
-    $branchId = (int) ($_POST['branch_id'] ?? 0);
+    $branchId = salonBranchId($pdo);
     $bookingDate = trim($_POST['booking_date'] ?? '');
     $bookingTime = trim($_POST['booking_time'] ?? '');
     $notes = trim($_POST['notes'] ?? '');
     $designReference = trim($_POST['design_reference'] ?? '');
 
     $service = catalogServiceByName($serviceName);
-    $validBranchIds = array_map(static fn(array $branch): int => (int)$branch['id'], $branches);
-    if (!in_array($branchId, $validBranchIds, true)) {
-        $errors[] = 'Please select a valid salon branch.';
-    }
+
     if ($staffId > 0) {
         $staffCheck = $pdo->prepare("SELECT COUNT(*) FROM users WHERE id=? AND role='staff' AND status='active' AND branch_id=?");
         $staffCheck->execute([$staffId,$branchId]);
         if (!(bool)$staffCheck->fetchColumn()) {
-            $errors[] = 'The selected staff member is not available at this branch.';
+            $errors[] = 'The selected staff member is not available at the salon.';
         }
     }
 
@@ -494,7 +488,7 @@ include '../includes/header.php';
             </div>
 
             <p>
-                Choose a branch, service, preferred professional, and schedule.
+                Choose a service, preferred professional, and schedule.
                 Review every detail before sending your appointment request.
             </p>
         </section>
@@ -511,35 +505,30 @@ include '../includes/header.php';
         <?php endif; ?>
 
         <div class="booking-wizard-shell">
-            <div class="booking-progress booking-progress-five" aria-label="Booking progress">
+            <div class="booking-progress booking-progress-four" aria-label="Booking progress">
+
                 <button class="active" type="button" data-step-jump="1">
                     <span>1</span>
-                    <div><strong>Branch</strong><small>Choose a location</small></div>
+                    <div><strong>Service</strong><small>Choose a treatment</small></div>
                 </button>
                 <i></i>
                 <button type="button" data-step-jump="2">
                     <span>2</span>
-                    <div><strong>Service</strong><small>Choose a treatment</small></div>
+                    <div><strong>Staff</strong><small>Select a professional</small></div>
                 </button>
                 <i></i>
                 <button type="button" data-step-jump="3">
                     <span>3</span>
-                    <div><strong>Staff</strong><small>Select a professional</small></div>
+                    <div><strong>Schedule</strong><small>Choose date and time</small></div>
                 </button>
                 <i></i>
                 <button type="button" data-step-jump="4">
                     <span>4</span>
-                    <div><strong>Schedule</strong><small>Choose date and time</small></div>
-                </button>
-                <i></i>
-                <button type="button" data-step-jump="5">
-                    <span>5</span>
                     <div><strong>Review</strong><small>Confirm your request</small></div>
                 </button>
             </div>
 
             <form method="POST" id="bookingForm">
-                <input type="hidden" name="branch_id" id="branchId" value="<?= $selectedBranchId ?>">
                 <input
                     type="hidden"
                     name="service_name"
@@ -549,58 +538,12 @@ include '../includes/header.php';
                 <input type="hidden" name="staff_id" id="staffId" value="<?= (int)($bookingDraft['staff_id'] ?? 0) ?>">
                 <input type="hidden" name="booking_time" id="bookingTime" value="<?= htmlspecialchars($bookingDraft['booking_time'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
 
+
+
                 <section class="booking-step active" data-booking-step="1">
                     <div class="booking-step-heading">
                         <div>
                             <p class="booking-kicker">Step 1</p>
-                            <h2>Which branch would you like to visit?</h2>
-                            <p>Staff and available times will match the branch you select.</p>
-                        </div>
-                    </div>
-
-                    <?php if (!$branches): ?>
-                        <div class="booking-state booking-state-error">
-                            <span>!</span>
-                            <div>
-                                <strong>No branch is currently available.</strong>
-                                <p>Please contact Nails &amp; Body Worx for assistance.</p>
-                            </div>
-                        </div>
-                    <?php else: ?>
-                        <div class="booking-branch-grid">
-                            <?php foreach ($branches as $branch): ?>
-                                <?php $branchSelected = $selectedBranchId === (int)$branch['id']; ?>
-                                <button
-                                    type="button"
-                                    class="booking-branch-card <?= $branchSelected ? 'selected' : '' ?>"
-                                    data-branch-card
-                                    data-branch-id="<?= (int)$branch['id'] ?>"
-                                    data-branch-name="<?= htmlspecialchars($branch['branch_name'], ENT_QUOTES, 'UTF-8') ?>"
-                                >
-                                    <span class="booking-branch-icon">NBW</span>
-                                    <span class="booking-branch-copy">
-                                        <small>Salon location</small>
-                                        <strong><?= htmlspecialchars($branch['branch_name'], ENT_QUOTES, 'UTF-8') ?></strong>
-                                        <em><?= htmlspecialchars($branch['address'] ?? 'Nails & Body Worx branch', ENT_QUOTES, 'UTF-8') ?></em>
-                                    </span>
-                                    <span class="booking-select-circle">✓</span>
-                                </button>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="booking-step-footer">
-                        <span id="branchSelectionMessage">Choose a branch to continue.</span>
-                        <button type="button" class="booking-next-button" data-next-step="2" <?= !$branches ? 'disabled' : '' ?>>
-                            Choose a service <b>→</b>
-                        </button>
-                    </div>
-                </section>
-
-                <section class="booking-step" data-booking-step="2">
-                    <div class="booking-step-heading">
-                        <div>
-                            <p class="booking-kicker">Step 2</p>
                             <h2>Choose a service.</h2>
                         </div>
 
@@ -633,7 +576,7 @@ include '../includes/header.php';
                         <div class="booking-state">
                             <span>i</span>
                             <div>
-                                <strong>No individual staff profiles are available for this branch yet.</strong>
+                                <strong>No individual staff profiles are available for the salon yet.</strong>
                                 <p>You can still continue with “Any Available Professional.”</p>
                             </div>
                         </div>
@@ -699,17 +642,17 @@ include '../includes/header.php';
                         <button
                             type="button"
                             class="booking-next-button"
-                            data-next-step="3"
+                            data-next-step="2"
                         >
                             Choose professional <b>→</b>
                         </button>
                     </div>
                 </section>
 
-                <section class="booking-step" data-booking-step="3">
+                <section class="booking-step" data-booking-step="2">
                     <div class="booking-step-heading">
                         <div>
-                            <p class="booking-kicker">Step 3</p>
+                            <p class="booking-kicker">Step 2</p>
                             <h2>Choose your preferred professional.</h2>
                         </div>
 
@@ -775,26 +718,26 @@ include '../includes/header.php';
                     </div>
 
                     <div class="booking-step-footer">
-                        <button type="button" class="booking-back-button" data-back-step="2">
+                        <button type="button" class="booking-back-button" data-back-step="1">
                             ← Back to services
                         </button>
 
                         <button
                             type="button"
                             class="booking-next-button"
-                            data-next-step="4"
+                            data-next-step="3"
                         >
                             Choose schedule <b>→</b>
                         </button>
                     </div>
                 </section>
 
-                <section class="booking-step" data-booking-step="4">
+                <section class="booking-step" data-booking-step="3">
                     <div class="booking-schedule-layout booking-schedule-only">
                         <div class="booking-schedule-main">
                             <div class="booking-step-heading">
                                 <div>
-                                    <p class="booking-kicker">Step 4</p>
+                                    <p class="booking-kicker">Step 3</p>
                                     <h2>Select your schedule.</h2>
                                 </div>
                             </div>
@@ -872,27 +815,27 @@ include '../includes/header.php';
                     </div>
 
                     <div class="booking-step-footer">
-                        <button type="button" class="booking-back-button" data-back-step="3">
+                        <button type="button" class="booking-back-button" data-back-step="2">
                             ← Back to professionals
                         </button>
-                        <button type="button" class="booking-next-button" data-next-step="5">
+                        <button type="button" class="booking-next-button" data-next-step="4">
                             Review appointment <b>→</b>
                         </button>
                     </div>
                 </section>
 
-                <section class="booking-step" data-booking-step="5">
+                <section class="booking-step" data-booking-step="4">
                     <div class="booking-review-layout">
                         <div class="booking-review-copy">
-                            <p class="booking-kicker">Step 5</p>
+                            <p class="booking-kicker">Step 4</p>
                             <h2>Review your appointment.</h2>
                             <p>Check the details below before sending your request to the salon.</p>
 
                             <div class="booking-review-checklist">
-                                <div><span>1</span><p><small>Branch</small><strong id="reviewBranch">Not selected</strong></p></div>
-                                <div><span>2</span><p><small>Service</small><strong id="reviewService">Not selected</strong></p></div>
-                                <div><span>3</span><p><small>Professional</small><strong id="reviewStaff">Any Available Professional</strong></p></div>
-                                <div><span>4</span><p><small>Schedule</small><strong id="reviewSchedule">Not selected</strong></p></div>
+                                
+                                <div><span>1</span><p><small>Service</small><strong id="reviewService">Not selected</strong></p></div>
+                                <div><span>2</span><p><small>Professional</small><strong id="reviewStaff">Any Available Professional</strong></p></div>
+                                <div><span>3</span><p><small>Schedule</small><strong id="reviewSchedule">Not selected</strong></p></div>
                             </div>
                         </div>
 
@@ -903,7 +846,7 @@ include '../includes/header.php';
                                 <img id="summaryImage" src="../assets/images/services/nails/nails-01.webp" alt="">
                             </div>
                             <dl>
-                                <div><dt>Branch</dt><dd id="summaryBranch">Not selected</dd></div>
+                                
                                 <div><dt>Service</dt><dd id="summaryService">Not selected</dd></div>
                                 <div><dt>Professional</dt><dd id="summaryStaff">Any Available Professional</dd></div>
                                 <div><dt>Date</dt><dd id="summaryDate">Not selected</dd></div>
@@ -925,7 +868,7 @@ include '../includes/header.php';
                     </div>
 
                     <div class="booking-step-footer">
-                        <button type="button" class="booking-back-button" data-back-step="4">← Back to schedule</button>
+                        <button type="button" class="booking-back-button" data-back-step="3">← Back to schedule</button>
                         <span>Nothing will be charged on this step.</span>
                     </div>
                 </section>
@@ -937,10 +880,9 @@ include '../includes/header.php';
 <script>
 window.NBW_BOOKING_INITIAL_SERVICE = <?= json_encode($selectedService, JSON_UNESCAPED_SLASHES) ?>;
 window.NBW_BOOKING_DRAFT = <?= json_encode($bookingDraft, JSON_UNESCAPED_SLASHES) ?>;
-window.NBW_BOOKING_BRANCH_ID = <?= $selectedBranchId ?>;
 </script>
 
-<link rel="stylesheet" href="../assets/css/booking-v3.css?v=068">
-<script src="../assets/js/booking-v3.js"></script>
+<link rel="stylesheet" href="../assets/css/booking-v3.css?v=201">
+<script src="../assets/js/booking-v3.js?v=201"></script>
 
 <?php include '../includes/footer.php'; ?>

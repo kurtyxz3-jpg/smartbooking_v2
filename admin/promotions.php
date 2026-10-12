@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             : 'gold';
         $showPopup = isset($_POST['show_in_popup']) ? 1 : 0;
         $showHomepage = isset($_POST['show_on_homepage']) ? 1 : 0;
-        $isGlobal = isset($_POST['is_global']) ? 1 : 0;
+        $isGlobal = 1; // One salon: every promotion belongs to the same business.
         $displayOrder = max(0, (int) ($_POST['display_order'] ?? 0));
 
         if ($title === '' || ($start && $end && $start > $end)) {
@@ -279,7 +279,7 @@ include '../includes/admin-header.php';
                             <span class="promotion-channel-badge">Popup</span>
                         <?php endif; ?>
                         <span class="promotion-scope-badge">
-                            <?= (int) $row['is_global'] === 1 ? 'All branches' : 'This branch' ?>
+                            Nails &amp; Body Worx
                         </span>
                     </div>
                     <h2><?= htmlspecialchars($row['title']) ?></h2>
@@ -378,10 +378,10 @@ include '../includes/admin-header.php';
                 <div class="promotion-editor-options">
                     <label><input type="checkbox" name="show_in_popup" value="1" data-field="show_in_popup"> Show in popup</label>
                     <label><input type="checkbox" name="show_on_homepage" value="1" data-field="show_on_homepage"> Show on homepage</label>
-                    <label><input type="checkbox" name="is_global" value="1" data-field="is_global"> All branches</label>
+                    
                 </div>
             </div>
-            <p class="promotion-editor-note">Branch-specific promotions use your assigned branch. “All branches” makes the offer visible business-wide.</p>
+            
             <div class="premium-admin-modal-actions">
                 <button type="button" class="admin-btn admin-btn-light" data-premium-modal-close>Cancel</button>
                 <button class="admin-btn admin-btn-primary">Save Promotion</button>

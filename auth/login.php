@@ -36,7 +36,6 @@ if (
 
 $ui = [
     'english' => [
-        'welcome' => 'Welcome back',
         'showcase_title' => 'Your beauty space is ready when you are.',
         'showcase_text' => 'Manage bookings, revisit favorite services, save styling ideas, and keep your salon experience in one place.',
         'benefit_1' => 'Real-time booking management',
@@ -90,7 +89,6 @@ $ui = [
         'unsupported' => 'Hindi suportado ang role ng account na ito.',
     ],
     'taglish' => [
-        'welcome' => 'Welcome back',
         'showcase_title' => 'Ready ang beauty space mo whenever you are.',
         'showcase_text' => 'Manage your bookings, balikan ang favorite services, i-save ang styling ideas, at keep everything in one place.',
         'benefit_1' => 'Real-time booking management',
@@ -174,9 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
-            $_SESSION['branch_id'] = !empty($user['branch_id'])
-                ? (int) $user['branch_id']
-                : null;
+            $_SESSION['branch_id'] = salonBranchId($pdo);
 
             if (function_exists('accountCenterLog')) {
                 accountCenterLog(
@@ -232,14 +228,10 @@ $facebook = oauthProviderEnabled('facebook');
 >
             <div>
                 <strong>Nails &amp; Body Worx</strong>
-                <small>SmartBooking</small>
             </div>
         </a>
 
         <div class="auth-copy">
-            <p class="auth-kicker">
-                <?= htmlspecialchars($labels['welcome'], ENT_QUOTES, 'UTF-8') ?>
-            </p>
             <h1>
                 <?= htmlspecialchars($labels['showcase_title'], ENT_QUOTES, 'UTF-8') ?>
             </h1>

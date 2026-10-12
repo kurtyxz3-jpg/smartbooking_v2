@@ -73,7 +73,7 @@ if ($staffId) {
     $staff->execute([$staffId, $branchId]);
     if (!(bool) $staff->fetchColumn()) {
         bookingManagementJson(
-            ['success' => false, 'message' => 'Choose an active staff member from this branch.'],
+            ['success' => false, 'message' => 'Choose an active staff member from the salon.'],
             422
         );
     }

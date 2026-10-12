@@ -28,69 +28,49 @@ function branchTableExists(PDO $pdo, string $table): bool
     return (bool) $statement->fetchColumn();
 }
 
-function activeBranches(PDO $pdo): array
+/** Internal compatibility ID, pinned by the non-destructive migration. */
+function salonBranchId(PDO $pdo): int
 {
-    if (!branchTableExists($pdo, 'branches')) {
-        return [];
+    static $id = null;
+    if ($id === null) {
+        if (!branchTableExists($pdo, 'single_salon_config')) {
+            http_response_code(503);
+            exit('Salon setup is pending. Please apply database/201_single_salon.sql before using this version.');
+        }
+        $id = (int) $pdo->query(
+            "SELECT c.branch_id FROM single_salon_config c
+             JOIN branches b ON b.id = c.branch_id WHERE c.id = 1"
+        )->fetchColumn();
+        if ($id <= 0) {
+            http_response_code(503);
+            exit('Salon setup is incomplete. Please contact the system administrator.');
+        }
     }
-    return $pdo->query(
-        "SELECT id, branch_code, branch_name, address, contact_number,
-                email, opening_time, closing_time, status
-         FROM branches
-         WHERE status = 'active'
-         ORDER BY display_order, branch_name"
-    )->fetchAll(PDO::FETCH_ASSOC);
+    // Discard old switches and drafts without losing the rest of the booking.
+    unset($_SESSION['superadmin_branch_filter']);
+    $_SESSION['branch_id'] = $id;
+    if (isset($_SESSION['booking_draft']['branch_id'])) {
+        $_SESSION['booking_draft']['branch_id'] = $id;
+    }
+    return $id;
 }
 
 function currentUserBranchId(PDO $pdo): ?int
 {
-    if (isset($_SESSION['branch_id'])) {
-        $value = (int) $_SESSION['branch_id'];
-        return $value > 0 ? $value : null;
-    }
-    if (empty($_SESSION['user_id']) || !branchColumnExists($pdo, 'users', 'branch_id')) {
-        return null;
-    }
-    $statement = $pdo->prepare("SELECT branch_id FROM users WHERE id = ? LIMIT 1");
-    $statement->execute([(int) $_SESSION['user_id']]);
-    $value = (int) $statement->fetchColumn();
-    $_SESSION['branch_id'] = $value > 0 ? $value : null;
-    return $value > 0 ? $value : null;
+    return salonBranchId($pdo);
 }
 
 function requireAssignedBranch(PDO $pdo): int
 {
-    $branchId = currentUserBranchId($pdo);
-    if (!$branchId) {
-        http_response_code(403);
-        exit('Your account has no active branch assignment. Please contact the Super Administrator.');
-    }
-    return $branchId;
+    return salonBranchId($pdo);
 }
 
 function branchName(PDO $pdo, ?int $branchId): string
 {
-    if (!$branchId || !branchTableExists($pdo, 'branches')) {
-        return 'Unassigned branch';
-    }
-    $statement = $pdo->prepare("SELECT branch_name FROM branches WHERE id = ? LIMIT 1");
-    $statement->execute([$branchId]);
-    return (string) ($statement->fetchColumn() ?: 'Unknown branch');
+    return 'Nails & Body Worx';
 }
 
 function selectedSuperAdminBranch(PDO $pdo): ?int
 {
-    if (($_SESSION['role'] ?? '') !== 'super_admin') {
-        return currentUserBranchId($pdo);
-    }
-    $requested = filter_input(INPUT_GET, 'branch_id', FILTER_VALIDATE_INT);
-    if ($requested) {
-        $_SESSION['superadmin_branch_filter'] = $requested;
-    } elseif (isset($_GET['branch_id']) && $_GET['branch_id'] === '') {
-        unset($_SESSION['superadmin_branch_filter']);
-    }
-    return isset($_SESSION['superadmin_branch_filter'])
-        ? (int) $_SESSION['superadmin_branch_filter']
-        : null;
+    return salonBranchId($pdo);
 }
-

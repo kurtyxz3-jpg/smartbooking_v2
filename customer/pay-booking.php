@@ -207,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             customerRedirectWithMessage(
                 'appointment-details.php?id=' . $bookingId,
                 'success',
-                'GCash proof submitted. Your branch will verify the transaction.'
+                'GCash proof submitted. The salon will verify the transaction.'
             );
         }
     }
@@ -228,7 +228,7 @@ $qrUrl = !empty($booking['gcash_qr_path'])
             <h1>Pay the 50% reservation fee through GCash.</h1>
             <p>
                 Send the exact amount to the official account of your selected
-                branch, then submit the transaction reference and receipt.
+                salon, then submit the transaction reference and receipt.
             </p>
         </div>
         <div class="customer-page-actions">
@@ -254,14 +254,14 @@ $qrUrl = !empty($booking['gcash_qr_path'])
             <div class="customer-panel-title">
                 <div>
                     <p class="customer-kicker">Official payment destination</p>
-                    <h2><?= htmlspecialchars($booking['branch_name'] ?? 'Selected Branch', ENT_QUOTES, 'UTF-8') ?></h2>
+                    <h2><?= htmlspecialchars($booking['branch_name'] ?? 'Nails & Body Worx', ENT_QUOTES, 'UTF-8') ?></h2>
                 </div>
                 <span class="customer-status-pill pending">Awaiting payment</span>
             </div>
 
             <?php if ($qrUrl): ?>
                 <div class="gcash-qr">
-                    <img src="<?= htmlspecialchars($qrUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Official branch GCash QR code">
+                    <img src="<?= htmlspecialchars($qrUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Official salon GCash QR code">
                 </div>
             <?php else: ?>
                 <div class="gcash-qr-missing">
@@ -273,7 +273,7 @@ $qrUrl = !empty($booking['gcash_qr_path'])
             <dl class="customer-info-list">
                 <div>
                     <dt>Merchant name</dt>
-                    <dd><?= htmlspecialchars($booking['gcash_merchant_name'] ?: 'Contact the branch', ENT_QUOTES, 'UTF-8') ?></dd>
+                    <dd><?= htmlspecialchars($booking['gcash_merchant_name'] ?: 'Contact the salon', ENT_QUOTES, 'UTF-8') ?></dd>
                 </div>
                 <div>
                     <dt>GCash number</dt>
@@ -291,7 +291,7 @@ $qrUrl = !empty($booking['gcash_qr_path'])
 
             <div class="gcash-reminder">
                 Confirm that the recipient name is correct before sending.
-                The booking is confirmed only after the branch verifies the payment.
+                The booking is confirmed only after the salon verifies the payment.
             </div>
         </section>
 

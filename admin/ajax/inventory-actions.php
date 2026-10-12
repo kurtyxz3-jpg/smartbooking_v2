@@ -55,7 +55,7 @@ try {
                  notes=?, status=? WHERE id=? AND branch_id=? AND archived_at IS NULL"
             );
             $statement->execute([...$values, $id, $branchId]);
-            if (!$statement->rowCount()) respond(false, 'Product was not found in your branch.', [], 404);
+            if (!$statement->rowCount()) respond(false, 'Product was not found in the salon.', [], 404);
         } else {
             $statement = $pdo->prepare(
                 "INSERT INTO inventory
@@ -96,7 +96,7 @@ try {
         $product = $statement->fetch(PDO::FETCH_ASSOC);
         if (!$product) {
             $pdo->rollBack();
-            respond(false, 'Product was not found in your branch.', [], 404);
+            respond(false, 'Product was not found in the salon.', [], 404);
         }
 
         $before = (float)$product['quantity'];

@@ -79,7 +79,6 @@
     setDetail("customer_email", booking.customer_email);
     setDetail("customer_phone", booking.customer_phone);
     setDetail("service_name", `${booking.service_name || "Salon service"} · ${money(booking.service_price)}`);
-    setDetail("branch_name", booking.branch_name);
     setDetail("schedule", formatDateTime(booking.booking_date, booking.booking_time));
     setDetail("notes", booking.notes || "No special instructions.");
     setDetail("payment_status", statusLabel(booking.payment_status || "not submitted"));

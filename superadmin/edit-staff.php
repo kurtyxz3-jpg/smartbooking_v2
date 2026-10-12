@@ -3,8 +3,7 @@ declare(strict_types=1);
 require_once '../includes/superadmin-auth.php';
 require_once '../config/database.php';
 require_once '../includes/branch-context.php';
-$branches=activeBranches($pdo);
-$branchId=0;
+$branchId = salonBranchId($pdo);
 
 $isEdit = true;
 $pageTitle = $isEdit ? 'Edit Staff' : 'Add Staff';
@@ -17,7 +16,7 @@ $specialtyOptions = [
 
 $staffId = $isEdit ? filter_input(INPUT_GET,'id',FILTER_VALIDATE_INT) : null;
 $fullname=''; $username=''; $email=''; $phoneNumber=''; $specialty='';
-$branch='Main Branch'; $employmentStatus='full_time'; $status='active';
+$branch = 'Nails & Body Worx'; $employmentStatus='full_time'; $status='active';
 
 if($isEdit){
     if(!$staffId){header('Location: staff.php');exit;}
@@ -36,8 +35,8 @@ if($isEdit){
     $phoneNumber=$staff['phone_number']??'';
     $status=$staff['status'];
     $specialty=$staff['specialty']??'';
-    $branch=$staff['branch']??'Main Branch';
-    $branchId=(int)($staff['branch_id']??0);
+    $branch = 'Nails & Body Worx';
+    $branchId = salonBranchId($pdo);
     $employmentStatus=$staff['employment_status']??'full_time';
 }
 
@@ -48,8 +47,8 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     $phoneNumber=trim($_POST['phone_number']??'');
     $status=$_POST['status']??'active';
     $specialty=trim($_POST['specialty']??'');
-    $branch=trim($_POST['branch']??'Main Branch');
-    $branchId=(int)($_POST['branch_id']??0);
+    $branch = 'Nails & Body Worx';
+    $branchId = salonBranchId($pdo);
     $employmentStatus=$_POST['employment_status']??'full_time';
 
     $password=$isEdit?($_POST['new_password']??''):($_POST['password']??'');
@@ -138,7 +137,7 @@ include '../includes/superadmin-header.php';
 <h2>Employment Details</h2>
 <div class="staff-form-grid">
 <div class="form-group"><label for="specialty">Specialty</label><select id="specialty" name="specialty"><option value="">Select specialty</option><?php foreach($specialtyOptions as $option): ?><option value="<?= htmlspecialchars($option) ?>" <?= $specialty===$option?'selected':'' ?>><?= htmlspecialchars($option) ?></option><?php endforeach; ?></select></div>
-<div class="form-group"><label for="branch_id">Branch</label><select id="branch_id" name="branch_id" required><option value="">Select branch</option><?php foreach($branches as $branchOption): ?><option value="<?= (int)$branchOption['id'] ?>" <?= $branchId===(int)$branchOption['id']?'selected':'' ?>><?= htmlspecialchars($branchOption['branch_name']) ?></option><?php endforeach; ?></select><input type="hidden" name="branch" value="<?= htmlspecialchars($branch) ?>"></div>
+
 <div class="form-group"><label for="employment_status">Employment Status</label><select id="employment_status" name="employment_status"><option value="full_time" <?= $employmentStatus==='full_time'?'selected':'' ?>>Full Time</option><option value="part_time" <?= $employmentStatus==='part_time'?'selected':'' ?>>Part Time</option><option value="contractual" <?= $employmentStatus==='contractual'?'selected':'' ?>>Contractual</option></select></div>
 </div>
 </div>

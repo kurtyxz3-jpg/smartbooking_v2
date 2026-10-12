@@ -215,8 +215,7 @@ include '../includes/superadmin-header.php';
 
                                         <small>
                                             <?= htmlspecialchars($record['specialty'] ?? 'Unassigned specialty', ENT_QUOTES, 'UTF-8') ?>
-                                            &middot;
-                                            <?= htmlspecialchars($record['branch'] ?? 'Main Branch', ENT_QUOTES, 'UTF-8') ?>
+                                            
                                         </small>
                                     </div>
                                 </td>

@@ -11,6 +11,7 @@ require_once __DIR__ . '/includes/service-catalog.php';
 require_once __DIR__ . '/config/database.php';
 
 $catalog = serviceCatalog();
+$homepageGalleries = require __DIR__ . '/includes/homepage-media.php';
 $categories = catalogCategories();
 $featured = array_slice(
 array_values(
@@ -24,14 +25,6 @@ array_values(
 );
 
 $promotions = [];
-$visitorBranchId = filter_input(INPUT_GET, 'branch_id', FILTER_VALIDATE_INT);
-if (!$visitorBranchId && isset($_COOKIE['nbw_selected_branch'])) {
-$visitorBranchId = filter_var($_COOKIE['nbw_selected_branch'], FILTER_VALIDATE_INT);
-}
-if (!$visitorBranchId && isset($_SESSION['booking_draft']['branch_id'])) {
-$visitorBranchId = (int) $_SESSION['booking_draft']['branch_id'];
-}
-
 try {
 $promotionSql = "
     SELECT badge, title, description, promo_price, original_price,
@@ -41,18 +34,12 @@ $promotionSql = "
         AND show_in_popup = 1
         AND (start_date IS NULL OR start_date <= CURDATE())
         AND (end_date IS NULL OR end_date >= CURDATE())
-        AND (is_global = 1";
-$promotionParams = [];
-if ($visitorBranchId) {
-    $promotionSql .= " OR branch_id = :visitor_branch";
-    $promotionParams['visitor_branch'] = $visitorBranchId;
-}
-$promotionSql .= ")
+
     ORDER BY display_order ASC, id DESC
     LIMIT 10";
 
 $promotionStatement = $pdo->prepare($promotionSql);
-$promotionStatement->execute($promotionParams);
+$promotionStatement->execute();
 foreach ($promotionStatement->fetchAll(PDO::FETCH_ASSOC) as $promotion) {
     $promotions[] = [
         'badge' => $promotion['badge'] ?: 'Limited-time offer',
@@ -67,7 +54,7 @@ foreach ($promotionStatement->fetchAll(PDO::FETCH_ASSOC) as $promotion) {
         'button' => $promotion['button_label'] ?: 'View offer',
         'link' => $promotion['button_link'] ?: 'customer/services.php',
         'image' => $promotion['image_path']
-            ?: '/smartbooking_v2/assets/images/home-packages/package-foot-spa.webp',
+            ?: '/smartbooking_v2/assets/images/homepage-clean/salon-09.webp',
         'theme' => in_array($promotion['theme'], ['gold', 'rose', 'brown'], true)
             ? $promotion['theme']
             : 'gold',
@@ -198,19 +185,20 @@ ENT_QUOTES,
 <div class="lookbook-copy">
 <h2>The salon’s visual story.</h2>
 <p>
-Switch between nails, the salon, lip pigmentation, and service campaigns.
+Switch between nails, the salon, lip pigmentation, brows, and service campaigns.
 </p>
 
 <div class="gallery-tabs">
 <button class="active" data-gallery-filter="nails">Nails</button>
 <button data-gallery-filter="salon">Salon &amp; Spa</button>
 <button data-gallery-filter="lips">Lip Pigmentation</button>
+<button data-gallery-filter="brows">Brows</button>
 <button data-gallery-filter="campaigns">Services</button>
 </div>
 </div>
 
 <div class="masonry" id="galleryGrid">
-<?php foreach (array_slice($catalog['galleries']['nails'], 0, 14) as $image): ?>
+<?php foreach (array_slice($homepageGalleries['nails'], 0, 14) as $image): ?>
 <button class="gallery-item">
 <img
 loading="lazy"
@@ -226,7 +214,7 @@ alt="Salon gallery"
 <section class="packages packages-enhanced" id="packages">
 <div class="package-main">
 <img
-src="/smartbooking_v2/assets/images/services/campaigns/campaigns-29.webp"
+src="/smartbooking_v2/assets/images/homepage-clean/campaigns-29.webp"
 alt="Gel polish and foot spa package"
 >
 
@@ -243,7 +231,7 @@ Browse nail care →
 <div class="package-list package-list-with-images">
 <article
 class="package-photo-card"
-style="--package-image:url('/smartbooking_v2/assets/images/home-packages/package-foot-spa.webp')"
+style="--package-image:url('/smartbooking_v2/assets/images/homepage-clean/salon-09.webp')"
 >
 <div class="package-photo-overlay"></div>
 <div class="package-photo-content">
@@ -256,7 +244,7 @@ style="--package-image:url('/smartbooking_v2/assets/images/home-packages/package
 
 <article
 class="package-photo-card"
-style="--package-image:url('/smartbooking_v2/assets/images/home-packages/package-massage.webp')"
+style="--package-image:url('/smartbooking_v2/assets/images/homepage-clean/salon-12.webp')"
 >
 <div class="package-photo-overlay"></div>
 <div class="package-photo-content">
@@ -271,7 +259,7 @@ Book package ↗
 
 <article
 class="package-photo-card"
-style="--package-image:url('/smartbooking_v2/assets/images/home-packages/package-softgel.webp')"
+style="--package-image:url('/smartbooking_v2/assets/images/homepage-clean/nails-10.webp')"
 >
 <div class="package-photo-overlay"></div>
 <div class="package-photo-content">
@@ -311,7 +299,7 @@ alt="Original Nails and Body Worx pricelist"
 </section>
 
 <section class="visit" id="visit">
-<img src="<?= $catalog['galleries']['salon'][20] ?>" alt="Salon interior">
+<img src="<?= htmlspecialchars($homepageGalleries['salon'][20], ENT_QUOTES, 'UTF-8') ?>" alt="Salon interior">
 
 <div>
 <p class="eyebrow">Visit the lounge</p>
@@ -427,7 +415,7 @@ Do not show again today
 
 <script>
 window.NBW_GALLERIES =
-<?= json_encode($catalog['galleries'], JSON_UNESCAPED_SLASHES) ?>;
+<?= json_encode($homepageGalleries, JSON_UNESCAPED_SLASHES) ?>;
 </script>
 
 <script src="/smartbooking_v2/assets/js/homepage-enhancements.js"></script>

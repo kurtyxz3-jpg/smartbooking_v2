@@ -8,7 +8,6 @@
     username: document.getElementById('edit_username'),
     email: document.getElementById('edit_email'),
     phone_number: document.getElementById('edit_phone_number'),
-    branch_id: document.getElementById('edit_branch_id'),
     status: document.getElementById('edit_status'),
   };
 

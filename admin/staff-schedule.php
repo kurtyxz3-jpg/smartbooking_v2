@@ -56,7 +56,7 @@ include '../includes/admin-header.php';
             <div>
                 <p class="schedule-kicker">Team operations</p>
                 <h1>Staff Schedule &amp; Availability</h1>
-                <p>Set weekly working hours, breaks, days off, and temporary unavailability for this branch.</p>
+                <p>Set weekly working hours, breaks, days off, and temporary unavailability for the salon.</p>
             </div>
             <a class="admin-btn admin-btn-light" href="staff.php">Back to Staff</a>
         </header>
@@ -64,7 +64,7 @@ include '../includes/admin-header.php';
         <section class="schedule-shell">
             <aside class="schedule-staff-panel">
                 <div class="schedule-panel-heading">
-                    <p class="schedule-kicker">Branch staff</p>
+                    <p class="schedule-kicker">Salon staff</p>
                     <h2>Select a professional</h2>
                 </div>
                 <label class="schedule-search">
@@ -73,7 +73,7 @@ include '../includes/admin-header.php';
                 </label>
                 <div class="schedule-staff-list" id="scheduleStaffList">
                     <?php if (!$staffMembers): ?>
-                        <div class="schedule-empty">No active staff are assigned to this branch.</div>
+                        <div class="schedule-empty">No active staff are assigned to the salon.</div>
                     <?php endif; ?>
                     <?php foreach ($staffMembers as $staff): ?>
                         <a
@@ -142,10 +142,10 @@ include '../includes/admin-header.php';
                                         </label>
                                     </header>
                                     <div class="weekly-time-grid">
-                                        <label>Starts<input type="time" name="days[<?= $day ?>][start_time]" value="<?= htmlspecialchars($row['start_time']) ?>"></label>
-                                        <label>Ends<input type="time" name="days[<?= $day ?>][end_time]" value="<?= htmlspecialchars($row['end_time']) ?>"></label>
-                                        <label>Break starts<input type="time" name="days[<?= $day ?>][break_start]" value="<?= htmlspecialchars($row['break_start']) ?>"></label>
-                                        <label>Break ends<input type="time" name="days[<?= $day ?>][break_end]" value="<?= htmlspecialchars($row['break_end']) ?>"></label>
+                                        <label>Starts<input type="time" name="days[<?= $day ?>][start_time]" value="<?= htmlspecialchars((string) ($row['start_time'] ?? '')) ?>"></label>
+                                        <label>Ends<input type="time" name="days[<?= $day ?>][end_time]" value="<?= htmlspecialchars((string) ($row['end_time'] ?? '')) ?>"></label>
+                                        <label>Break starts<input type="time" name="days[<?= $day ?>][break_start]" value="<?= htmlspecialchars((string) ($row['break_start'] ?? '')) ?>"></label>
+                                        <label>Break ends<input type="time" name="days[<?= $day ?>][break_end]" value="<?= htmlspecialchars((string) ($row['break_end'] ?? '')) ?>"></label>
                                     </div>
                                 </article>
                             <?php endforeach; ?>

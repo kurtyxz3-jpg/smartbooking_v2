@@ -132,7 +132,7 @@ include '../includes/staff-header.php';
         </section>
 
         <section class="schedule-card staff-schedule-legend">
-            <div><span class="legend-dot work"></span><strong>Working hours</strong><small>Regular availability configured by your branch manager.</small></div>
+            <div><span class="legend-dot work"></span><strong>Working hours</strong><small>Regular availability configured by the salon manager.</small></div>
             <div><span class="legend-dot break"></span><strong>Break</strong><small>Bookings are unavailable during this period.</small></div>
             <div><span class="legend-dot exception"></span><strong>Exception</strong><small>Temporary changes such as leave, training, or custom hours.</small></div>
         </section>

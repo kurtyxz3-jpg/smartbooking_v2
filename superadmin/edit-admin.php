@@ -33,15 +33,14 @@ $fullname = $administrator['fullname'];
 $username = $administrator['username'];
 $email = $administrator['email'];
 $status = $administrator['status'];
-$branchId = (int)($administrator['branch_id'] ?? 0);
-$branches = activeBranches($pdo);
+$branchId = salonBranchId($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullname = trim($_POST['fullname'] ?? '');
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $status = $_POST['status'] ?? 'active';
-    $branchId = (int)($_POST['branch_id'] ?? 0);
+    $branchId = salonBranchId($pdo);
     $newPassword = $_POST['new_password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
 
@@ -175,17 +174,7 @@ include '../includes/superadmin-header.php';
                         <input id="confirm_password" name="confirm_password" type="password">
                     </div>
 
-                    <div class="form-group">
-                        <label for="branch_id">Assigned Branch</label>
-                        <select id="branch_id" name="branch_id" required>
-                            <option value="">Select branch</option>
-                            <?php foreach ($branches as $branch): ?>
-                                <option value="<?= (int)$branch['id'] ?>" <?= $branchId === (int)$branch['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($branch['branch_name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                    
 
                     <div class="form-group">
                         <label for="status">Account Status</label>

@@ -32,7 +32,7 @@ $staffCheck = $pdo->prepare(
 );
 $staffCheck->execute([$staffId, $branchId]);
 if (!$staffCheck->fetchColumn()) {
-    scheduleApiResponse(['success' => false, 'message' => 'Staff member was not found in this branch.'], 404);
+    scheduleApiResponse(['success' => false, 'message' => 'Staff member was not found in the salon.'], 404);
 }
 
 $action = (string) ($input['action'] ?? '');

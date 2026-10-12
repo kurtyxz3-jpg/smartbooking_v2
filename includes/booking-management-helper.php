@@ -159,7 +159,7 @@ function bookingManagementFetch(
 
     $selectBranch = $hasBranches
         ? "br.branch_name,"
-        : "'Current Branch' AS branch_name,";
+        : "'Nails & Body Worx' AS branch_name,";
     $joinBranch = $hasBranches
         ? "LEFT JOIN branches br ON br.id = b.branch_id"
         : "";

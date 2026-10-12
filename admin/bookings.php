@@ -59,7 +59,7 @@ $whereSql = implode(' AND ', $where);
 $hasBranches = bookingManagementTableExists($pdo, 'branches');
 $branchSelect = $hasBranches
     ? 'br.branch_name'
-    : "'Current Branch' AS branch_name";
+    : "'Nails & Body Worx' AS branch_name";
 $branchJoin = $hasBranches
     ? 'LEFT JOIN branches br ON br.id = b.branch_id'
     : '';
@@ -270,7 +270,7 @@ include '../includes/admin-header.php';
                             >
                                 <td>
                                     <strong><?= htmlspecialchars(bookingManagementReference($booking)) ?></strong>
-                                    <small><?= htmlspecialchars($booking['branch_name']) ?></small>
+                                    
                                 </td>
                                 <td class="booking-primary-cell">
                                     <strong><?= htmlspecialchars($booking['customer_name'] ?? 'Guest customer') ?></strong>
@@ -366,7 +366,7 @@ include '../includes/admin-header.php';
                             <div><dt>Email</dt><dd data-detail="customer_email"></dd></div>
                             <div><dt>Phone</dt><dd data-detail="customer_phone"></dd></div>
                             <div><dt>Service</dt><dd data-detail="service_name"></dd></div>
-                            <div><dt>Branch</dt><dd data-detail="branch_name"></dd></div>
+                            
                             <div><dt>Schedule</dt><dd data-detail="schedule"></dd></div>
                             <div><dt>Notes</dt><dd data-detail="notes"></dd></div>
                         </dl>

@@ -1,4 +1,4 @@
-<?php
+ <?php
 declare(strict_types=1);
 
 require_once '../includes/superadmin-auth.php';
@@ -13,7 +13,6 @@ $username = '';
 $email = '';
 $status = 'active';
 $branchId = 0;
-$branches = activeBranches($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullname = trim($_POST['fullname'] ?? '');

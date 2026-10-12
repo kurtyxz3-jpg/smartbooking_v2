@@ -8,8 +8,7 @@ require_once '../includes/reporting-helper.php';
 $pageTitle = 'Business Reports';
 [$from, $to] = reportDateRange();
 $branchId = selectedSuperAdminBranch($pdo);
-$branches = activeBranches($pdo);
-$branchLabel = $branchId ? branchName($pdo, $branchId) : 'All Branches';
+$branchLabel = branchName($pdo, $branchId);
 $report = buildSmartBookingReport($pdo, $from, $to, $branchId);
 if (isset($_GET['export'])) {
     reportCsv((string) $_GET['export'], $report, $from, $to);

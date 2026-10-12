@@ -2,12 +2,10 @@
   const form = document.getElementById('bookingForm');
   if (!form) return;
 
-  const branchInput = document.getElementById('branchId');
   const serviceInput = document.getElementById('serviceName');
   const staffInput = document.getElementById('staffId');
   const timeInput = document.getElementById('bookingTime');
   const dateInput = document.getElementById('bookingDate');
-  const branchCards = [...document.querySelectorAll('[data-branch-card]')];
   const serviceCards = [...document.querySelectorAll('[data-service-card]')];
   const staffCards = [...document.querySelectorAll('[data-staff-card]')];
   const timeSlots = [...document.querySelectorAll('[data-time-slot]')];
@@ -15,9 +13,7 @@
   const steps = [...document.querySelectorAll('[data-booking-step]')];
 
   const ui = {
-    branchMessage: document.getElementById('branchSelectionMessage'),
     serviceMessage: document.getElementById('serviceSelectionMessage'),
-    summaryBranch: document.getElementById('summaryBranch'),
     summaryService: document.getElementById('summaryService'),
     summaryStaff: document.getElementById('summaryStaff'),
     summaryDate: document.getElementById('summaryDate'),
@@ -25,14 +21,12 @@
     summaryDuration: document.getElementById('summaryDuration'),
     summaryPrice: document.getElementById('summaryPrice'),
     summaryImage: document.getElementById('summaryImage'),
-    reviewBranch: document.getElementById('reviewBranch'),
     reviewService: document.getElementById('reviewService'),
     reviewStaff: document.getElementById('reviewStaff'),
     reviewSchedule: document.getElementById('reviewSchedule'),
     availabilityNote: document.getElementById('availabilityNote'),
   };
 
-  let selectedBranch = null;
   let selectedService = null;
   let selectedStaff = { id: 0, name: 'Any Available Professional' };
 
@@ -73,28 +67,6 @@
         top: Math.max(0, form.getBoundingClientRect().top + window.scrollY - 112),
         behavior: 'smooth',
       });
-    }
-  }
-
-  function chooseBranch(card, reload = false) {
-    branchCards.forEach((item) => item.classList.remove('selected'));
-    card.classList.add('selected');
-    selectedBranch = {
-      id: Number(card.dataset.branchId),
-      name: card.dataset.branchName,
-    };
-    branchInput.value = String(selectedBranch.id);
-    ui.branchMessage.textContent = `${selectedBranch.name} selected`;
-    ui.summaryBranch.textContent = selectedBranch.name;
-    ui.reviewBranch.textContent = selectedBranch.name;
-
-    if (reload && Number(card.dataset.branchId) !== Number(window.NBW_BOOKING_BRANCH_ID)) {
-      const query = new URLSearchParams({
-        branch_id: String(selectedBranch.id),
-        service: serviceInput.value,
-        step: '2',
-      });
-      window.location.assign(`book.php?${query.toString()}`);
     }
   }
 
@@ -170,7 +142,6 @@
         availability: '1',
         date: dateInput.value,
         staff_id: String(selectedStaff.id),
-        branch_id: branchInput.value,
         duration: String(selectedService?.duration || 60),
       });
       const response = await fetch(`book.php?${query.toString()}`, {
@@ -198,25 +169,20 @@
   }
 
   function canEnterStep(target) {
-    if (target > 1 && !selectedBranch) {
-      notify('Please select a salon branch first.', branchCards[0]);
+
+    if (target > 1 && !selectedService) {
+      notify('Please select a service before continuing.', serviceCards[0]);
       showStep(1);
       return false;
     }
-    if (target > 2 && !selectedService) {
-      notify('Please select a service before continuing.', serviceCards[0]);
-      showStep(2);
-      return false;
-    }
-    if (target > 4 && (!dateInput.value || !timeInput.value)) {
+    if (target > 3 && (!dateInput.value || !timeInput.value)) {
       notify('Please select an appointment date and available time.', dateInput);
-      showStep(4);
+      showStep(3);
       return false;
     }
     return true;
   }
 
-  branchCards.forEach((card) => card.addEventListener('click', () => chooseBranch(card, true)));
   serviceCards.forEach((card) => card.addEventListener('click', () => chooseService(card)));
   staffCards.forEach((card) => card.addEventListener('click', () => chooseStaff(card)));
   timeSlots.forEach((slot) =>
@@ -276,13 +242,10 @@
   });
 
   form.addEventListener('submit', (event) => {
-    if (!canEnterStep(5)) event.preventDefault();
+    if (!canEnterStep(4)) event.preventDefault();
   });
 
-  const activeBranchCard = branchCards.find((card) =>
-    Number(card.dataset.branchId) === Number(branchInput.value)
-  );
-  if (activeBranchCard) chooseBranch(activeBranchCard);
+
 
   const initial = window.NBW_BOOKING_INITIAL_SERVICE;
   if (initial?.name) {
@@ -310,5 +273,5 @@
   }
 
   const requestedStep = Number(new URLSearchParams(window.location.search).get('step'));
-  showStep(requestedStep >= 1 && requestedStep <= 5 ? requestedStep : 1, false);
+  showStep(requestedStep >= 1 && requestedStep <= 4 ? requestedStep : 1, false);
 })();

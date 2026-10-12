@@ -93,16 +93,16 @@ include '../includes/superadmin-header.php';
 <div class="staff-table-heading"><h2>Registered Staff</h2><p><?= count($staffMembers) ?> staff record(s) found.</p></div>
 <div class="table-wrap">
 <table class="staff-table">
-<thead><tr><th>Staff Member</th><th>Contact</th><th>Specialty</th><th>Branch</th><th>Employment</th><th>Account</th><th>Actions</th></tr></thead>
+<thead><tr><th>Staff Member</th><th>Contact</th><th>Specialty</th><th>Employment</th><th>Account</th><th>Actions</th></tr></thead>
 <tbody>
 <?php if(!$staffMembers): ?>
-<tr><td colspan="7" class="empty-state">No staff accounts found.</td></tr>
+<tr><td colspan="6" class="empty-state">No staff accounts found.</td></tr>
 <?php else: foreach($staffMembers as $staff): ?>
 <tr>
 <td><div class="staff-name-cell"><strong><?= htmlspecialchars($staff['fullname']) ?></strong><span>@<?= htmlspecialchars($staff['username']) ?></span></div></td>
 <td><div class="staff-contact-cell"><span><?= htmlspecialchars($staff['email']??'—') ?></span><small><?= htmlspecialchars($staff['phone_number']??'No phone number') ?></small></div></td>
 <td><span class="staff-specialty-badge"><?= htmlspecialchars($staff['specialty']??'Unassigned') ?></span></td>
-<td><span class="staff-branch-badge"><?= htmlspecialchars($staff['branch']??'Main Branch') ?></span></td>
+
 <td><span class="staff-employment-badge"><?= htmlspecialchars(ucfirst(str_replace('_',' ',$staff['employment_status']??'full_time'))) ?></span></td>
 <td><span class="badge badge-<?= $staff['status']==='active'?'success':'inactive' ?>"><?= ucfirst($staff['status']) ?></span></td>
 <td>

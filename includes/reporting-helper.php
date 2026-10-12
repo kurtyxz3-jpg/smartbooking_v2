@@ -191,12 +191,12 @@ function buildSmartBookingReport(PDO $pdo, string $from, string $to, ?int $branc
 function reportCsv(string $section, array $report, string $from, string $to): never
 {
     $defs = [
-        'bookings' => [['Booking #','Date','Time','Customer','Service','Staff','Branch','Status','Verified Revenue'], fn($r)=>[$r['id'],$r['booking_date'],$r['booking_time'],$r['customer'],$r['service'],$r['staff'],$r['branch'],$r['status'],$r['verified_amount']]],
+        'bookings' => [['Booking #','Date','Time','Customer','Service','Staff','Status','Verified Revenue'], fn($r)=>[$r['id'],$r['booking_date'],$r['booking_time'],$r['customer'],$r['service'],$r['staff'],$r['status'],$r['verified_amount']]],
         'services' => [['Service','Bookings','Completed','Verified Revenue'], fn($r)=>[$r['label'],$r['bookings'],$r['completed'],$r['revenue']]],
         'staff' => [['Staff','Assigned','Completed','Verified Revenue'], fn($r)=>[$r['label'],$r['assigned'],$r['completed'],$r['revenue']]],
-        'payments' => [['Payment #','Date','Booking #','Customer','Branch','Method','Reference','Status','Amount'], fn($r)=>[$r['id'],$r['created_at'],$r['booking_id'],$r['customer'],$r['branch'],$r['payment_method'],$r['reference_number'],$r['status'],$r['amount']]],
-        'feedback' => [['Date','Customer','Service','Branch','Rating','Status','Comment'], fn($r)=>[$r['created_at'],$r['customer'],$r['service'],$r['branch'],$r['rating'],$r['status'],$r['comment']]],
-        'inventory' => [['Item','Branch','Quantity','Unit','Reorder Level','Status'], fn($r)=>[$r['item_name'],$r['branch'],$r['quantity'],$r['unit'],$r['reorder_level'],$r['status']]],
+        'payments' => [['Payment #','Date','Booking #','Customer','Method','Reference','Status','Amount'], fn($r)=>[$r['id'],$r['created_at'],$r['booking_id'],$r['customer'],$r['payment_method'],$r['reference_number'],$r['status'],$r['amount']]],
+        'feedback' => [['Date','Customer','Service','Rating','Status','Comment'], fn($r)=>[$r['created_at'],$r['customer'],$r['service'],$r['rating'],$r['status'],$r['comment']]],
+        'inventory' => [['Item','Quantity','Unit','Reorder Level','Status'], fn($r)=>[$r['item_name'],$r['quantity'],$r['unit'],$r['reorder_level'],$r['status']]],
     ];
     if (!isset($defs[$section])) $section = 'bookings';
     header('Content-Type: text/csv; charset=UTF-8');

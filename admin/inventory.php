@@ -67,7 +67,7 @@ include '../includes/admin-header.php';
           data-csrf="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
         <header class="inventory-hero">
             <div>
-                <span class="inventory-eyebrow">Branch stock control</span>
+                <span class="inventory-eyebrow">Stock control</span>
                 <h1>Inventory Management</h1>
                 <p>Track products, suppliers, stock movements, and reorder alerts for
                     <?= htmlspecialchars(branchName($pdo, $branchId), ENT_QUOTES, 'UTF-8') ?>.</p>
@@ -89,7 +89,7 @@ include '../includes/admin-header.php';
         <section class="inventory-workspace">
             <div class="inventory-panel inventory-products-panel">
                 <div class="inventory-panel-heading">
-                    <div><span class="inventory-eyebrow">Product catalog</span><h2>Branch Inventory</h2></div>
+                    <div><span class="inventory-eyebrow">Product catalog</span><h2>Salon Inventory</h2></div>
                     <span id="inventoryResultCount"><?= count($products) ?> products</span>
                 </div>
 

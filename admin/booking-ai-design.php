@@ -13,7 +13,7 @@ if ($bookingId > 0) {
     $access->execute([$bookingId, $branchId]);
     if (!(bool) $access->fetchColumn()) {
         http_response_code(403);
-        exit('This booking does not belong to your assigned branch.');
+        exit('This booking is not available to this salon.');
     }
 }
 include '../includes/admin-header.php';

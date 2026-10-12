@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = trim((string) ($_POST['username'] ?? ''));
         $email = trim((string) ($_POST['email'] ?? ''));
         $phoneNumber = trim((string) ($_POST['phone_number'] ?? ''));
-        $branchId = filter_input(INPUT_POST, 'branch_id', FILTER_VALIDATE_INT);
+        $branchId = salonBranchId($pdo);
         $status = (string) ($_POST['status'] ?? 'active');
         $newPassword = (string) ($_POST['new_password'] ?? '');
         $confirmPassword = (string) ($_POST['confirm_password'] ?? '');
@@ -133,8 +133,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $search = trim((string) ($_GET['search'] ?? ''));
 $status = (string) ($_GET['status'] ?? '');
-$branchFilter = filter_input(INPUT_GET, 'branch_id', FILTER_VALIDATE_INT);
-$branches = activeBranches($pdo);
 
 $createdAtCheck = $pdo->query("SHOW COLUMNS FROM users LIKE 'created_at'");
 $hasCreatedAt = (bool) $createdAtCheck->fetch();
@@ -160,10 +158,6 @@ if (in_array($status, ['active', 'inactive'], true)) {
     $sql .= ' AND u.status = :status';
     $params['status'] = $status;
 }
-if ($branchFilter) {
-    $sql .= ' AND u.branch_id = :branch_id';
-    $params['branch_id'] = $branchFilter;
-}
 $sql .= $hasCreatedAt ? ' ORDER BY u.created_at DESC' : ' ORDER BY u.id DESC';
 
 $statement = $pdo->prepare($sql);
@@ -179,7 +173,7 @@ include '../includes/superadmin-header.php';
         <div class="page-header admins-page-header">
             <div>
                 <h1 class="gold-title">Administrator Accounts</h1>
-                <p>Create, update, assign, and secure branch administrator access.</p>
+                <p>Create, update, assign, and secure administrator access.</p>
             </div>
             <a class="btn btn-gold" href="add-admin.php">Add Administrator</a>
         </div>
@@ -193,7 +187,7 @@ include '../includes/superadmin-header.php';
         <section class="card admin-filter-card">
             <div class="admin-section-title">
                 <h2>Search &amp; Filter</h2>
-                <p>Find administrators by name, username, email, phone, branch, or account status.</p>
+                <p>Find administrators by name, username, email, phone, or account status.</p>
             </div>
             <form class="admin-filter-form" method="GET">
                 <div class="filter-field admin-search-field">
@@ -201,18 +195,7 @@ include '../includes/superadmin-header.php';
                     <input id="search" name="search" value="<?= adminManagementEscape($search) ?>"
                            placeholder="Name, username, email, or phone">
                 </div>
-                <div class="filter-field">
-                    <label for="branch_id">Branch</label>
-                    <select id="branch_id" name="branch_id">
-                        <option value="">All branches</option>
-                        <?php foreach ($branches as $branch): ?>
-                            <option value="<?= (int) $branch['id'] ?>"
-                                <?= $branchFilter === (int) $branch['id'] ? 'selected' : '' ?>>
-                                <?= adminManagementEscape($branch['branch_name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                
                 <div class="filter-field">
                     <label for="status">Account Status</label>
                     <select id="status" name="status">
@@ -235,15 +218,15 @@ include '../includes/superadmin-header.php';
             </div>
             <div class="table-wrap">
                 <table class="admin-table">
-                    <thead><tr><th>Administrator</th><th>Contact</th><th>Branch</th><th>Role</th><th>Account</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>Administrator</th><th>Contact</th><th>Role</th><th>Account</th><th>Actions</th></tr></thead>
                     <tbody>
                     <?php if (!$administrators): ?>
-                        <tr><td colspan="6" class="empty-state">No administrator accounts found.</td></tr>
+                        <tr><td colspan="5" class="empty-state">No administrator accounts found.</td></tr>
                     <?php else: foreach ($administrators as $administrator): ?>
                         <tr>
                             <td><div class="admin-name-cell"><strong><?= adminManagementEscape($administrator['fullname']) ?></strong><span>@<?= adminManagementEscape($administrator['username']) ?></span></div></td>
                             <td><div class="admin-contact-cell"><span><?= adminManagementEscape($administrator['email'] ?: '—') ?></span><small><?= adminManagementEscape($administrator['phone_number'] ?: 'No phone number') ?></small></div></td>
-                            <td><span class="admin-branch-badge"><?= adminManagementEscape($administrator['branch_name'] ?: 'Unassigned') ?></span></td>
+                            
                             <td><span class="admin-role-badge">Administrator</span></td>
                             <td><span class="badge badge-<?= $administrator['status'] === 'active' ? 'success' : 'inactive' ?>"><?= ucfirst(adminManagementEscape($administrator['status'])) ?></span></td>
                             <td>
@@ -255,7 +238,6 @@ include '../includes/superadmin-header.php';
                                             'username' => $administrator['username'],
                                             'email' => $administrator['email'],
                                             'phone_number' => $administrator['phone_number'],
-                                            'branch_id' => (int) ($administrator['branch_id'] ?? 0),
                                             'status' => $administrator['status'],
                                         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>'>Edit</button>
                                     <form method="POST">
@@ -301,9 +283,9 @@ include '../includes/superadmin-header.php';
                             </div>
                         </div>
                         <div class="admin-form-section">
-                            <h3>Branch &amp; Account Access</h3>
+                            <h3>Account Access</h3>
                             <div class="admin-form-grid">
-                                <div class="form-group"><label for="edit_branch_id">Assigned Branch *</label><select id="edit_branch_id" name="branch_id" required><option value="">Select branch</option><?php foreach ($branches as $branch): ?><option value="<?= (int) $branch['id'] ?>"><?= adminManagementEscape($branch['branch_name']) ?></option><?php endforeach; ?></select></div>
+                                
                                 <div class="form-group"><label for="edit_status">Account Status *</label><select id="edit_status" name="status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                             </div>
                         </div>
