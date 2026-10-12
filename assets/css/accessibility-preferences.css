@@ -145,7 +145,7 @@ html[data-theme="dark"] :where(
   position: fixed;
   z-index: 1000;
   right: 22px;
-  bottom: 22px;
+  bottom: 78px;
   font-family: "DM Sans", Arial, sans-serif;
 }
 
@@ -161,6 +161,21 @@ html[data-theme="dark"] :where(
   background: var(--nbw-surface);
   box-shadow: 0 16px 42px rgba(35, 20, 14, 0.20);
   cursor: pointer;
+  touch-action: none;
+}
+
+.nbw-preferences-trigger.is-dragging {
+  cursor: grabbing;
+}
+
+.nbw-preferences.panel-below .nbw-preferences-panel {
+  top: calc(100% + 12px);
+  bottom: auto;
+}
+
+.nbw-preferences.panel-align-left .nbw-preferences-panel {
+  left: 0;
+  right: auto;
 }
 
 .nbw-preferences-trigger > span {
@@ -354,7 +369,7 @@ html[data-theme="dark"] :where(
 @media (max-width: 620px) {
   .nbw-preferences {
     right: 12px;
-    bottom: 12px;
+    bottom: 70px;
   }
 
   .nbw-preferences-trigger {
@@ -372,6 +387,16 @@ html[data-theme="dark"] :where(
     bottom: 75px;
     left: 10px;
     width: auto;
+  }
+
+  .nbw-preferences.panel-below .nbw-preferences-panel {
+    top: auto;
+    bottom: 75px;
+  }
+
+  .nbw-preferences.panel-align-left .nbw-preferences-panel {
+    left: 10px;
+    right: 10px;
   }
 }
 
